@@ -143,6 +143,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="mapbar"><div class="seg" id="trSeg"><button type="button" data-v="all" aria-pressed="true">全部國道</button><button type="button" data-v="國1" aria-pressed="false">國1</button><button type="button" data-v="國3" aria-pressed="false">國3</button><button type="button" data-v="國5" aria-pressed="false">國5</button></div></div>
 <div class="mapbox"><div id="cvTraf" class="mp"></div><div class="mapnote hide" id="cvTrafNote"></div><div class="zb" style="top:10px"><button id="trZi" type="button" aria-label="放大">+</button><button id="trZo" type="button" aria-label="縮小">−</button><button id="trTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div></div>
 <div class="leg"><span><i style="background:var(--acc)"></i>順暢 60+</span><span><i style="background:var(--amb)"></i>車多 30–60</span><span><i style="background:var(--red)"></i>壅塞 &lt;30</span></div>
+<p class="note" style="margin-top:6px">線上的白色光點會流動：越順，跑得越快；車多變慢；壅塞時幾乎不動，並閃紅光。</p>
 <p class="note" id="trTime" style="margin-top:8px"></p><p class="note" id="trSum"></p>
 <h2>最慢的路段</h2><ul class="log" id="trList"></ul>
 </section>
@@ -538,11 +539,30 @@ function trCol(v){return v<30?COL.red:v<60?COL.amb:COL.acc;}
 function buildTrSeg(){if(TRSEG)return;TRSEG=[];Object.keys(GEO.f).forEach(function(k){if(k.indexOf('國')!==0)return;var p=GEO.f[k].p,n=p.length/2;for(var a=0,si=0;a<n-1;a+=10,si++){var b=Math.min(a+10,n-1),c=[];for(var i=a;i<=b;i++)c.push([p[i*2],p[i*2+1]]);TRSEG.push({k:k,si:si,a:a,b:b,c:c,v:0});}});}
 function trGJ(){buildTrSeg();TRSEG.forEach(function(s){s.v=trSpeed(s.k,s.si);});return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
 function trFilter(){return TR.sel==='all'?null:['==',['get','k'],TR.sel];}
+var TRCLS=[['f0',['>=',['get','v'],60]],['f1',['all',['>=',['get','v'],30],['<',['get','v'],60]]],['f2',['<',['get','v'],30]]];
+function trFiltFor(cond){var f=trFilter();return f?['all',cond,f]:cond;}
+function applyTrFilters(m){if(!m||!m.getLayer)return;var f=trFilter();
+['tr','tr-case'].forEach(function(id){if(m.getLayer(id))m.setFilter(id,f);});
+TRCLS.forEach(function(c){if(m.getLayer('tr-'+c[0]))m.setFilter('tr-'+c[0],trFiltFor(c[1]));});
+if(m.getLayer('tr-glow'))m.setFilter('tr-glow',trFiltFor(TRCLS[2][1]));}
 function ovTraf(m){var gj=trGJ();if(m.getSource('tr'))m.getSource('tr').setData(gj);else m.addSource('tr',{type:'geojson',data:gj});
-var f=trFilter();
+var W=['interpolate',['linear'],['zoom'],5,2.4,12,8];
 m.addLayer({id:'tr-case',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#0a1424','line-width':['interpolate',['linear'],['zoom'],5,4,12,14],'line-opacity':.75}});
-m.addLayer({id:'tr',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],COL.red,30,COL.amb,60,COL.acc],'line-width':['interpolate',['linear'],['zoom'],5,2.4,12,8]}});
-if(f){m.setFilter('tr',f);m.setFilter('tr-case',f);}}
+m.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':COL.red,'line-width':['interpolate',['linear'],['zoom'],5,9,12,26],'line-blur':6,'line-opacity':.35}});
+m.addLayer({id:'tr',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],COL.red,30,COL.amb,60,COL.acc],'line-width':W}});
+TRCLS.forEach(function(c){m.addLayer({id:'tr-'+c[0],type:'line',source:'tr',layout:{'line-cap':'butt','line-join':'round'},paint:{'line-color':'#ffffff','line-opacity':c[0]==='f2'?.55:.8,'line-width':['interpolate',['linear'],['zoom'],5,1.1,12,3.6],'line-dasharray':[0,4,3]}});});
+applyTrFilters(m);startTrAnim();}
+/* 動畫：順暢＝光點跑得快，車多＝慢，壅塞＝很慢＋紅光閃爍 */
+var TRDASH=[[0,4,3],[0.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,0.5],[3,4,0],[0,0.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,0.5]];
+var trAnimOn=false,trAT={f0:0,f1:0,f2:0},trAI={f0:0,f1:0,f2:0},trGl=0;
+var TRRATE={f0:70,f1:150,f2:340};
+function startTrAnim(){if(trAnimOn)return;if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;trAnimOn=true;requestAnimationFrame(trTick);}
+function trTick(t){if(!trAnimOn)return;
+var pg=$('pg-traf');var vis=pg&&!pg.classList.contains('hide')&&!document.hidden;
+if(vis&&trafM&&trafM.getLayer&&trafM.getLayer('tr-f0')){
+['f0','f1','f2'].forEach(function(k){if(t-trAT[k]>TRRATE[k]){trAT[k]=t;trAI[k]=(trAI[k]+1)%TRDASH.length;if(trafM.getLayer('tr-'+k))trafM.setPaintProperty('tr-'+k,'line-dasharray',TRDASH[trAI[k]]);}});
+if(trafM.getLayer('tr-glow')){var o=.22+.38*(0.5+0.5*Math.sin(t/260));if(t-trGl>60){trGl=t;trafM.setPaintProperty('tr-glow','line-opacity',o);}}}
+requestAnimationFrame(trTick);}
 function initTraf(){if(trafM||trafM===false)return;trafM=mkMap('cvTraf',{overlay:ovTraf,pitch:35,bearing:-12,zoom:6.4});if(!trafM)trafM=false;}
 function refreshTraf(){buildTrSeg();var gj=trGJ();if(trafM&&trafM.getSource&&trafM.getSource('tr'))trafM.getSource('tr').setData(gj);drawTrafList();}
 function trKeysSegs(){return TRSEG.filter(function(s){return TR.sel==='all'||s.k===TR.sel;});}
@@ -552,7 +572,7 @@ li.addEventListener('click',function(){var c=s.c[Math.floor(s.c.length/2)];if(tr
 var d=new Date();$('trTime').textContent='示範資料 · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' 時段';
 var red=segs.filter(function(s){return s.v<30;}).length,amb=segs.filter(function(s){return s.v>=30&&s.v<60;}).length;$('trSum').textContent='共 '+segs.length+' 段（每段約 5 公里）· 壅塞 '+red+' 段 · 車多 '+amb+' 段';}
 document.querySelectorAll('#trSeg button').forEach(function(b){b.addEventListener('click',function(){TR.sel=b.dataset.v;document.querySelectorAll('#trSeg button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
-if(trafM&&trafM.getLayer&&trafM.getLayer('tr')){var f=trFilter();trafM.setFilter('tr',f);trafM.setFilter('tr-case',f);
+if(trafM&&trafM.getLayer&&trafM.getLayer('tr')){applyTrFilters(trafM);
 if(TR.sel==='all')trafM.flyTo({center:[120.97,23.7],zoom:6.4,pitch:35,bearing:-12});else{buildTrSeg();var lo0=999,lo1=0,la0=99,la1=0;trKeysSegs().forEach(function(s){s.c.forEach(function(q){lo0=Math.min(lo0,q[0]);lo1=Math.max(lo1,q[0]);la0=Math.min(la0,q[1]);la1=Math.max(la1,q[1]);});});trafM.fitBounds([[lo0,la0],[lo1,la1]],{padding:40,pitch:40,duration:1000});}}
 drawTrafList();});});
 zoomBtns(function(){return trafM||null;},'trZi','trZo');
