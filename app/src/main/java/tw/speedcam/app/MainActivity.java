@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -16,8 +17,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
@@ -94,20 +99,53 @@ public class MainActivity extends Activity {
         if (pendingCb != null) { pendingCb.invoke(pendingOrigin, ok, false); pendingCb = null; }
     }
 
-    /** Native speech: use the phone's default Google zh-TW voice */
+    /** Native speech bridge (the phone's own Google zh-TW voices) */
     public class Bridge {
         @JavascriptInterface
-        public void speak(String text, float rate, float pitch, String gender) {
+        public String voices() {
+            JSONArray a = new JSONArray();
+            try {
+                Set<Voice> vs = tts.getVoices();
+                if (vs != null) for (Voice v : vs) {
+                    if (!"zh".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
+                    JSONObject o = new JSONObject();
+                    o.put("n", v.getName());
+                    o.put("l", v.getLocale().toLanguageTag());
+                    o.put("net", v.isNetworkConnectionRequired());
+                    a.put(o);
+                }
+            } catch (Exception ignored) {}
+            return a.toString();
+        }
+
+        @JavascriptInterface
+        public void speak(String text, float rate, float pitch, String gender, String voiceName) {
             runOnUiThread(() -> {
                 if (!ttsReady) return;
                 try {
                     tts.setSpeechRate(Math.max(0.5f, Math.min(2f, rate)));
-                    float p = "m".equals(gender) ? pitch * 0.85f : pitch;
-                    tts.setPitch(Math.max(0.5f, Math.min(2f, p)));
+                    tts.setPitch(Math.max(0.5f, Math.min(2f, pitch)));
+                    Voice chosen = null;
+                    Set<Voice> vs = tts.getVoices();
+                    if (voiceName != null && !voiceName.isEmpty() && vs != null) {
+                        for (Voice v : vs) if (v.getName().equals(voiceName)) { chosen = v; break; }
+                    }
+                    if (chosen == null && "m".equals(gender) && vs != null) {
+                        // Male guess: zh-TW voice named ctd (prefer offline)
+                        for (Voice v : vs) {
+                            String n = v.getName().toLowerCase(Locale.ROOT);
+                            if (n.contains("cmn-tw") && n.contains("-ctd-")) {
+                                if (chosen == null || (chosen.isNetworkConnectionRequired() && !v.isNetworkConnectionRequired())) chosen = v;
+                            }
+                        }
+                    }
+                    if (chosen != null) tts.setVoice(chosen);
+                    else tts.setLanguage(Locale.TAIWAN); // back to the phone's default zh-TW voice
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
                 } catch (Exception ignored) {}
             });
         }
+
         @JavascriptInterface
         public void stop() { runOnUiThread(() -> { try { tts.stop(); } catch (Exception ignored) {} }); }
     }
