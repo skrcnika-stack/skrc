@@ -406,7 +406,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041335';
+var DATAV='202611041345';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -943,12 +943,12 @@ var LASTMOTO='big';try{LASTMOTO=localStorage.getItem('sc_lastmoto')||'big';}catc
 function syncTheme(){var car=S.veh==='car';document.body.classList.toggle('car',car);document.body.classList.toggle('moto',!car);
 document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===S.veh));});
 document.querySelectorAll('#vSw button').forEach(function(x){x.setAttribute('aria-pressed',String((x.dataset.m==='car')===car));});
-var vm=$('vMode');if(vm)vm.textContent=car?'汽車':(S.veh==='big'?'大型重機':'機車');
+var vm=$('vMode');if(vm)vm.textContent=car?'汽車':(S.veh==='big'?'大型重機':'普通重機');
 try{var mc=document.querySelector('meta[name=theme-color]');if(mc)mc.setAttribute('content',car?'#F3F6FA':'#050B17');}catch(e){}}
 function setVeh(v){S.veh=v;if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();}
 document.querySelectorAll('#segV button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.v);});});
 document.querySelectorAll('#vSw button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.m==='car'?'car':LASTMOTO);});});
-$('vMode').addEventListener('click',function(){setVeh(S.veh==='car'?LASTMOTO:'car');});
+$('vMode').addEventListener('click',function(){setVeh(S.veh==='car'?'big':S.veh==='big'?'small':'car');});
 syncTheme();
 /* 行駛頁的小 3D 地圖：追著你走 */
 var miniM=null,miniMk=null,lastMini=0;
