@@ -549,7 +549,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050253';
+var DATAV='202611050313';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -707,7 +707,7 @@ if(over){$('aSp').textContent=s;$('aSign').textContent=lim;$('aLim').textContent
 /* ---------- GPS ---------- */
 function gpsStart(){
 var err=$('err');err.textContent='';
-if(!('geolocation' in navigator)||!window.isSecureContext){err.textContent='這裡無法使用定位。請把這個檔案放到 https 網站，再用手機開啟；在 Claude 預覽或電腦本機檔案裡定位會被擋住。';return false;}
+if(!('geolocation' in navigator)||window.isSecureContext===false){err.textContent='這裡無法使用定位。請把這個檔案放到 https 網站，再用手機開啟；在 Claude 預覽或電腦本機檔案裡定位會被擋住。';return false;}
 try{S.wid=navigator.geolocation.watchPosition(function(p){
 S.acc=p.coords.accuracy;S.gpsOk=Date.now();if(S.onGpsOk)S.onGpsOk();S.alt=p.coords.altitude;var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
 if(S.prev){var d=dist(S.prev.lat,S.prev.lon,c.latitude,c.longitude),dt=(now-S.prev.t)/1000;
