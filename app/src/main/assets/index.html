@@ -411,7 +411,7 @@ body.drv #drive:not(.hide){gap:12px!important}
 <div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div>
 <div class="row"><span class="t"><b>罰單查詢</b><span>打開監理服務網查詢罰單</span></span><button class="chip" id="fineGo" type="button">開啟</button></div>
 </div>
-<div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX，選填）</span>
+<div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX，已內建，選填）</span>
 <p class="note" style="margin:4px 0 8px">填了交通部 TDX 的金鑰，下方選單會多出「路況」，顯示國道即時車速。到 tdx.transportdata.tw 免費註冊就能拿到。金鑰只存在這支手機裡，不會上傳。</p>
 <input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
 <input id="tdxSec" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client Secret" aria-label="Client Secret" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
@@ -517,7 +517,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611042005';
+var DATAV='202611042148';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -896,6 +896,7 @@ tdxJ('/api/basic/v2/Road/Traffic/Section/Freeway?%24format=JSON',function(j2){va
 I[r.SectionID||r.sectionID]={n:nm||'',r:r.RoadName||'',d:r.RoadDirection||''};});RT.info=I;live();});});}
 function syncTrWarn(){var w=$('trWarn');if(!w)return;var has=window.TDXHas&&TDXHas();var tb=document.querySelector('#tabs button[data-p=traf]');if(tb)tb.hidden=!has;
 if(!has){w.classList.add('hide');return;}if(RT.ok){w.classList.add('hide');return;}w.classList.remove('hide');w.textContent=RT.busy||!RT.err?'正在向交通部取得即時路況…':'取不到即時路況：'+RT.err;}
+window.__trSync=function(){syncTrWarn();};
 window.__trReal=function(){RT.shape=null;RT.ok=false;RT.err='';TRSEG=null;syncTrWarn();loadReal(true);};
 function trGJ(){if(RT.ok&&RT.shape){TRSEG=[];Object.keys(RT.live).forEach(function(id){var c=RT.shape[id];if(!c)return;var inf=(RT.info||{})[id]||{};TRSEG.push({k:roadKey(inf.r),id:id,nm:inf.n,dir:inf.d,c:c,v:RT.live[id],real:true});});
 return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
@@ -1197,12 +1198,13 @@ S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)upda
 function ld(){try{return JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){return null;}}
 function sv(o){try{if(o)localStorage.setItem(KEY,JSON.stringify(o));else localStorage.removeItem(KEY);}catch(e){}}
 window.__tdxCb=function(id,ok,txt){var f=cbs[id];delete cbs[id];if(f)f(ok,txt);};
-window.TDX=function(path,cb){var k=ld();if(!k||!k.i||!k.s){cb(false,'尚未設定金鑰');return;}
+function bi(){try{return !!(window.AndroidTDX&&AndroidTDX.hasBuiltin&&AndroidTDX.hasBuiltin());}catch(e){return false;}}
+window.TDX=function(path,cb){var k=ld();if(!k||!k.i||!k.s){if(bi())k={i:'',s:''};else{cb(false,'尚未設定金鑰');return;}}
 if(!window.AndroidTDX){cb(false,'只有安裝版 App 可以連線');return;}
 var id='r'+(++n);cbs[id]=cb;try{AndroidTDX.request(id,k.i,k.s,path);}catch(e){delete cbs[id];cb(false,String(e));}};
-window.TDXHas=function(){var k=ld();return !!(k&&k.i&&k.s);};
+window.TDXHas=function(){var k=ld();return !!(k&&k.i&&k.s)||bi();};
 var st=$('tdxSt'),dbg=$('tdxDbg'),idI=$('tdxId'),seI=$('tdxSec');
-var k0=ld();if(k0){idI.value=k0.i;seI.value=k0.s;st.textContent='已儲存金鑰。';}
+var k0=ld();if(k0){idI.value=k0.i;seI.value=k0.s;st.textContent='使用你自己的金鑰。';}else if(bi())st.textContent='已內建金鑰，不用填就能看路況。想用自己的金鑰再填。';
 var PATHS=['/api/basic/v2/Road/Traffic/Live/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/Section/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/SectionShape/Freeway?%24top=1&%24format=JSON'];
 function test(){dbg.textContent='';var i=0,okAny=false,out=[];
 function next(){if(i>=PATHS.length){st.textContent=okAny?'連線成功！下方選單已經多了「路況」。':'連線失敗，請看下方訊息。';if(okAny&&window.__trReal)window.__trReal();st.style.color=okAny?'':'var(--red)';dbg.textContent=out.join('\n\n');return;}
@@ -1210,7 +1212,7 @@ var p=PATHS[i++];window.TDX(p,function(ok,t){if(ok)okAny=true;var nm=p.split('?'
 st.textContent='連線中…';st.style.color='';next();}
 $('tdxSave').onclick=function(){var i=idI.value.trim(),s=seI.value.trim();if(!i||!s){st.textContent='兩個欄位都要填。';return;}sv({i:i,s:s});test();};
 $('tdxClr').onclick=function(){sv(null);idI.value='';seI.value='';st.textContent='已清除金鑰。';dbg.textContent='';if(window.__trReal)window.__trReal();};
-setTimeout(function(){if(window.__trReal)window.__trReal();},1500);
+setTimeout(function(){if(window.__trSync)window.__trSync();},1500);
 })();
 
 /* ---------- 用 Google 地圖導航 + 浮動測速提示 ---------- */
