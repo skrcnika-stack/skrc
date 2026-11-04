@@ -54,6 +54,7 @@ public class OverlayService extends Service implements LocationListener {
     private int curCam = -1, curStage = 0;
     private long lastOver = 0, overStart = 0;
     private boolean moto = false, flash = false;
+    private float sp200 = -1f;
     private android.media.ToneGenerator tone;
     private void buzz(long[] p) {
         try {
@@ -326,8 +327,9 @@ public class OverlayService extends Service implements LocationListener {
         long nowMs = System.currentTimeMillis();
         if (over && overStart == 0) overStart = nowMs;
         if (!over) overStart = 0;
-        float ot = over ? (nowMs - overStart) / 1000f : 0f;
-        int lv = !over ? 0 : ot < (moto ? 3 : 5) ? 1 : ot < (moto ? 6 : 10) ? 2 : 3;
+        if (bd > 200 || !over) sp200 = -1f; else if (sp200 < 0) sp200 = sp;
+        boolean accel = sp200 >= 0 && sp > sp200 + 3;
+        int lv = !over ? 0 : bd > 200 ? 1 : (bd <= 100 || accel) ? 3 : 2;
         flash = !flash;
         String name = typeName(cType[best]);
         if (tvAlert != null) {
@@ -356,11 +358,11 @@ public class OverlayService extends Service implements LocationListener {
             curStage = hit + 1;
             say("前方" + spokenDist(TH[hit]) + " " + name + (lim > 0 ? " 限速" + lim : ""));
         } else if (over && bd <= 600) {
-            long ivl = lv == 1 ? (moto ? 3000 : 5000) : lv == 2 ? 3000 : 2000;
+            long ivl = lv == 1 ? 10000 : lv == 2 ? 3000 : 2000;
             if (nowMs - lastOver > ivl) {
                 lastOver = nowMs;
                 int by = Math.round(sp - lim);
-                if (lv >= 2 || moto) beep(lv);
+                if (lv >= 2) beep(lv);
                 if (lv >= 2) buzz(lv >= 3 ? new long[]{0, 500, 120, 500, 120, 500} : new long[]{0, 300, 150, 300});
                 say(lv == 1 ? "您已超速 限速" + lim : lv == 2 ? "超速" + by + "公里 請減速" : "危險 超速" + by + "公里 立刻減速");
             }
