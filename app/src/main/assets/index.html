@@ -143,7 +143,7 @@ body.drv #log{display:none}
 .ring svg path{vector-effect:non-scaling-stroke}
 body.drv #drive:not(.hide){gap:8px;justify-content:space-between}
 body.drv .ring{flex:none;width:min(100%,400px,calc((70dvh - 190px)*1.18));margin:22px auto 0}
-body.drv .dmap{flex:0 0 29dvh;max-height:none;min-height:0;margin-top:0}
+
 body.drv .spd{font-size:min(23vw,94px,11dvh)}
 body.drv .cam .cd b{font-size:clamp(28px,10vw,44px)}
 body.drv .cam .ctx{font-size:clamp(13px,4.2vw,18px)}
@@ -163,6 +163,19 @@ body.car .ring #arcGlow{opacity:.18}
 .vsw button[aria-pressed=true]{background:var(--acc);color:#fff}
 body:not(.car) .vsw button[aria-pressed=true]{color:#04251d}
 .dhead .vmode{border:0;background:transparent;color:var(--acc);font-weight:700;font-size:13px;padding:0 0 0 6px;border-left:1px solid var(--line);margin-left:2px;min-height:28px}
+
+.dlist,.dact{display:none}
+body.drv .dlist{display:flex;flex-direction:column;gap:6px;flex:none}
+.dlist .dl{display:flex;align-items:center;gap:10px;min-height:38px;padding:5px 12px;border-radius:12px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--mut)}
+.dlist .dl i{width:10px;height:10px;border-radius:50%;flex:none}.dlist .dl b{color:var(--txt);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dlist .dl span{margin-left:auto;font-family:var(--num);font-size:17px;font-weight:700;color:var(--txt);white-space:nowrap}
+.dlist .dh{font-size:12px;color:var(--mut);padding:0 2px}
+body.drv .dact{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;flex:none}
+.dab{min-height:50px;border-radius:14px;border:1px solid var(--rule);background:var(--surf);color:var(--txt);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+.dab.off{color:var(--red);border-color:var(--red)}.dab.end{border-color:var(--red);color:var(--red)}
+body.drv #drive .sim{margin-top:0;flex:none;padding:8px 12px}body.drv #drive .sim .chip{min-height:36px;flex:1;justify-content:center;font-size:13px}
+body.car .dlist .dl,body.car .dab{box-shadow:0 1px 3px rgba(16,30,54,.08)}
+.alert,.alert .lab,.alert .a-cam small{color:#fff!important}
+body.drv .ring{width:min(100%,430px,calc((62dvh - 120px)*1.18))}
 .dbar,.dpass{display:none}
 body.drv .dbar{display:block;flex:none;padding:10px 14px 4px;border-radius:12px;background:var(--surf);border:1px solid var(--line)}
 .dbar .tr{position:relative;height:10px;border-radius:5px;background:var(--surf2);margin:10px 14px 0 4px}
@@ -240,8 +253,10 @@ body.tabs-off #tabHandle{display:block}
 <div class="dstat"><div>本趟里程<b id="stKm">0.0</b></div><div>行駛時間<b id="stT">0:00</b></div><div>平均時速<b id="stAv">0</b></div><div>最高時速<b id="stMx">0</b></div></div>
 <div class="dbar" id="dBar"><div class="tr"><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:85%"></i><i class="fl" id="dbFl"></i><span class="car" id="dbCar"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 12 L21 3 L14 21 L12 13 Z" fill="#2F80ED" stroke="#fff" stroke-width="2" stroke-linejoin="round" transform="rotate(45 12 12)"/></svg></span><span class="cm"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></span></div><div class="lb"><span>1 公里</span><span style="left:50%">500</span><span style="left:85%">150</span></div></div>
 <div class="dpass"><span>經過測速 <b id="psN">0</b> 處</span><span>語音提醒 <b id="psA">0</b> 次</span><span>超速 <b id="psO">0</b> 次</span></div>
-<div class="dnext"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg><span id="dnTx">再下一個測速：<b>前方 1.5 公里內沒有</b></span><span class="dn-d" id="dnD"></span></div>
-<div class="mapbox dmap" id="miniBox"><div id="cvMini" class="mp"></div><div class="mapnote hide" id="cvMiniNote"></div><div class="zb" style="top:10px"><button id="mZi" type="button" aria-label="放大">+</button><button id="mZo" type="button" aria-label="縮小">−</button></div><div class="sim hide" id="simBox"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lab">模擬車速</span><b class="tn" style="font-family:var(--num);font-size:20px" id="simV">55</b></div><input type="range" id="simR" min="15" max="110" value="55" aria-label="模擬車速"><div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" id="simOver">超速 +12</button><button class="chip" type="button" id="simOk">降到限速</button><button class="chip" type="button" id="simAgain">重來一次</button></div></div><button class="endbtn" id="stop" type="button">結束</button></div>
+<div class="dlist" id="dList"></div>
+<div class="dact"><button type="button" id="muteBtn" class="dab"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="muteW" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span id="muteTx">語音開</span></button><button type="button" id="toMap" class="dab"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>看地圖</button><button class="dab end" id="stop" type="button">結束</button></div>
+<div class="dmap" id="miniBox" hidden><div id="cvMini"></div></div>
+<div class="sim hide" id="simBox"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lab">模擬車速</span><b class="tn" style="font-family:var(--num);font-size:20px" id="simV">55</b></div><input type="range" id="simR" min="15" max="110" value="55" aria-label="模擬車速"><div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" id="simOver">超速 +12</button><button class="chip" type="button" id="simOk">降到限速</button><button class="chip" type="button" id="simAgain">重來一次</button></div></div>
 <ul class="log" id="log" aria-label="剛剛播報的語音"></ul>
 </section></div>
 
@@ -406,7 +421,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041348';
+var DATAV='202611041356';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -516,9 +531,10 @@ else if(n.it.k==='t'){tx=n.it.x?'跨線取締':'科技執法';sub=n.it.lab;cls='
 else{var tn=n.it.t===1?'區間測速':n.it.t===2?'闖紅燈照相':'固定測速';tx=over?'超速！限速 '+lim:tn;sub='';cls='cam'+(over?' over':'');pc=over?'var(--red)':'var(--amb)';}
 S.lead={lat:n.it.lat,lon:n.it.lon,d:n.d,k:n.it.k,t:n.it.t,x:n.it.x,lim:n.it.lim,over:over};}
 else{sub=S.hd==null||spd<8?'開始移動後才會判斷前方測速':'前方 1.5 公里內沒有測速';S.lead=null;}
-var cand=S.cand||[],nx=null;for(var q=0;q<cand.length;q++){if(cand[q]!==n&&(!n||cand[q].d>n.d+30)){nx=cand[q];break;}}
-if(nx){var nm=Math.round(nx.d);$('dnTx').innerHTML='再下一個：<b>'+(nx.it.k==='t'?(nx.it.x?'跨線取締':'科技執法'):nx.it.k==='h'?'移動測速熱點':nx.it.t===1?'區間測速':nx.it.t===2?'闖紅燈照相':'固定測速 '+nx.it.lim)+'</b>';$('dnD').textContent=nm>=1000?(nm/1000).toFixed(1)+' 公里':nm+' 公尺';}
-else{$('dnTx').innerHTML='再下一個：<b>前方 1.5 公里內沒有</b>';$('dnD').textContent='';}
+var cand=S.cand||[],up=[];for(var q=0;q<cand.length&&up.length<3;q++){if(cand[q]!==n)up.push(cand[q]);}
+var lh='<div class="dh">'+(up.length?'接下來的取締點':'接下來 1.5 公里內沒有其他取締點')+'</div>';up.forEach(function(c){var it=c.it,m=Math.round(c.d),nm=it.k==='t'?(it.x?'跨線取締':'科技執法'):it.k==='h'?'移動測速熱點':it.t===1?'區間測速 '+it.lim:it.t===2?'闖紅燈照相':'固定測速 '+it.lim,co=it.k==='t'?(it.x?'#FF4FA0':'#3B9BFF'):it.k==='h'?'#8B5CF6':'#FFA814';
+lh+='<div class="dl"><i style="background:'+co+'"></i><b>'+nm+'</b><span>'+(m>=1000?(m/1000).toFixed(1)+' 公里':m+' 公尺')+'</span></div>';});
+if(lh!==S.lastLH){$('dList').innerHTML=lh;S.lastLH=lh;}
 var el=Math.max(1,(Date.now()-S.t0)/1000);S.mx=Math.max(S.mx||0,Math.round(spd));$('stKm').textContent=((S.km||0)/1000).toFixed(1);$('stT').textContent=Math.floor(el/60)+':'+('0'+Math.floor(el%60)).slice(-2);$('stAv').textContent=Math.round((S.km||0)/el*3.6);$('stMx').textContent=S.mx;
 var dn=new Date();$('dClock').textContent=('0'+dn.getHours()).slice(-2)+':'+('0'+dn.getMinutes()).slice(-2);if(S.hd!=null){$('dArr').style.transform='rotate('+Math.round(S.hd)+'deg)';$('dDir').textContent=['北','東北','東','東南','南','西南','西','西北'][Math.round(S.hd/45)%8];}
 var db=$('dBar');db.className='dbar'+(n?(n.it.k==='h'?' hot':n.it.k==='t'?(n.it.x?' cross':' tech'):over?' over':''):' none');var pp=n?Math.max(0,Math.min(100,(1-n.d/1000)*100)):0;$('dbFl').style.width=pp+'%';$('dbCar').style.left=pp+'%';
@@ -945,7 +961,12 @@ document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('ar
 document.querySelectorAll('#vSw button').forEach(function(x){x.setAttribute('aria-pressed',String((x.dataset.m==='car')===car));});
 var vm=$('vMode');if(vm)vm.textContent=car?'汽車':(S.veh==='big'?'大型重機':'普通重機');
 try{var mc=document.querySelector('meta[name=theme-color]');if(mc)mc.setAttribute('content',car?'#F3F6FA':'#050B17');}catch(e){}}
-function setVeh(v){S.veh=v;if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();}
+function setVeh(v){S.veh=v;if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();
+function syncMute(){var b=$('muteBtn');b.classList.toggle('off',!S.voice);$('muteTx').textContent=S.voice?'語音開':'已靜音';$('muteW').style.display=S.voice?'':'none';}
+$('muteBtn').addEventListener('click',function(){S.voice=!S.voice;save();try{sw('swVoice',S.voice);}catch(e){}syncMute();});
+$('swVoice').addEventListener('click',function(){setTimeout(syncMute,0);});
+$('toMap').addEventListener('click',function(){goPage('map');});
+syncMute();}
 document.querySelectorAll('#segV button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.v);});});
 document.querySelectorAll('#vSw button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.m==='car'?'car':LASTMOTO);});});
 $('vMode').addEventListener('click',function(){setVeh(S.veh==='car'?'big':S.veh==='big'?'small':'car');});
@@ -966,7 +987,7 @@ m.addLayer({id:'ld',type:'line',source:'ld',layout:{'line-cap':'round','line-joi
 function ovMini(m){ovMap(m);ovLead(m);}
 var ldCam=null,ldLab=null,ldKey='';
 function camEl(){var el=document.createElement('div');el.className='ldcam';el.innerHTML='<div class="t"></div><div class="d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></div>';return el;}
-function initMini(){if(miniM||miniM===false)return;miniM=mkMap('cvMini',{overlay:ovMini,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
+function initMini(){if(miniM||miniM===false)return;if($('miniBox').hidden){miniM=false;return;}miniM=mkMap('cvMini',{overlay:ovMini,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
 miniMk=new ML.Marker({element:mkMeEl(),rotationAlignment:'map',pitchAlignment:'map'});miniMk._on=false;
 ldCam=new ML.Marker({element:camEl(),anchor:'bottom'});ldCam._on=false;ldLab=new ML.Marker({element:(function(){var e=document.createElement('div');e.className='ldlab';return e;})()});ldLab._on=false;}
 function hideLead(){if(!miniM)return;try{if(miniM.getSource('ld')){miniM.getSource('ld').setData(EMPTY);miniM.getSource('ldz').setData(EMPTY);}}catch(e){}
@@ -989,8 +1010,6 @@ var n=Date.now();if(n-lastMini>800){lastMini=n;var hd=S.hd!=null?S.hd:miniM.getB
 if(lead){var L=S.lead,b=new ML.LngLatBounds([S.lon,S.lat],[S.lon,S.lat]);b.extend([L.lon,L.lat]);
 miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch:50,maxZoom:17.4,duration:700,essential:true});}
 else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
-$('mZi').addEventListener('click',function(){MZ=Math.min(18.5,MZ+1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
-$('mZo').addEventListener('click',function(){MZ=Math.max(12,MZ-1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
 S.onEnd=function(){hideLead();TABOFF=false;setTimeout(syncDrv,0);};
 S.onBegin=function(){S.lastP=null;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
 S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
