@@ -55,6 +55,16 @@ select{max-width:55%;min-height:40px;padding:0 10px;border-radius:8px;border:1px
 .sim input[type=range]{width:100%;accent-color:var(--acc)}
 .alert{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;background:radial-gradient(120% 55% at 50% 28%,#551112,#1C0202 70%);animation:al 1s ease-in-out infinite}
 .alert.show{display:flex}
+@keyframes al2{0%,100%{box-shadow:inset 0 0 0 16px #fff}50%{box-shadow:inset 0 0 0 16px rgba(255,255,255,.1)}}
+@keyframes al3{0%,49%{background:#C4120C}50%,100%{background:#FFFFFF}}
+@keyframes al3t{0%,49%{color:#fff}50%,100%{color:#C4120C}}
+.alert.lv2{animation:al2 .5s steps(2) infinite}
+.alert.lv3{animation:al3 .4s infinite}
+.alert.lv3,.alert.lv3 .lab,.alert.lv3 .a-cam small,.alert.lv3 h2,.alert.lv3 .a-sp,.alert.lv3 .a-t{animation:al3 .4s infinite;color:inherit}
+.alert.lv3 *{animation:al3t .4s infinite}
+.alert.lv3 .sign{animation:none;color:#111}
+.alert .a-t{font-size:18px;font-weight:700;padding:4px 14px;border-radius:20px;background:rgba(0,0,0,.35);color:#fff}
+.alert.lv3 h2{font-size:min(15vw,76px);white-space:nowrap}
 @keyframes al{0%{box-shadow:inset 0 0 0 9px rgba(255,95,91,.95)}50%{box-shadow:inset 0 0 0 9px rgba(255,95,91,.22)}100%{box-shadow:inset 0 0 0 9px rgba(255,95,91,.95)}}
 .alert h2{margin:0;font-size:min(22vw,92px);font-weight:800;letter-spacing:6px;line-height:1.1}
 .alert .a-sp{font-family:var(--num);font-weight:700;font-size:min(40vw,168px);line-height:1;letter-spacing:-4px;font-variant-numeric:tabular-nums}
@@ -333,7 +343,7 @@ body.tabs-off #tabHandle{display:block}
 
 <div class="alert" id="alert" role="alert" aria-live="assertive">
 <div class="lab" style="color:var(--txt)" id="aVoice"></div>
-<h2>請減速</h2>
+<h2 id="aH">請減速</h2><div class="a-t" id="aT"></div>
 <div class="a-sp" id="aSp">0</div>
 <div class="lab" style="color:var(--txt);letter-spacing:4px">KM/H</div>
 <div class="a-meta"><div class="sign" id="aSign">60</div><div style="text-align:left"><div>限速 <span id="aLim">60</span></div><div class="a-over" id="aOver">超速 +0</div></div></div>
@@ -421,7 +431,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041356';
+var DATAV='202611041408';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -444,6 +454,10 @@ var best=null,bs=-99;pool.forEach(function(v){var x=vscore(v,g);if(x>bs){bs=x;be
 function pick(arr,tag){var i=Math.floor(Math.random()*arr.length);if(arr.length>1&&S.last[tag]===i)i=(i+1)%arr.length;S.last[tag]=i;return arr[i];}
 var ZD=['零','一','二','三','四','五','六','七','八','九'];
 function zh(n){n=Math.round(n);if(n<10)return ZD[n];if(n<20)return '十'+(n%10?ZD[n%10]:'');if(n<100)return ZD[Math.floor(n/10)]+'十'+(n%10?ZD[n%10]:'');if(n<1000){var h=Math.floor(n/100),r=n%100;return ZD[h]+'百'+(r===0?'':r<10?'零'+ZD[r]:(r<20?'一十'+(r%10?ZD[r%10]:''):zh(r)));}return String(n);}
+/* 警示音與震動（越超越久越強） */
+var ACX=null;function acx(){try{if(!ACX)ACX=new (window.AudioContext||window.webkitAudioContext)();if(ACX.state==='suspended')ACX.resume();}catch(e){}return ACX;}
+function beep(lv){var c=acx();if(!c||!S.voice)return;var n=lv>=3?3:2,f=lv>=3?1320:lv===2?1100:880;for(var i=0;i<n;i++){try{var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*0.16;o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.35,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.13);}catch(e){}}}
+function buzz(lv){var p=lv>=3?[0,500,120,500,120,500]:[0,300,150,300];try{if(window.AndroidNav&&AndroidNav.vibrate){AndroidNav.vibrate(p.join(','));return;}}catch(e){}try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function say(text,rate,pitch,force){
 var t=new Date();var hh=('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2)+':'+('0'+t.getSeconds()).slice(-2);
 S.log.unshift([hh,text]);S.log=S.log.slice(0,5);renderLog();
@@ -512,9 +526,15 @@ var lim=null,limD=null;
 if(camNext&&camNext.d<=600){lim=+camNext.it.lim;limD=camNext.d;}
 var over=lim!=null&&moving&&spd>lim;
 if(over){
-if(!S.over){S.over=true;S.nOv=(S.nOv||0)+1;S.nSay=0;S.lastSay=0;}
-if(now-S.lastSay>=S.iv*1000){S.nSay++;var k=Math.min(S.nSay-1,3)*0.04,sp=zh(spd),lm=zh(lim);var m=S.nSay===1?'您已超速，時速'+sp+'，限速'+lm+'，請減速。':S.nSay===2?'請減速，限速'+lm+'。':S.nSay===3?'請注意，還在超速，請放慢速度。':'請立刻減速！時速'+sp+'，限速'+lm+'。';say(m,1+k+(S.nSay>=4?0.06:0),1+k*0.8);S.lastSay=now;}
-}else if(S.over){S.over=false;say(pick(['速度正常了，謝謝您。','已回到限速內，請保持。'],'ok'),1,1);}
+if(!S.over){S.over=true;S.overT0=now;S.nOv=(S.nOv||0)+1;S.nSay=0;S.lastSay=0;S.lv=0;}
+var moto=S.veh!=='car',ot=(now-S.overT0)/1000,lv=ot<(moto?3:5)?1:ot<(moto?6:10)?2:3,by=Math.round(spd-lim);
+if(lv!==S.lv){S.lv=lv;if(lv>=2)buzz(lv);}
+var ivl=lv===1?(moto?Math.min(S.iv,3):S.iv):lv===2?Math.min(S.iv,3):2;
+if(now-S.lastSay>=ivl*1000){S.nSay++;var k=Math.min(S.nSay-1,3)*0.04,sp=zh(spd),lm=zh(lim),ob=zh(by);
+var m=lv===1?(S.nSay===1?'您已超速，時速'+sp+'，限速'+lm+'，請減速。':'請減速，限速'+lm+'。'):lv===2?'超速'+ob+'公里，請減速！':'危險！超速'+ob+'公里，立刻減速！';
+if(lv>=2||moto){beep(lv);setTimeout(function(){say(m,1+k+(lv===3?0.08:0),1+k*0.8);},lv>=2?420:260);}else say(m,1+k,1+k*0.8);
+if(lv>=2)buzz(lv);S.lastSay=now;}
+}else if(S.over){S.over=false;S.lv=0;say(pick(['速度正常了，謝謝您。','已回到限速內，請保持。'],'ok'),1,1);}
 S.cand=cand;render(spd,camNext,anyNext,lim,over);
 }
 
@@ -540,8 +560,9 @@ var dn=new Date();$('dClock').textContent=('0'+dn.getHours()).slice(-2)+':'+('0'
 var db=$('dBar');db.className='dbar'+(n?(n.it.k==='h'?' hot':n.it.k==='t'?(n.it.x?' cross':' tech'):over?' over':''):' none');var pp=n?Math.max(0,Math.min(100,(1-n.d/1000)*100)):0;$('dbFl').style.width=pp+'%';$('dbCar').style.left=pp+'%';
 $('psN').textContent=S.nPass||0;$('psA').textContent=S.nAl||0;$('psO').textContent=S.nOv||0;
 $('camBig').textContent=big;$('camU').textContent=un;$('camTx').textContent=tx;$('camSub').textContent=sub;pill.className=cls;$('appA').setAttribute('d',n?appPath(pr):'');$('appA').setAttribute('stroke',pc);
-var al=$('alert');al.classList.toggle('show',over);
-if(over){$('aSp').textContent=s;$('aSign').textContent=lim;$('aLim').textContent=lim;$('aOver').textContent='超速 +'+Math.round(spd-lim);$('aDist').textContent=Math.round(camNext.d);$('aVoice').textContent=(S.vg==='m'?'男聲':'女聲')+' · 每 '+S.iv+' 秒重複播報';}
+var al=$('alert');al.classList.toggle('show',over);al.classList.toggle('lv2',over&&S.lv===2);al.classList.toggle('lv3',over&&S.lv>=3);
+if(over){var ot2=Math.max(0,Math.round((Date.now()-(S.overT0||Date.now()))/1000));$('aH').textContent=S.lv>=3?'立刻減速！':S.lv===2?'請減速！':'請減速';$('aT').textContent='已超速 '+ot2+' 秒'+(S.veh!=='car'?' · 機車模式加強提醒':'');}
+if(over){$('aSp').textContent=s;$('aSign').textContent=lim;$('aLim').textContent=lim;$('aOver').textContent='超速 +'+Math.round(spd-lim);$('aDist').textContent=Math.round(camNext.d);$('aVoice').textContent=(S.vg==='m'?'男聲':'女聲')+' · '+(S.lv>=3?'每 2 秒警示音＋語音＋震動':S.lv===2?'每 3 秒警示音＋語音＋震動':'每 '+(S.veh!=='car'?Math.min(S.iv,3):S.iv)+' 秒重複播報');}
 }
 
 /* ---------- 模擬行駛 ---------- */
@@ -589,8 +610,8 @@ $('voiceSel').addEventListener('change',function(e){if(window.AndroidTTS){if(S.v
 $('swVoice').addEventListener('click',function(){S.voice=!S.voice;sw('swVoice',S.voice);save();});
 $('swHot').addEventListener('click',function(){S.hot=!S.hot;sw('swHot',S.hot);save();});
 $('hello').addEventListener('click',function(){say('您好，我是測速提醒。前方一百五十公尺，有測速照相，請減速。',1,1,true);});
-$('goSim').addEventListener('click',function(){begin('sim');});
-$('goGps').addEventListener('click',function(){if(gpsStart())begin('gps');});
+$('goSim').addEventListener('click',function(){acx();begin('sim');});
+$('goGps').addEventListener('click',function(){acx();if(gpsStart())begin('gps');});
 $('stop').addEventListener('click',stop);
 $('simR').addEventListener('input',function(e){S.simV=+e.target.value;$('simV').textContent=S.simV;});
 function setSim(v){S.simV=v;$('simR').value=v;$('simV').textContent=v;}
@@ -608,7 +629,7 @@ var mapM=null,trafM=null,tripM=null;
 var TABOFF=true,tabTimer=null;
 function syncDrv(){var on=!!(S.run&&S.page==='drive');document.body.classList.toggle('drv',on);document.body.classList.toggle('tabs-off',on&&TABOFF);
 if(miniM&&on)setTimeout(function(){try{miniM.resize();}catch(e){}},300);}
-function tabsShow(){TABOFF=false;syncDrv();clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}
+function tabsShow(){TABOFF=false;syncDrv();clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},3000);}
 function tabsHide(){clearTimeout(tabTimer);TABOFF=true;syncDrv();}
 (function(){var h=document.getElementById('tabHandle'),nv=document.getElementById('tabs'),y0=null,mv=false,sw=false;
 h.addEventListener('pointerdown',function(e){y0=e.clientY;mv=false;try{h.setPointerCapture(e.pointerId);}catch(x){}});
@@ -616,7 +637,7 @@ h.addEventListener('pointermove',function(e){if(y0!=null&&y0-e.clientY>16){mv=tr
 h.addEventListener('pointerup',function(){if(y0!=null&&!mv)tabsShow();y0=null;});
 nv.addEventListener('pointerdown',function(e){y0=e.clientY;sw=false;clearTimeout(tabTimer);});
 nv.addEventListener('pointermove',function(e){if(y0!=null&&e.clientY-y0>20&&document.body.classList.contains('drv')){sw=true;y0=null;tabsHide();}});
-nv.addEventListener('pointerup',function(){y0=null;if(document.body.classList.contains('drv')&&!TABOFF){clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}});
+nv.addEventListener('pointerup',function(){y0=null;if(document.body.classList.contains('drv')&&!TABOFF){clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},3000);}});
 nv.addEventListener('click',function(e){if(sw){e.stopPropagation();e.preventDefault();sw=false;}},true);})();
 function goPage(p){
 PAGES.forEach(function(k){$('pg-'+k).classList.toggle('hide',k!==p);});
@@ -961,7 +982,7 @@ document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('ar
 document.querySelectorAll('#vSw button').forEach(function(x){x.setAttribute('aria-pressed',String((x.dataset.m==='car')===car));});
 var vm=$('vMode');if(vm)vm.textContent=car?'汽車':(S.veh==='big'?'大型重機':'普通重機');
 try{var mc=document.querySelector('meta[name=theme-color]');if(mc)mc.setAttribute('content',car?'#F3F6FA':'#050B17');}catch(e){}}
-function setVeh(v){S.veh=v;if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();
+function setVeh(v){S.veh=v;try{if(window.AndroidNav&&AndroidNav.setVeh)AndroidNav.setVeh(v);}catch(e){}if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();
 function syncMute(){var b=$('muteBtn');b.classList.toggle('off',!S.voice);$('muteTx').textContent=S.voice?'語音開':'已靜音';$('muteW').style.display=S.voice?'':'none';}
 $('muteBtn').addEventListener('click',function(){S.voice=!S.voice;save();try{sw('swVoice',S.voice);}catch(e){}syncMute();});
 $('swVoice').addEventListener('click',function(){setTimeout(syncMute,0);});
