@@ -15,9 +15,11 @@ var E=window.Element&&Element.prototype;if(E&&!E.matches)E.matches=E.webkitMatch
 if(E&&!E.closest)E.closest=function(s){var e=this;while(e&&e.nodeType===1){if(e.matches(s))return e;e=e.parentNode;}return null;};
 /* 很舊的網頁元件不認得 CSS 變數（顏色會全部不見）：把變數換成實際的值 */
 var nv=true;try{nv=!(window.CSS&&CSS.supports&&CSS.supports('--a','0'));}catch(e){}
-if(nv)document.addEventListener('DOMContentLoaded',function(){try{var ss=document.querySelectorAll('style'),all='',V={},i,m;
+var V=null,all='';function bv(){if(V)return V;V={};var ss=document.querySelectorAll('style'),i,m;
 for(i=0;i<ss.length;i++)all+=ss[i].textContent+'\n';
-var re=/(^|[}\s])(:root|body\.drv|body\.car)\s*\{([^}]*)\}/g;while((m=re.exec(all))){var d=m[3].split(';');for(var j=0;j<d.length;j++){var k=d[j].indexOf(':');if(k>0){var n=d[j].slice(0,k).trim();if(n.indexOf('--')===0)V[n]=d[j].slice(k+1).trim();}}}
+var re=/(^|[}\s])(:root|body\.drv|body\.car)\s*\{([^}]*)\}/g;while((m=re.exec(all))){var d=m[3].split(';');for(var j=0;j<d.length;j++){var k=d[j].indexOf(':');if(k>0){var n=d[j].slice(0,k).trim();if(n.indexOf('--')===0)V[n]=d[j].slice(k+1).trim();}}}return V;}
+window.__cssV=function(n){if(!nv)return '';bv();var v=V[n]||'';for(var r=0;r<5&&v.indexOf('var(--')>=0;r++)v=v.replace(/var\((--[\w-]+)[^)]*\)/g,function(a,q){return V[q]||'';});return v;};
+if(nv)document.addEventListener('DOMContentLoaded',function(){try{bv();
 function sub(s){for(var r=0;r<5&&s.indexOf('var(--')>=0;r++)s=s.replace(/var\((--[\w-]+)\s*(?:,\s*([^()]*(?:\([^()]*\))?[^()]*))?\)/g,function(a,n,f){return V[n]!=null?V[n]:(f!=null?f:'initial');});return s;}
 var st=document.createElement('style');st.textContent=sub(all.replace(/@media[^{]*prefers-color-scheme[^{]*\{([^{}]*\{[^}]*\})*\s*\}/g,''));document.head.appendChild(st);}catch(e){}});
 })();</script>
@@ -547,7 +549,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050232';
+var DATAV='202611050253';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -741,7 +743,7 @@ $('goGps').addEventListener('click',function(){acx();if(gpsStart()){begin('gps')
 $('stop').addEventListener('click',stop);
 /* ================= 分頁 ================= */
 var CSS_=getComputedStyle(document.documentElement);
-function cv_(n){return CSS_.getPropertyValue(n).trim()||'#888';}
+function cv_(n){var v='';try{v=(CSS_.getPropertyValue(n)||'').trim();}catch(e){}if(!v&&window.__cssV)v=window.__cssV(n);return v||'#888';}
 var COL={bg:cv_('--bg'),bg0:cv_('--bg0'),surf:cv_('--surf'),surf2:cv_('--surf2'),line:cv_('--line'),rule:cv_('--rule'),txt:cv_('--txt'),mut:cv_('--mut'),acc:cv_('--acc'),amb:cv_('--amb'),red:cv_('--red'),vio:cv_('--vio'),sky:'#71C9FA'};
 var ML=window.maplibregl;
 var PAGES=['drive','map','traf','route','hot','set'];
