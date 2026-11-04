@@ -235,6 +235,10 @@ body.tabs-off #tabHandle{display:block}
 .zb button{min-width:44px;height:44px}
 @media (prefers-reduced-motion:reduce){.alert{animation:none;box-shadow:inset 0 0 0 9px rgba(255,95,91,.95)}}
 #tabs button[hidden],[hidden]{display:none!important}
+.bi{flex:none;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;color:var(--acc);border:1px solid var(--acc)}
+.locw{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:60;display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:16px;background:#F0413C;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.locw b{font-size:18px}.locw span{font-size:14px;line-height:1.5}.locw button{align-self:flex-start;margin-top:4px;min-height:42px;padding:0 18px;border:0;border-radius:12px;background:#fff;color:#C4120C;font-size:15px;font-weight:700}
+.locw.hide{display:none}
 </style>
 
 <div class="wrap">
@@ -254,6 +258,7 @@ body.tabs-off #tabHandle{display:block}
 
 </section>
 
+<div class="locw hide" id="locWarn" role="alert"><b id="locT">手機定位（GPS）沒有打開</b><span id="locS">打開定位才能提醒前方的測速照相。</span><button type="button" id="locFix">打開定位</button></div>
 <section id="drive" class="hide" aria-label="駕駛中">
 <div class="ring" aria-label="目前時速">
 <svg viewBox="0 0 390 330" role="img" aria-label="速度環">
@@ -328,14 +333,14 @@ body.tabs-off #tabHandle{display:block}
 <div class="sgrp"><span class="lab">行車模式</span>
 <div class="row"><span class="t"><b>車種</b><span>目前三種共用同一組限速；各車種專屬規則還在查證</span></span><div class="seg" id="segV"><button type="button" data-v="car" aria-pressed="true">汽車</button><button type="button" data-v="big" aria-pressed="false">大型重機</button><button type="button" data-v="small" aria-pressed="false">普通重機</button></div></div>
 </div>
-<div class="sgrp"><span class="lab">警示項目</span>
-<div class="row"><i class="dot" style="background:#FF9500"></i><span class="t"><b>固定測速</b><span>警政署 1872 處（含國道）</span></span><button class="sw" id="enC0" type="button" role="switch" aria-checked="true" aria-label="固定測速"></button></div>
-<div class="row"><i class="dot" style="background:#7B5CF0"></i><span class="t"><b>區間測速</b><span>進入區間前提醒</span></span><button class="sw" id="enC1" type="button" role="switch" aria-checked="true" aria-label="區間測速"></button></div>
-<div class="row"><i class="dot" style="background:#2F80ED"></i><span class="t"><b>闖紅燈照相</b><span></span></span><button class="sw" id="enC2" type="button" role="switch" aria-checked="true" aria-label="闖紅燈照相"></button></div>
-<div class="row"><i class="dot" style="background:#00B4D8"></i><span class="t"><b>科技執法</b><span>621 處，路口違規</span></span><button class="sw" id="enT" type="button" role="switch" aria-checked="true" aria-label="科技執法"></button></div>
-<div class="row"><i class="dot" style="background:#FF4FA0"></i><span class="t"><b>跨線取締</b><span>跨越雙白線、槽化線</span></span><button class="sw" id="enX" type="button" role="switch" aria-checked="true" aria-label="跨線取締"></button></div>
-<div class="row"><i class="dot" style="background:#8B5CF6"></i><span class="t"><b>移動測速熱點</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
-<div class="row"><i class="dot" style="background:#16B26B"></i><span class="t"><b>我的自建點</b><span>在「地圖」頁長按地圖新增，例如常臨檢的地方</span></span><button class="sw" id="enU" type="button" role="switch" aria-checked="true" aria-label="我的自建點"></button></div>
+<div class="sgrp"><span class="lab">警示項目（全部內建，開著 App 就自動提醒）</span>
+<div class="row"><i class="dot" style="background:#FF9500"></i><span class="t"><b>固定測速</b><span>警政署 1872 處（含國道）</span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#7B5CF0"></i><span class="t"><b>區間測速</b><span>進入區間前提醒</span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#2F80ED"></i><span class="t"><b>闖紅燈照相</b><span></span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#00B4D8"></i><span class="t"><b>科技執法</b><span>621 處，路口違規</span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#FF4FA0"></i><span class="t"><b>跨線取締</b><span>跨越雙白線、槽化線</span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#8B5CF6"></i><span class="t"><b>移動測速熱點</b><span>依歷史取締統計推估，不是即時位置</span></span><span class="bi">內建</span></div>
+<div class="row"><i class="dot" style="background:#16B26B"></i><span class="t"><b>我的自建點</b><span>在「地圖」頁長按地圖新增，例如常臨檢的地方</span></span><span class="bi">內建</span></div>
 </div>
 <div class="sgrp"><span class="lab">速度</span>
 <div class="row"><span class="t"><b>超速寬限值</b><span>超過限速多少才提醒；建議 3，高速公路不會一直叫</span></span><div class="seg" id="segGr"><button type="button" data-v="0" aria-pressed="false">0</button><button type="button" data-v="3" aria-pressed="false">3</button><button type="button" data-v="5" aria-pressed="false">5</button><button type="button" data-v="10" aria-pressed="false">10</button></div></div>
@@ -462,6 +467,7 @@ var GEO={"c":[[119.985,25.971,119.979,25.957,119.967,25.951,119.965,25.958,119.9
 var $=function(i){return document.getElementById(i);};
 var S={rate:1,vname:'',last:{},mode:null,run:false,lat:0,lon:0,spd:0,hd:null,prev:null,vg:'f',voice:true,iv:10,hot:true,al:{},over:false,lastSay:0,nSay:0,lastTick:0,timer:null,wid:null,lock:null,log:[],page:'drive',veh:'car',vnf:'',vnm:'',rec:[],t0:0,me:null,en:{c0:1,c1:1,c2:1,t:1,x:1,u:1},grace:3,cal:0,dm:'auto',near:false,duck:true,link:'',hud:false,ginfo:true};
 try{var sv=JSON.parse(localStorage.getItem('sc_set')||'{}');if(sv.vg)S.vg=sv.vg;if(sv.iv)S.iv=Math.max(10,sv.iv);if(sv.voice===false)S.voice=false;if(sv.hot===false)S.hot=false;if(sv.rate)S.rate=sv.rate;if(sv.vname)S.vname=sv.vname;if(sv.veh)S.veh=sv.veh;if(sv.vnf)S.vnf=sv.vnf;if(sv.vnm)S.vnm=sv.vnm;['en','grace','cal','dm','near','duck','link','hud','ginfo'].forEach(function(k){if(sv[k]!==undefined)S[k]=sv[k];});}catch(e){}
+S.en={c0:1,c1:1,c2:1,t:1,x:1,u:1};S.hot=true;
 function syncCfg(){try{if(window.AndroidNav&&AndroidNav.setCfg)AndroidNav.setCfg(JSON.stringify({en:S.en,hot:S.hot,grace:S.grace,cal:S.cal,dm:S.dm,iv:S.iv,voice:S.voice,veh:S.veh,vg:S.vg,vnf:S.vnf,vnm:S.vnm,rate:S.rate,duck:S.duck}));}catch(e){}}
 window.__bg=function(on){S.bgMute=!!on;if(on){try{if(window.AndroidTTS)window.AndroidTTS.stop();window.speechSynthesis.cancel();}catch(e){}}};
 function save(){syncCfg();try{localStorage.setItem('sc_set',JSON.stringify({vg:S.vg,iv:S.iv,voice:S.voice,hot:S.hot,rate:S.rate,vname:S.vname,veh:S.veh,vnf:S.vnf,vnm:S.vnm,en:S.en,grace:S.grace,cal:S.cal,dm:S.dm,near:S.near,duck:S.duck,link:S.link,hud:S.hud,ginfo:S.ginfo}));localStorage.setItem('sc_voice',S.vg);}catch(e){}}
@@ -473,7 +479,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041847';
+var DATAV='202611041903';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -633,11 +639,11 @@ function gpsStart(){
 var err=$('err');err.textContent='';
 if(!('geolocation' in navigator)||!window.isSecureContext){err.textContent='這裡無法使用定位。請把這個檔案放到 https 網站，再用手機開啟；在 Claude 預覽或電腦本機檔案裡定位會被擋住。';return false;}
 try{S.wid=navigator.geolocation.watchPosition(function(p){
-S.acc=p.coords.accuracy;S.alt=p.coords.altitude;var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
+S.acc=p.coords.accuracy;S.gpsOk=Date.now();if(S.onGpsOk)S.onGpsOk();S.alt=p.coords.altitude;var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
 if(S.prev){var d=dist(S.prev.lat,S.prev.lon,c.latitude,c.longitude),dt=(now-S.prev.t)/1000;
 if(sp==null&&dt>0)sp=d/dt*3.6;if(hd==null&&d>5)hd=bearing(S.prev.lat,S.prev.lon,c.latitude,c.longitude);if(d>5)S.prev={lat:c.latitude,lon:c.longitude,t:now};}else S.prev={lat:c.latitude,lon:c.longitude,t:now};
 tick(c.latitude,c.longitude,sp||0,hd);
-},function(e){err.textContent=e.code===1?'沒有取得定位權限。請在瀏覽器設定允許位置，再重試。':'定位失敗，請到空曠處再試一次。';stop();show('start');$('err').textContent=err.textContent;},{enableHighAccuracy:true,maximumAge:0,timeout:15000});return true;}catch(e){err.textContent='這個瀏覽器不支援定位。';return false;}}
+},function(e){if(S.onGpsErr)S.onGpsErr(e);},{enableHighAccuracy:true,maximumAge:0,timeout:15000});return true;}catch(e){err.textContent='這個瀏覽器不支援定位。';return false;}}
 
 function show(w){$('start').classList.toggle('hide',w!=='start');$('drive').classList.toggle('hide',w!=='drive');}
 function begin(mode){
@@ -656,13 +662,12 @@ try{if(window.AndroidTTS)window.AndroidTTS.stop();window.speechSynthesis.cancel(
 /* ---------- 介面 ---------- */
 function segSet(id,val){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.v===+val||b.dataset.v===String(val)));});}
 function sw(id,on){$(id).setAttribute('aria-checked',String(on));}
-segSet('segG',S.vg);segSet('segI',S.iv);segSet('segR',S.rate);fillVoices();sw('swVoice',S.voice);sw('swHot',S.hot);
+segSet('segG',S.vg);segSet('segI',S.iv);segSet('segR',S.rate);fillVoices();sw('swVoice',S.voice);
 document.querySelectorAll('#segG button').forEach(function(b){b.addEventListener('click',function(){S.vg=b.dataset.v;if(!window.AndroidTTS)S.vname='';segSet('segG',S.vg);save();fillVoices();$('gSub').textContent=S.vg==='m'?'男聲（可在下面換聲音）':'女聲優先';var vt=$('vTip');if(vt)vt.textContent=S.vg==='m'?'男聲是依這支手機的語音自動猜的。如果聽起來還是女生，請在上面「選聲音」換另一個聲音，按「試聽」，它會記住你的選擇。':'';say('您好，我是測速提醒。前方一百五十公尺，有測速照相，請減速。',1,1,true);});});
 document.querySelectorAll('#segI button').forEach(function(b){b.addEventListener('click',function(){S.iv=+b.dataset.v;segSet('segI',S.iv);save();});});
 document.querySelectorAll('#segR button').forEach(function(b){b.addEventListener('click',function(){S.rate=+b.dataset.v;segSet('segR',S.rate);save();say('前方一百五十公尺，測速照相，請減速。',1,1,true);});});
 $('voiceSel').addEventListener('change',function(e){if(window.AndroidTTS){if(S.vg==='m')S.vnm=e.target.value;else S.vnf=e.target.value;}else S.vname=e.target.value;save();say('您好，我是測速提醒。前方一百五十公尺，有測速照相，請減速。',1,1,true);});
 $('swVoice').addEventListener('click',function(){S.voice=!S.voice;sw('swVoice',S.voice);save();});
-$('swHot').addEventListener('click',function(){S.hot=!S.hot;sw('swHot',S.hot);save();});
 $('hello').addEventListener('click',function(){say('您好，我是測速提醒。前方一百五十公尺，有測速照相，請減速。',1,1,true);});
 $('goGps').addEventListener('click',function(){acx();if(gpsStart()){begin('gps');if(S.link&&window.AndroidNav&&AndroidNav.launchApp)setTimeout(function(){try{AndroidNav.launchApp(S.link);}catch(e){}},1500);}});
 $('stop').addEventListener('click',stop);
@@ -999,7 +1004,7 @@ $('tripDel').addEventListener('click',function(){if(!TRIP)return;var a=loadTrips
 /* ---------- 設定頁改版：警示項目、速度、警示方式、背景連動、顯示、紀錄 ---------- */
 (function(){
 function swOn(id,on){var e=$(id);if(e)e.setAttribute('aria-checked',String(!!on));}
-var EN=[['enC0','c0'],['enC1','c1'],['enC2','c2'],['enT','t'],['enX','x'],['enU','u']];
+var EN=[];
 EN.forEach(function(p){swOn(p[0],S.en[p[1]]!==0);$(p[0]).addEventListener('click',function(){S.en[p[1]]=S.en[p[1]]===0?1:0;swOn(p[0],S.en[p[1]]!==0);save();});});
 [['segGr','grace',Number],['segCal','cal',Number],['segDm','dm',String]].forEach(function(p){segSet(p[0],S[p[1]]);document.querySelectorAll('#'+p[0]+' button').forEach(function(b){b.addEventListener('click',function(){S[p[1]]=p[2](b.dataset.v);segSet(p[0],S[p[1]]);save();});});});
 function bindSw(id,key,after){swOn(id,S[key]);$(id).addEventListener('click',function(){S[key]=!S[key];swOn(id,S[key]);save();if(after)after();});}
@@ -1174,7 +1179,28 @@ setTimeout(sync,300);};
 sync();document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
 var fb=$('floatFix');if(fb)fb.onclick=function(){try{AndroidNav.setAuto(true);AndroidNav.askOverlay();}catch(e){}setTimeout(sync,300);};
 })();
+/* ---------- 一打開就是行駛畫面，自動定位；定位沒開就提示 ---------- */
+(function(){var box=$('locWarn'),T=$('locT'),Sx=$('locS'),B=$('locFix'),why='';
+function nat(f){try{return window.AndroidNav&&AndroidNav[f]?AndroidNav[f]():null;}catch(e){return null;}}
+function showW(k){why=k;if(k==='perm'){T.textContent='還沒允許「測速提醒」使用位置';Sx.textContent='請允許位置權限，才能提醒前方的測速照相。';B.textContent='允許定位';}
+else if(k==='off'){T.textContent='手機定位（GPS）沒有打開';Sx.textContent='請打開手機的定位，才能提醒前方的測速照相。';B.textContent='打開定位';}
+else{T.textContent='正在找 GPS 訊號…';Sx.textContent='請到空曠處，或確認手機定位已打開。';B.textContent='定位設定';}
+box.classList.remove('hide');}
+function hideW(){why='';box.classList.add('hide');}
+function restart(){if(!S.run)return;try{if(S.wid!=null)navigator.geolocation.clearWatch(S.wid);}catch(e){}S.wid=null;S.prev=null;gpsStart();}
+function check(){if(!S.run){hideW();return;}var on=nat('locOn'),perm=nat('locPerm');
+if(perm===false){showW('perm');return;}if(on===false){showW('off');return;}
+if(why==='perm'||why==='off'){hideW();restart();return;}
+if(why==='wait'&&S.gpsOk&&Date.now()-S.gpsOk<5000)hideW();}
+S.onGpsOk=function(){if(why)hideW();};
+S.onGpsErr=function(e){if(e.code===1)showW('perm');else{var on=nat('locOn');showW(on===false?'off':'wait');}};
+B.onclick=function(){if(why==='perm'){if(window.AndroidNav&&AndroidNav.askLoc){try{AndroidNav.askLoc();}catch(e){}}}else if(window.AndroidNav&&AndroidNav.openLocSettings){try{AndroidNav.openLocSettings();}catch(e){}}};
+setInterval(check,3000);document.addEventListener('visibilitychange',function(){if(!document.hidden){check();if(why==='wait')restart();}});
+/* 沒有手勢也先把音效準備好；第一次碰螢幕再解鎖 */
+document.addEventListener('pointerdown',function(){acx();},{once:true});
 goPage('drive');
+setTimeout(function(){if(!S.run){$('goGps').click();setTimeout(check,1500);}},300);
+})();
 
 })();
 </script>
