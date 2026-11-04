@@ -127,7 +127,7 @@ public class AlertEngine {
             boolean glitch = false;
             if (sp == null && dt > 0) {
                 sp = d / dt * 3.6;
-                if (sp > 220) { sp = (double) speed / (1 + cal / 100.0); glitch = true; } // GPS 跳點，不採用
+                if (sp > 220 || dt > 5) { sp = (double) speed / (1 + cal / 100.0); glitch = true; } // GPS 跳點，不採用
             }
             if (d > 5) {
                 if (h == null && !glitch) h = bearing(pLat, pLon, la, lo);
