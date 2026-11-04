@@ -118,6 +118,29 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 .tsp{display:flex;gap:5px}.tsp button{min-height:40px;padding:0 9px;border-radius:10px;border:1px solid var(--rule);background:var(--surf);color:var(--mut);font-size:13px}
 .tsp button[aria-pressed=true]{border-color:var(--acc);color:var(--acc);font-weight:700}
 .tcam{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+
+.endbtn{left:10px!important;top:10px;bottom:auto!important}
+.dmap .sim{position:absolute;left:10px;right:10px;bottom:10px;z-index:7;margin:0;padding:8px 12px;background:rgba(5,11,23,.92);border:1px solid var(--rule);border-radius:14px}
+.dmap .sim input{margin:2px 0}.dmap .sim .chip{min-height:36px;flex:1;justify-content:center;font-size:13px}
+body.drv{--rh:clamp(190px,32dvh,300px)}
+body.drv .wrap{height:100dvh;min-height:0;padding-block:8px 64px;overflow:hidden;position:relative;transition:padding .25s}
+body.drv.tabs-off .wrap{padding-bottom:10px}
+body.drv .top{position:absolute;top:12px;right:0;left:auto;z-index:20;min-height:0}
+body.drv .top h1{display:none}
+body.drv .top .chip{min-height:34px;font-size:13px;padding:2px 10px}
+body.drv #pg-drive:not(.hide){flex:1;min-height:0;display:flex;flex-direction:column}
+body.drv #drive:not(.hide){flex:1;min-height:0;display:flex;flex-direction:column}
+body.drv .ring{width:min(100%,calc(var(--rh)*1.18));max-width:none;flex:none;margin-top:0}
+body.drv .spd{font-size:min(25vw,96px,11.5dvh)}
+body.drv .campill{flex:none;width:100%;min-height:38px;padding:6px 14px;font-size:15px;margin-top:6px}
+body.drv .dmap{flex:1 1 0;height:auto;min-height:110px;margin-top:8px}
+body.drv #log{display:none}
+#tabs{transition:transform .25s ease}
+body.tabs-off #tabs{transform:translateY(105%)}
+#tabHandle{position:fixed;left:0;right:0;bottom:0;height:calc(30px + env(safe-area-inset-bottom,0px));z-index:41;display:none;touch-action:none}
+#tabHandle i{position:absolute;left:50%;bottom:calc(8px + env(safe-area-inset-bottom,0px));width:44px;height:5px;margin-left:-22px;border-radius:3px;background:rgba(255,255,255,.4)}
+body.tabs-off #tabHandle{display:block}
+#tabs .grab{position:absolute;left:50%;top:3px;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:rgba(255,255,255,.22);pointer-events:none}
 .stopbar{position:sticky;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:30;margin-top:14px;padding:10px 0 8px;background:linear-gradient(to top,var(--bg) 70%,rgba(5,11,23,0))}
 .seg button{height:42px;padding:0 13px}
 .chip{min-height:40px;padding:4px 12px}
@@ -133,7 +156,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 </style>
 
 <div class="wrap">
-<div class="top"><h1 id="ttl">測速提醒</h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
+<div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
 <div id="pg-drive" class="pg"><section id="start" aria-label="開始">
 <p class="note" style="margin:10px 0 16px">會在前方 1 公里、500 公尺、150 公尺各用語音提醒一次；靠近測速點時超速，會一直重複，直到你降到限速以下。</p>
@@ -164,13 +187,8 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="sign" id="sign">--</div>
 </div>
 <div class="campill" id="camPill" aria-live="polite"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg><span id="camTx">前方沒有測速</span></div>
-<div class="mapbox dmap" id="miniBox"><div id="cvMini" class="mp"></div><div class="mapnote hide" id="cvMiniNote"></div><div class="zb" style="top:10px"><button id="mZi" type="button" aria-label="放大">+</button><button id="mZo" type="button" aria-label="縮小">−</button></div><button class="endbtn" id="stop" type="button">結束</button></div>
+<div class="mapbox dmap" id="miniBox"><div id="cvMini" class="mp"></div><div class="mapnote hide" id="cvMiniNote"></div><div class="zb" style="top:10px"><button id="mZi" type="button" aria-label="放大">+</button><button id="mZo" type="button" aria-label="縮小">−</button></div><div class="sim hide" id="simBox"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lab">模擬車速</span><b class="tn" style="font-family:var(--num);font-size:20px" id="simV">55</b></div><input type="range" id="simR" min="15" max="110" value="55" aria-label="模擬車速"><div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" id="simOver">超速 +12</button><button class="chip" type="button" id="simOk">降到限速</button><button class="chip" type="button" id="simAgain">重來一次</button></div></div><button class="endbtn" id="stop" type="button">結束</button></div>
 <ul class="log" id="log" aria-label="剛剛播報的語音"></ul>
-<div class="sim hide" id="simBox">
-<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lab">模擬車速</span><b class="tn" style="font-family:var(--num);font-size:20px" id="simV">55</b></div>
-<input type="range" id="simR" min="15" max="110" value="55" aria-label="模擬車速">
-<div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" id="simOver">超速 +12</button><button class="chip" type="button" id="simOk">降到限速</button><button class="chip" type="button" id="simAgain">重來一次</button></div>
-</div>
 </section></div>
 
 <section id="pg-map" class="pg hide" aria-label="地圖">
@@ -242,7 +260,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 </section>
 
 </div>
-<nav id="tabs" aria-label="主選單"><button type="button" data-p="drive" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>行駛</button><button type="button" data-p="map" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>地圖</button><button type="button" data-p="traf" aria-current="false"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg>路況</button><button type="button" data-p="route" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>路線</button><button type="button" data-p="hot" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>熱點</button><button type="button" data-p="set" aria-current="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>設定</button></nav>
+<div id="tabHandle" aria-label="往上滑顯示選單" role="button"><i></i></div><nav id="tabs" aria-label="主選單"><i class="grab"></i><button type="button" data-p="drive" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>行駛</button><button type="button" data-p="map" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>地圖</button><button type="button" data-p="traf" aria-current="false"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg>路況</button><button type="button" data-p="route" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>路線</button><button type="button" data-p="hot" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>熱點</button><button type="button" data-p="set" aria-current="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>設定</button></nav>
 
 <div class="alert" id="alert" role="alert" aria-live="assertive">
 <div class="lab" style="color:var(--txt)" id="aVoice"></div>
@@ -333,7 +351,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041131';
+var DATAV='202611041143';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -505,10 +523,24 @@ var COL={bg:cv_('--bg'),bg0:cv_('--bg0'),surf:cv_('--surf'),surf2:cv_('--surf2')
 var ML=window.maplibregl;
 var PAGES=['drive','map','traf','route','hot','set'];
 var mapM=null,trafM=null,tripM=null;
+/* ---- 行駛中：整頁一屏顯示；底部選單可滑掉 ---- */
+var TABOFF=true,tabTimer=null;
+function syncDrv(){var on=!!(S.run&&S.page==='drive');document.body.classList.toggle('drv',on);document.body.classList.toggle('tabs-off',on&&TABOFF);
+if(miniM&&on)setTimeout(function(){try{miniM.resize();}catch(e){}},300);}
+function tabsShow(){TABOFF=false;syncDrv();clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}
+function tabsHide(){clearTimeout(tabTimer);TABOFF=true;syncDrv();}
+(function(){var h=document.getElementById('tabHandle'),nv=document.getElementById('tabs'),y0=null,mv=false,sw=false;
+h.addEventListener('pointerdown',function(e){y0=e.clientY;mv=false;try{h.setPointerCapture(e.pointerId);}catch(x){}});
+h.addEventListener('pointermove',function(e){if(y0!=null&&y0-e.clientY>16){mv=true;y0=null;tabsShow();}});
+h.addEventListener('pointerup',function(){if(y0!=null&&!mv)tabsShow();y0=null;});
+nv.addEventListener('pointerdown',function(e){y0=e.clientY;sw=false;clearTimeout(tabTimer);});
+nv.addEventListener('pointermove',function(e){if(y0!=null&&e.clientY-y0>20&&document.body.classList.contains('drv')){sw=true;y0=null;tabsHide();}});
+nv.addEventListener('pointerup',function(){y0=null;if(document.body.classList.contains('drv')&&!TABOFF){clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}});
+nv.addEventListener('click',function(e){if(sw){e.stopPropagation();e.preventDefault();sw=false;}},true);})();
 function goPage(p){
 PAGES.forEach(function(k){$('pg-'+k).classList.toggle('hide',k!==p);});
 document.querySelectorAll('#tabs button').forEach(function(b){b.setAttribute('aria-current',b.dataset.p===p?'page':'false');});
-S.page=p;var TT={drive:'測速提醒',map:'測速地圖',traf:'即時路況',route:'路線紀錄',hot:'取締熱點',set:'設定'};$('ttl').textContent=TT[p]||'測速提醒';$('modeChip').classList.toggle('hide',p!=='drive');
+S.page=p;var TT={drive:'',map:'測速地圖',traf:'即時路況',route:'路線紀錄',hot:'取締熱點',set:'設定'};$('ttl').textContent=TT[p]||'';syncDrv();$('modeChip').classList.toggle('hide',p!=='drive');
 if(p==='map'){initMap();setTimeout(function(){if(mapM)mapM.resize();},40);}
 if(p==='traf'){initTraf();refreshTraf();setTimeout(function(){if(trafM)trafM.resize();},40);}
 if(p==='route'){renderTrips();}
@@ -879,8 +911,8 @@ miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch
 else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
 $('mZi').addEventListener('click',function(){MZ=Math.min(18.5,MZ+1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
 $('mZo').addEventListener('click',function(){MZ=Math.max(12,MZ-1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
-S.onEnd=function(){hideLead();};
-S.onBegin=function(){FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
+S.onEnd=function(){hideLead();TABOFF=false;setTimeout(syncDrv,0);};
+S.onBegin=function(){TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
 S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
 
 /* ---------- TDX 金鑰（只存手機）與連線測試 ---------- */
