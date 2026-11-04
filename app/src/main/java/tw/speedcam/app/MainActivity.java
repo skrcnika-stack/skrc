@@ -98,7 +98,9 @@ public class MainActivity extends Activity {
         });
         web.loadUrl("https://" + HOST + "/index.html");
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+            if (Build.VERSION.SDK_INT >= 33) requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION, "android.permission.POST_NOTIFICATIONS"}, 7);
+            else requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
         }
     }
@@ -107,23 +109,52 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
         boolean ok = res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED;
         if (pendingCb != null) { pendingCb.invoke(pendingOrigin, ok, false); pendingCb = null; }
+        if (inFront) ensureSvc();
     }
 
     private boolean autoFloat() {
         return getSharedPreferences("p", MODE_PRIVATE).getBoolean("auto", true);
     }
 
-    /** App 離開畫面（按 Home、切 App、關螢幕、開 Google 地圖）3 秒後：自動改成浮動測速提示 */
+    private boolean driving() { return getSharedPreferences("p", MODE_PRIVATE).getBoolean("drv", false); }
+
+    private boolean locOk() {
+        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * App 在前面時就先把背景提醒服務開好（待命，不定位不講話），
+     * 這樣離開 App 後，Android 12 以上的手機也允許它在背景繼續定位。
+     */
+    private void ensureSvc() {
+        try {
+            if (!locOk()) return;
+            if (autoFloat() || driving()) {
+                OverlayService s = OverlayService.inst;
+                if (s != null) s.goFg();
+                else {
+                    Intent i = new Intent(this, OverlayService.class);
+                    if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i);
+                }
+            } else if (OverlayService.inst != null) {
+                stopService(new Intent(this, OverlayService.class));
+            }
+        } catch (Exception ignored) { }
+    }
+
+    /** 背景服務接手時，主畫面先不要講話，避免兩邊同時播報 */
+    private void jsBg(boolean on) {
+        try { if (web != null) web.evaluateJavascript("window.__bg&&window.__bg(" + on + ")", null); } catch (Exception ignored) { }
+    }
+
+    /** App 離開畫面（按 Home、切 App、關螢幕、開 Google 地圖）3 秒後：背景服務接手提醒，並浮出小視窗 */
     private final android.os.Handler floatH = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean inFront = false;
     private final Runnable floatRun = () -> {
         try {
-            if (inFront || OverlayService.running) return;
-            if (autoFloat() && (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this))
-                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                Intent s = new Intent(this, OverlayService.class);
-                if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
-            }
+            if (inFront) return;
+            OverlayService s = OverlayService.inst;
+            if (s != null && s.goBg()) jsBg(true);
         } catch (Exception ignored) { }
     };
 
@@ -140,13 +171,14 @@ public class MainActivity extends Activity {
         inFront = false;
     }
 
-    /** 回到主介面：收起浮動視窗，維持主介面 */
+    /** 回到主介面：收起浮動視窗，主畫面接手提醒 */
     @Override
     protected void onResume() {
         super.onResume();
         inFront = true;
         floatH.removeCallbacks(floatRun);
-        try { stopService(new Intent(this, OverlayService.class)); } catch (Exception ignored) { }
+        jsBg(false);
+        ensureSvc();
     }
 
     /** 提醒時降低其他聲音（音樂、導航） */
@@ -286,6 +318,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setAuto(boolean on) {
             getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("auto", on).apply();
+            runOnUiThread(() -> { if (inFront) ensureSvc(); });
         }
 
         @JavascriptInterface
@@ -338,30 +371,33 @@ public class MainActivity extends Activity {
             getSharedPreferences("p", MODE_PRIVATE).edit().putString("veh", v == null ? "car" : v).apply();
         }
 
-        /** 浮動視窗測試：模擬開往測速點，並把 App 縮到背景 */
+        /** 主畫面開始／結束行駛：行駛中離開 App，一定會在背景繼續提醒 */
         @JavascriptInterface
-        public String testOverlay() {
-            if (!overlayOk()) {
-                runOnUiThread(() -> {
-                    try {
-                        startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
-                    } catch (Exception ignored) { }
-                });
-                return "need_overlay";
-            }
-            runOnUiThread(() -> {
+        public void setDriving(boolean on) {
+            getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("drv", on).apply();
+            runOnUiThread(() -> { if (inFront) ensureSvc(); });
+        }
+
+        /** 設定同步給背景服務 */
+        @JavascriptInterface
+        public void setCfg(String json) {
+            getSharedPreferences("p", MODE_PRIVATE).edit().putString("cfg", json == null ? "{}" : json).apply();
+            runOnUiThread(() -> { OverlayService s = OverlayService.inst; if (s != null) s.loadCfg(); });
+        }
+
+        /** 取締點（含自動更新的資料、熱點、自建點）同步給背景服務 */
+        @JavascriptInterface
+        public void setPts(final String csv) {
+            if (csv == null || csv.length() < 1000) return;
+            new Thread(() -> {
                 try {
-                    try { stopService(new Intent(MainActivity.this, OverlayService.class)); } catch (Exception ignored) { }
-                    if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
-                    }
-                    Intent s = new Intent(MainActivity.this, OverlayService.class);
-                    s.putExtra(OverlayService.EXTRA_SIM, true);
-                    if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
-                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> moveTaskToBack(true), 400);
+                    java.io.File tmp = new java.io.File(getFilesDir(), "pts.tmp");
+                    try (java.io.FileOutputStream o = new java.io.FileOutputStream(tmp)) { o.write(csv.getBytes("UTF-8")); }
+                    java.io.File f = new java.io.File(getFilesDir(), "pts.csv");
+                    if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f); }
+                    runOnUiThread(() -> { OverlayService s = OverlayService.inst; if (s != null) s.loadPts(); });
                 } catch (Exception ignored) { }
-            });
-            return "ok";
+            }).start();
         }
 
         @JavascriptInterface
@@ -391,8 +427,8 @@ public class MainActivity extends Activity {
                     if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
                     }
-                    Intent s = new Intent(MainActivity.this, OverlayService.class);
-                    if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
+                    getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("drv", true).apply();
+                    ensureSvc();
                 } catch (Exception ignored) { }
                 String m = "l".equals(mode) ? "l" : "d";
                 try {

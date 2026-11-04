@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
@@ -15,9 +16,11 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.IBinder;
+import android.os.Looper;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -26,127 +29,75 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
+import java.util.Set;
 
 /**
- * 浮動測速提示：在 Google 地圖（或任何 App）上面顯示時速、限速與前方測速點，並用語音提醒。
- * 資料來自 assets/cams.csv（警政署固定測速點）。
+ * 背景測速提醒。
+ * - App 在前面時：待命（不定位、不講話，主畫面自己會提醒）。
+ * - 離開 App 3 秒後：開始定位＋語音提醒；有「顯示在其他應用程式上層」權限就浮出小視窗，沒有也照樣用語音提醒。
+ * 服務一定是在 App 還在前面時就啟動，所以 Android 12 以上背景也能繼續定位。
  */
-public class OverlayService extends Service implements LocationListener {
+public class OverlayService extends Service implements LocationListener, AlertEngine.Out {
     static final String CH = "speedcam_nav";
     static final String ACT_STOP = "tw.speedcam.app.STOP";
+    static final String ACT_BG = "tw.speedcam.app.BG";
     static volatile boolean running = false;
+    static volatile OverlayService inst = null;
 
+    private final Handler h = new Handler(Looper.getMainLooper());
+    private final AlertEngine eng = new AlertEngine();
     private WindowManager wm;
     private LinearLayout box;
     private TextView tvLimit, tvSpeed, tvAlert;
     private WindowManager.LayoutParams lp;
     private LocationManager lm;
+    private boolean locOn = false, bg = false, flash = false;
     private TextToSpeech tts;
     private boolean ttsReady = false;
-
-    private double[] cLon = new double[4000], cLat = new double[4000];
-    private int[] cLim = new int[4000], cType = new int[4000];
-    private int n = 0;
-
-    private int curCam = -1, curStage = 0;
-    private long lastOver = 0, overStart = 0;
-    private boolean moto = false, flash = false;
-    private float sp200 = -1f;
     private android.media.ToneGenerator tone;
-    private void buzz(long[] p) {
-        try {
-            android.os.Vibrator v = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
-            if (v == null) return;
-            if (Build.VERSION.SDK_INT >= 26) v.vibrate(android.os.VibrationEffect.createWaveform(p, -1));
-            else v.vibrate(p, -1);
-        } catch (Exception ignored) { }
-    }
-    private void beep(int lv) {
-        try {
-            if (tone == null) tone = new android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 90);
-            tone.startTone(lv >= 3 ? android.media.ToneGenerator.TONE_CDMA_HIGH_L : android.media.ToneGenerator.TONE_PROP_BEEP2, lv >= 3 ? 450 : 250);
-        } catch (Exception ignored) { }
-    }
-    private static final int[] TH = {1000, 500, 150};
-
-    /* 測試模式：不用 GPS，假裝朝一個真的測速點開過去 */
-    static final String EXTRA_SIM = "sim";
-    private boolean sim = false;
-    private Handler simH;
-    private double sLat, sLon, tLat;
-    private int sLim = 50, sStep = 0;
-    private final Runnable simTick = new Runnable() {
-        @Override public void run() {
-            if (!running) return;
-            sStep++;
-            float[] r = new float[1];
-            Location.distanceBetween(sLat, sLon, tLat, sLon, r);
-            double left = tLat - sLat;
-            float kmh = left > 0 && r[0] < 650 ? sLim + 14 : (left > 0 && r[0] < 900 ? sLim + 5 : sLim - 10);
-            if (left < 0 && r[0] > 120) { sLat = tLat - 1300 / 111320.0; curCam = -1; curStage = 0; }
-            sLat += (kmh / 3.6) / 111320.0;
-            Location loc = new Location("sim");
-            loc.setLatitude(sLat); loc.setLongitude(sLon);
-            loc.setSpeed(kmh / 3.6f); loc.setBearing(0f);
-            loc.setTime(System.currentTimeMillis());
-            onLocationChanged(loc);
-            simH.postDelayed(this, 1000);
-        }
-    };
+    private String vName = "";
+    private float vRate = 1f;
+    private boolean duck = true;
 
     @Override
     public IBinder onBind(Intent i) { return null; }
 
-    private int dp(int v) {
-        return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
-    }
+    private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + 0.5f); }
+
+    private SharedPreferences prefs() { return getSharedPreferences("p", MODE_PRIVATE); }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACT_STOP.equals(intent.getAction())) {
+        String act = intent != null ? intent.getAction() : null;
+        if (ACT_STOP.equals(act)) {
+            prefs().edit().putBoolean("drv", false).apply();
             stopSelf();
             return START_NOT_STICKY;
         }
-        if (running) return START_STICKY;
-        sim = intent != null && intent.getBooleanExtra(EXTRA_SIM, false);
-        try {
-            startFg();
-        } catch (Exception e) {
-            stopSelf();
-            return START_NOT_STICKY;
+        if (!running) {
+            try { startFg(); } catch (Exception e) { stopSelf(); return START_NOT_STICKY; }
+            running = true;
+            inst = this;
+            loadPts();
+            loadCfg();
+            tts = new TextToSpeech(this, st -> {
+                if (st == TextToSpeech.SUCCESS) {
+                    int r = tts.setLanguage(Locale.TAIWAN);
+                    if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) tts.setLanguage(Locale.CHINESE);
+                    ttsReady = true;
+                }
+            });
         }
-        running = true;
-        try { moto = !"car".equals(getSharedPreferences("p", MODE_PRIVATE).getString("veh", "car")); } catch (Exception ignored) { }
-        loadCams();
-        tts = new TextToSpeech(this, st -> {
-            if (st == TextToSpeech.SUCCESS) {
-                int r = tts.setLanguage(Locale.TAIWAN);
-                if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) tts.setLanguage(Locale.CHINESE);
-                ttsReady = true;
-            }
-        });
-        try { buildOverlay(); } catch (Exception e) { /* 沒有浮動視窗權限時，仍保留語音提醒 */ }
-        if (sim) {
-            int k = -1;
-            for (int i = 0; i < n; i++) if (cType[i] == 0 && cLim[i] >= 40 && cLim[i] <= 70) { k = i; break; }
-            if (k < 0) k = 0;
-            tLat = cLat[k]; sLon = cLon[k]; sLim = cLim[k] > 0 ? cLim[k] : 50;
-            sLat = tLat - 1300 / 111320.0;
-            simH = new Handler(Looper.getMainLooper());
-            simH.postDelayed(() -> say("浮動視窗測試開始，正在模擬前往測速照相"), 1500);
-            simH.postDelayed(simTick, 2500);
-            return START_NOT_STICKY;
-        }
-        try {
-            lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
-        } catch (Exception e) {
-            stopSelf();
-        }
-        return START_STICKY;
+        if (ACT_BG.equals(act)) goBg();
+        return START_NOT_STICKY;
     }
 
     private void startFg() {
@@ -155,12 +106,13 @@ public class OverlayService extends Service implements LocationListener {
             nm.createNotificationChannel(new NotificationChannel(CH, "測速提醒", NotificationManager.IMPORTANCE_LOW));
         }
         Intent open = new Intent(this, MainActivity.class);
+        open.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent po = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE);
         Intent stop = new Intent(this, OverlayService.class);
         stop.setAction(ACT_STOP);
         PendingIntent ps = PendingIntent.getService(this, 1, stop, PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CH) : new Notification.Builder(this);
-        b.setContentTitle("測速提醒執行中").setContentText("測速提示會顯示在畫面上方，點這裡回到 App")
+        b.setContentTitle("測速提醒執行中").setContentText("離開 App 也會繼續提醒，點這裡回到 App")
                 .setSmallIcon(R.drawable.ic_launcher).setContentIntent(po).setOngoing(true)
                 .addAction(0, "結束", ps);
         Notification nt = b.build();
@@ -168,34 +120,235 @@ public class OverlayService extends Service implements LocationListener {
         else startForeground(1, nt);
     }
 
-    private void loadCams() {
-        loadCsv("cams.csv");
-        loadCsv("tech.csv");
+    /* ---------- 資料與設定（App 會同步過來） ---------- */
+
+    void loadPts() {
+        eng.clear();
+        File f = new File(getFilesDir(), "pts.csv");
+        if (f.exists() && f.length() > 1000) {
+            try (InputStream in = new FileInputStream(f)) { readPts(in); } catch (Exception ignored) { }
+        }
+        if (eng.size() < 500) {
+            eng.clear();
+            readAsset("cams.csv");
+            readAsset("tech.csv");
+        }
     }
 
-    private void loadCsv(String file) {
+    /** pts.csv：種類,型態,經度,緯度,限速,名稱 */
+    private void readPts(InputStream in) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        String s;
+        while ((s = br.readLine()) != null) {
+            String[] p = s.split(",", 6);
+            if (p.length < 5 || p[0].isEmpty()) continue;
+            try {
+                eng.add(p[0].charAt(0), Integer.parseInt(p[1].trim()), Double.parseDouble(p[2]), Double.parseDouble(p[3]),
+                        Integer.parseInt(p[4].trim()), p.length > 5 ? p[5] : "");
+            } catch (Exception ignored) { }
+        }
+    }
+
+    /** 內建資料：型態,經度,緯度,限速（型態 0 固定 1 區間 2 闖紅燈 3 科技執法 4 跨線） */
+    private void readAsset(String file) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open(file), "UTF-8"))) {
             String s;
-            while ((s = br.readLine()) != null && n < cLon.length) {
+            while ((s = br.readLine()) != null) {
                 String[] p = s.split(",");
                 if (p.length < 4) continue;
-                cType[n] = Integer.parseInt(p[0].trim());
-                cLon[n] = Double.parseDouble(p[1]);
-                cLat[n] = Double.parseDouble(p[2]);
-                cLim[n] = Integer.parseInt(p[3].trim());
-                n++;
+                try {
+                    int t = Integer.parseInt(p[0].trim());
+                    char k = t == 3 ? AlertEngine.TECH : t == 4 ? AlertEngine.CROSS : AlertEngine.CAM;
+                    eng.add(k, t, Double.parseDouble(p[1]), Double.parseDouble(p[2]), Integer.parseInt(p[3].trim()), "");
+                } catch (Exception ignored) { }
             }
         } catch (Exception ignored) { }
     }
+
+    void loadCfg() {
+        try {
+            JSONObject j = new JSONObject(prefs().getString("cfg", "{}"));
+            JSONObject en = j.optJSONObject("en");
+            if (en != null) {
+                eng.enC0 = en.optInt("c0", 1) != 0; eng.enC1 = en.optInt("c1", 1) != 0; eng.enC2 = en.optInt("c2", 1) != 0;
+                eng.enT = en.optInt("t", 1) != 0; eng.enX = en.optInt("x", 1) != 0; eng.enU = en.optInt("u", 1) != 0;
+            }
+            eng.enH = j.optBoolean("hot", true);
+            eng.grace = j.optInt("grace", 3);
+            eng.cal = j.optInt("cal", 0);
+            eng.iv = Math.max(10, j.optInt("iv", 10));
+            eng.autoDist = !"std".equals(j.optString("dm", "auto"));
+            eng.voice = j.optBoolean("voice", true);
+            boolean male = "m".equals(j.optString("vg", "f"));
+            vName = male ? j.optString("vnm", "") : j.optString("vnf", "");
+            vRate = (float) j.optDouble("rate", 1);
+            duck = j.optBoolean("duck", true);
+        } catch (Exception ignored) { }
+    }
+
+    /* ---------- 前景／背景切換 ---------- */
+
+    private boolean wantFloat() {
+        boolean ok = Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this);
+        return ok && prefs().getBoolean("auto", true);
+    }
+
+    /** 離開 App：開始定位與提醒。回傳 true 代表背景提醒已經接手 */
+    boolean goBg() {
+        boolean need = prefs().getBoolean("auto", true) || prefs().getBoolean("drv", false);
+        if (!need) { stopSelf(); return false; }
+        bg = true;
+        loadCfg();
+        eng.resetTrip();
+        if (wantFloat() && box == null) {
+            try { buildOverlay(); } catch (Exception e) { box = null; }
+        }
+        startLoc();
+        return true;
+    }
+
+    /** 回到 App：收起浮動視窗、停止背景提醒（主畫面接手） */
+    void goFg() {
+        bg = false;
+        stopLoc();
+        removeOverlay();
+        try { if (tts != null) tts.stop(); } catch (Exception ignored) { }
+    }
+
+    private void startLoc() {
+        if (locOn) return;
+        try {
+            lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this, Looper.getMainLooper());
+            locOn = true;
+        } catch (Exception ignored) { }
+    }
+
+    private void stopLoc() {
+        try { if (lm != null) lm.removeUpdates(this); } catch (Exception ignored) { }
+        locOn = false;
+    }
+
+    /* ---------- AlertEngine 輸出 ---------- */
+
+    @Override
+    public void say(String t) {
+        if (!ttsReady || tts == null) return;
+        try {
+            tts.setSpeechRate(Math.max(0.5f, Math.min(2f, vRate)));
+            Voice chosen = null;
+            if (vName != null && !vName.isEmpty()) {
+                Set<Voice> vs = tts.getVoices();
+                if (vs != null) for (Voice v : vs) if (v.getName().equals(vName)) { chosen = v; break; }
+            }
+            if (chosen != null) tts.setVoice(chosen);
+            duckFor(t);
+            tts.speak(t, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
+        } catch (Exception ignored) { }
+    }
+
+    private android.media.AudioFocusRequest afr;
+    private void duckFor(String text) {
+        if (!duck) return;
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE);
+            if (am == null) return;
+            if (Build.VERSION.SDK_INT >= 26) {
+                if (afr == null) afr = new android.media.AudioFocusRequest.Builder(android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK).build();
+                am.requestAudioFocus(afr);
+            } else am.requestAudioFocus(null, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+            h.removeCallbacks(unduck);
+            h.postDelayed(unduck, 900 + text.length() * 230L);
+        } catch (Exception ignored) { }
+    }
+    private final Runnable unduck = () -> {
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE);
+            if (Build.VERSION.SDK_INT >= 26) { if (afr != null) am.abandonAudioFocusRequest(afr); } else am.abandonAudioFocus(null);
+        } catch (Exception ignored) { }
+    };
+
+    @Override
+    public void beep(int lv) {
+        try {
+            if (tone == null) tone = new android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 90);
+            tone.startTone(lv >= 3 ? android.media.ToneGenerator.TONE_CDMA_HIGH_L : android.media.ToneGenerator.TONE_PROP_BEEP2, lv >= 3 ? 450 : 250);
+        } catch (Exception ignored) { }
+    }
+
+    @Override
+    public void buzz(int lv) {
+        long[] p = lv >= 3 ? new long[]{0, 500, 120, 500, 120, 500} : new long[]{0, 300, 150, 300};
+        try {
+            android.os.Vibrator v = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+            if (v == null) return;
+            if (Build.VERSION.SDK_INT >= 26) v.vibrate(android.os.VibrationEffect.createWaveform(p, -1));
+            else v.vibrate(p, -1);
+        } catch (Exception ignored) { }
+    }
+
+    /* ---------- 定位 ---------- */
+
+    @Override
+    public void onLocationChanged(Location loc) {
+        if (!bg) return;
+        Float sp = loc.hasSpeed() ? loc.getSpeed() : null;
+        Float br = loc.hasBearing() && loc.hasSpeed() && loc.getSpeed() > 1.5f ? loc.getBearing() : null;
+        eng.update(loc.getLatitude(), loc.getLongitude(), sp, br, System.currentTimeMillis(), this);
+        paint();
+    }
+
+    private static String distLabel(float d) {
+        if (d >= 1000) return String.format(Locale.US, "%.1f 公里", d / 1000f);
+        return ((int) (d / 10)) * 10 + " 公尺";
+    }
+
+    private void paint() {
+        if (box == null) return;
+        tvSpeed.setText(String.valueOf(Math.round(eng.speed)));
+        tvLimit.setText(eng.curLim > 0 ? String.valueOf(eng.curLim) : "--");
+        int i = eng.nearIdx;
+        if (i < 0) { tvAlert.setVisibility(View.GONE); setBorder(0); return; }
+        flash = !flash;
+        int lv = eng.level;
+        String nm = AlertEngine.typeName(eng.kind[i], eng.type[i]);
+        if (eng.kind[i] == AlertEngine.MINE && !eng.name[i].isEmpty()) nm = nm + " " + eng.name[i];
+        String t = "前方 " + distLabel(eng.nearD) + "　" + nm + (eng.kind[i] == AlertEngine.CAM && eng.lim[i] > 0 ? "　限速 " + eng.lim[i] : "");
+        if (eng.isOver) t = "超速！限速 " + eng.curLim + "　" + distLabel(eng.camD);
+        if (lv >= 3) t = "立刻減速！超速 " + Math.round(eng.speed - eng.curLim) + "　" + distLabel(eng.camD);
+        boolean wht = lv >= 2 && flash;
+        GradientDrawable ab = new GradientDrawable();
+        ab.setCornerRadius(dp(10));
+        int col = 0xFFFFA814;
+        char k = eng.kind[i];
+        if (k == AlertEngine.TECH) col = 0xFF00B4D8; else if (k == AlertEngine.CROSS) col = 0xFFFF4FA0;
+        else if (k == AlertEngine.HOT) col = 0xFF8B5CF6; else if (k == AlertEngine.MINE) col = 0xFF16B26B;
+        ab.setColor(eng.isOver ? (wht ? 0xFFFFFFFF : 0xFFF0413C) : col);
+        tvAlert.setTextColor(eng.isOver ? (wht ? 0xFFC4120C : 0xFFFFFFFF) : (k == AlertEngine.CAM ? 0xFF1D1300 : 0xFFFFFFFF));
+        tvAlert.setBackground(ab);
+        tvAlert.setText(t);
+        tvAlert.setVisibility(View.VISIBLE);
+        setBorder(lv);
+    }
+
+    private void setBorder(int lv) {
+        GradientDrawable bgd = new GradientDrawable();
+        bgd.setCornerRadius(dp(16));
+        bgd.setColor(0xF2081224);
+        if (lv >= 2) bgd.setStroke(dp(4), flash ? 0xFFF0413C : 0xFFFFFFFF);
+        box.setBackground(bgd);
+    }
+
+    @Override public void onStatusChanged(String p, int s, Bundle e) { }
+    @Override public void onProviderEnabled(String p) { }
+    @Override public void onProviderDisabled(String p) { }
+
+    /* ---------- 浮動視窗 ---------- */
 
     private void buildOverlay() {
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xF2081224);
-        bg.setCornerRadius(dp(16));
-        box.setBackground(bg);
         box.setPadding(dp(10), dp(8), dp(10), dp(8));
 
         LinearLayout row = new LinearLayout(this);
@@ -250,19 +403,19 @@ public class OverlayService extends Service implements LocationListener {
         close.setTextSize(16);
         close.setTextColor(0xFF8FA3BF);
         close.setPadding(dp(14), dp(4), dp(2), dp(4));
-        close.setOnClickListener(v -> stopSelf());
+        close.setOnClickListener(v -> { prefs().edit().putBoolean("drv", false).apply(); stopSelf(); });
         row.addView(close);
         box.addView(row);
 
         tvAlert = new TextView(this);
         tvAlert.setTextSize(14);
         tvAlert.setTypeface(null, android.graphics.Typeface.BOLD);
-        tvAlert.setTextColor(0xFF1D1300);
         tvAlert.setPadding(dp(10), dp(6), dp(10), dp(6));
         tvAlert.setVisibility(View.GONE);
         LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         al.topMargin = dp(6);
         box.addView(tvAlert, al);
+        setBorder(0);
 
         int type = Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
         lp = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, type,
@@ -293,6 +446,11 @@ public class OverlayService extends Service implements LocationListener {
         wm.addView(box, lp);
     }
 
+    private void removeOverlay() {
+        try { if (wm != null && box != null) wm.removeView(box); } catch (Exception ignored) { }
+        box = null;
+    }
+
     /** 點浮動視窗（或「回主畫面」）：直接回到 App 主畫面 */
     private void openApp() {
         try {
@@ -302,111 +460,22 @@ public class OverlayService extends Service implements LocationListener {
         } catch (Exception ignored) { }
     }
 
-    private void say(String t) {
-        if (ttsReady && tts != null) tts.speak(t, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
-    }
-
-    private static String typeName(int t) {
-        return t == 1 ? "區間測速" : t == 2 ? "闖紅燈照相" : t == 3 ? "科技執法路口" : t == 4 ? "跨線取締" : "固定測速";
-    }
-
-    private static String spokenDist(int th) {
-        return th == 1000 ? "一公里" : th == 500 ? "五百公尺" : "一百五十公尺";
-    }
-
-    private static String distLabel(float d) {
-        if (d >= 1000) return String.format(Locale.US, "%.1f 公里", d / 1000f);
-        return ((int) (d / 10)) * 10 + " 公尺";
-    }
-
     @Override
-    public void onLocationChanged(Location loc) {
-        float sp = loc.hasSpeed() ? loc.getSpeed() * 3.6f : 0f;
-        if (tvSpeed != null) tvSpeed.setText(String.valueOf(Math.round(sp)));
-        boolean moving = loc.hasBearing() && loc.getSpeed() > 1.5f;
-        int best = -1;
-        float bd = 1e9f;
-        if (moving) {
-            float[] res = new float[2];
-            double la = loc.getLatitude(), lo = loc.getLongitude();
-            for (int i = 0; i < n; i++) {
-                if (Math.abs(cLat[i] - la) > 0.015 || Math.abs(cLon[i] - lo) > 0.018) continue;
-                Location.distanceBetween(la, lo, cLat[i], cLon[i], res);
-                if (res[0] > 1200 || res[0] >= bd) continue;
-                if (cType[i] >= 3 && res[0] > 600) continue;
-                float diff = Math.abs(((res[1] - loc.getBearing() + 540f) % 360f) - 180f);
-                if (diff > 50f) continue;
-                best = i;
-                bd = res[0];
-            }
-        }
-        if (best < 0) {
-            curCam = -1;
-            curStage = 0;
-            if (tvAlert != null) tvAlert.setVisibility(View.GONE);
-            if (tvLimit != null) tvLimit.setText("--");
-            return;
-        }
-        if (best != curCam) { curCam = best; curStage = 0; }
-        int lim = cType[best] >= 2 ? 0 : cLim[best];
-        if (tvLimit != null) tvLimit.setText(lim > 0 ? String.valueOf(lim) : "--");
-        boolean over = lim > 0 && sp > lim + 0.5f;
-        long nowMs = System.currentTimeMillis();
-        if (over && overStart == 0) overStart = nowMs;
-        if (!over) overStart = 0;
-        if (bd > 200 || !over) sp200 = -1f; else if (sp200 < 0) sp200 = sp;
-        boolean accel = sp200 >= 0 && sp > sp200 + 3;
-        int lv = !over ? 0 : bd > 200 ? 1 : (bd <= 100 || accel) ? 3 : 2;
-        flash = !flash;
-        String name = typeName(cType[best]);
-        if (tvAlert != null) {
-            String t = "前方 " + distLabel(bd) + "　" + name + (lim > 0 ? "　限速 " + lim : "");
-            if (over) t = "超速！限速 " + lim + "　" + distLabel(bd);
-            GradientDrawable ab = new GradientDrawable();
-            ab.setCornerRadius(dp(10));
-            boolean wht = lv >= 2 && flash;
-            ab.setColor(over ? (wht ? 0xFFFFFFFF : 0xFFF0413C) : 0xFFFFA814);
-            tvAlert.setTextColor(over ? (wht ? 0xFFC4120C : 0xFFFFFFFF) : 0xFF1D1300);
-            if (lv >= 3) t = "立刻減速！超速 " + Math.round(sp - lim) + "　" + distLabel(bd);
-            if (box != null) {
-                GradientDrawable bg = new GradientDrawable();
-                bg.setCornerRadius(dp(16));
-                bg.setColor(0xF2081224);
-                if (lv >= 2) bg.setStroke(dp(4), flash ? 0xFFF0413C : 0xFFFFFFFF);
-                box.setBackground(bg);
-            }
-            tvAlert.setBackground(ab);
-            tvAlert.setText(t);
-            tvAlert.setVisibility(View.VISIBLE);
-        }
-        int hit = -1;
-        for (int i = 0; i < TH.length; i++) if (bd <= TH[i] && curStage <= i && !(cType[best] >= 3 && i == 0)) hit = i;
-        if (hit >= 0) {
-            curStage = hit + 1;
-            say("前方" + spokenDist(TH[hit]) + " " + name + (lim > 0 ? " 限速" + lim : ""));
-        } else if (over && bd <= 600) {
-            long ivl = lv == 1 ? 10000 : lv == 2 ? 3000 : 2000;
-            if (nowMs - lastOver > ivl) {
-                lastOver = nowMs;
-                int by = Math.round(sp - lim);
-                if (lv >= 2) beep(lv);
-                if (lv >= 2) buzz(lv >= 3 ? new long[]{0, 500, 120, 500, 120, 500} : new long[]{0, 300, 150, 300});
-                say(lv == 1 ? "您已超速 限速" + lim : lv == 2 ? "超速" + by + "公里 請減速" : "危險 超速" + by + "公里 立刻減速");
-            }
-        }
+    public void onTaskRemoved(Intent rootIntent) {
+        // 使用者把 App 從最近使用清單滑掉：跟著結束
+        prefs().edit().putBoolean("drv", false).apply();
+        stopSelf();
+        super.onTaskRemoved(rootIntent);
     }
-
-    @Override public void onStatusChanged(String p, int s, Bundle e) { }
-    @Override public void onProviderEnabled(String p) { }
-    @Override public void onProviderDisabled(String p) { }
 
     @Override
     public void onDestroy() {
         running = false;
-        try { if (simH != null) simH.removeCallbacksAndMessages(null); } catch (Exception ignored) { }
-        try { if (lm != null) lm.removeUpdates(this); } catch (Exception ignored) { }
-        try { if (wm != null && box != null) wm.removeView(box); } catch (Exception ignored) { }
-        if (tts != null) { tts.stop(); tts.shutdown(); }
+        inst = null;
+        h.removeCallbacksAndMessages(null);
+        stopLoc();
+        removeOverlay();
+        if (tts != null) { try { tts.stop(); tts.shutdown(); } catch (Exception ignored) { } }
         try { if (tone != null) tone.release(); } catch (Exception ignored) { }
         super.onDestroy();
     }
