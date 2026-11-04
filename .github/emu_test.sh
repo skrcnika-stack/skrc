@@ -43,9 +43,9 @@ adb shell am start -n $PKG/.MainActivity
 python3 .github/route.py W 4 | feed
 shot D_back
 log "E：關掉手機定位"
-adb shell cmd location set-location-enabled false 2>/dev/null || adb shell settings put secure location_mode 0
+adb shell cmd location set-location-enabled false 2>/dev/null; adb shell settings put secure location_mode 0; adb shell settings put secure location_providers_allowed -gps,-network 2>/dev/null
 sleep 7; shot E_loc_off
-adb shell cmd location set-location-enabled true 2>/dev/null || adb shell settings put secure location_mode 3
+adb shell cmd location set-location-enabled true 2>/dev/null; adb shell settings put secure location_mode 3; adb shell settings put secure location_providers_allowed +gps,+network 2>/dev/null
 python3 .github/route.py W 7 | feed
 shot E_loc_on
 adb logcat -d > $OUT/logcat.txt
