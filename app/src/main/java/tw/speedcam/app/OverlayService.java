@@ -230,6 +230,21 @@ public class OverlayService extends Service implements LocationListener {
         unit.setTextColor(0xFF8FA3BF);
         row.addView(unit);
 
+        TextView open = new TextView(this);
+        open.setText("回主畫面");
+        open.setTextSize(13);
+        open.setTypeface(null, android.graphics.Typeface.BOLD);
+        open.setTextColor(0xFF04251D);
+        GradientDrawable ob = new GradientDrawable();
+        ob.setCornerRadius(dp(10));
+        ob.setColor(0xFF47E8C0);
+        open.setBackground(ob);
+        open.setPadding(dp(10), dp(5), dp(10), dp(5));
+        LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ol.leftMargin = dp(12);
+        open.setOnClickListener(v -> openApp());
+        row.addView(open, ol);
+
         TextView close = new TextView(this);
         close.setText("✕");
         close.setTextSize(16);
@@ -268,11 +283,23 @@ public class OverlayService extends Service implements LocationListener {
                         lp.y = sy + (int) (e.getRawY() - dy);
                         try { wm.updateViewLayout(box, lp); } catch (Exception ignored) { }
                         return true;
+                    case MotionEvent.ACTION_UP:
+                        if (Math.abs(e.getRawX() - dx) < dp(8) && Math.abs(e.getRawY() - dy) < dp(8)) openApp();
+                        return true;
                     default: return false;
                 }
             }
         });
         wm.addView(box, lp);
+    }
+
+    /** 點浮動視窗（或「回主畫面」）：直接回到 App 主畫面 */
+    private void openApp() {
+        try {
+            Intent i = new Intent(this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(i);
+        } catch (Exception ignored) { }
     }
 
     private void say(String t) {

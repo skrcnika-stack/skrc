@@ -113,23 +113,39 @@ public class MainActivity extends Activity {
         return getSharedPreferences("p", MODE_PRIVATE).getBoolean("auto", true);
     }
 
-    /** 按 Home、切換 App、開 Google 地圖時：自動改成浮動測速提示 */
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
+    /** App 離開畫面（按 Home、切 App、關螢幕、開 Google 地圖）3 秒後：自動改成浮動測速提示 */
+    private final android.os.Handler floatH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private boolean inFront = false;
+    private final Runnable floatRun = () -> {
         try {
+            if (inFront || OverlayService.running) return;
             if (autoFloat() && (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this))
                     && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Intent s = new Intent(this, OverlayService.class);
                 if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
             }
         } catch (Exception ignored) { }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        floatH.removeCallbacks(floatRun);
+        if (!isFinishing() && !isChangingConfigurations()) floatH.postDelayed(floatRun, 3000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        inFront = false;
     }
 
     /** 回到主介面：收起浮動視窗，維持主介面 */
     @Override
     protected void onResume() {
         super.onResume();
+        inFront = true;
+        floatH.removeCallbacks(floatRun);
         try { stopService(new Intent(this, OverlayService.class)); } catch (Exception ignored) { }
     }
 
