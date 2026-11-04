@@ -95,20 +95,20 @@ public class MainActivity extends Activity {
 
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (chkP(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     cb.invoke(origin, true, false);
                 } else {
                     pendingCb = cb; pendingOrigin = origin;
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
                 }
             }
         });
         web.loadUrl("https://" + HOST + "/index.html");
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= 33) requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+        if (chkP(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= 33) askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION, "android.permission.POST_NOTIFICATIONS"}, 7);
-            else requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+            else askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
         }
     }
@@ -120,6 +120,11 @@ public class MainActivity extends Activity {
         if (inFront) ensureSvc();
     }
 
+    /* Android 5.x 沒有「執行時權限」：安裝時就已經允許，直接當作有權限 */
+    private int chkP(String p) { return Build.VERSION.SDK_INT < 23 ? PackageManager.PERMISSION_GRANTED : checkSelfPermission(p); }
+    private void askP(String[] p, int code) { if (Build.VERSION.SDK_INT >= 23) requestPermissions(p, code); }
+    private boolean ratP(String p) { return Build.VERSION.SDK_INT >= 23 && shouldShowRequestPermissionRationale(p); }
+
     private boolean autoFloat() {
         return getSharedPreferences("p", MODE_PRIVATE).getBoolean("auto", true);
     }
@@ -127,7 +132,7 @@ public class MainActivity extends Activity {
     private boolean driving() { return getSharedPreferences("p", MODE_PRIVATE).getBoolean("drv", false); }
 
     private boolean locOk() {
-        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return chkP(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -429,9 +434,9 @@ public class MainActivity extends Activity {
         public void askLoc() {
             runOnUiThread(() -> {
                 try {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) || !askedLoc) {
+                    if (ratP(Manifest.permission.ACCESS_FINE_LOCATION) || !askedLoc) {
                         askedLoc = true;
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
                     } else {
                         startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName())));
@@ -486,8 +491,8 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String start(final String dest, final String mode) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                runOnUiThread(() -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+            if (chkP(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                runOnUiThread(() -> askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION}, 7));
                 return "need_location";
             }
@@ -501,8 +506,8 @@ public class MainActivity extends Activity {
             }
             runOnUiThread(() -> {
                 try {
-                    if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
+                    if (Build.VERSION.SDK_INT >= 33 && chkP("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                        askP(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
                     }
                     getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("drv", true).apply();
                     ensureSvc();

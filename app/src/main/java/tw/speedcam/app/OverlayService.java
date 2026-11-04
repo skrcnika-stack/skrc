@@ -107,10 +107,10 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         }
         Intent open = new Intent(this, MainActivity.class);
         open.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent po = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent po = PendingIntent.getActivity(this, 0, open, (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
         Intent stop = new Intent(this, OverlayService.class);
         stop.setAction(ACT_STOP);
-        PendingIntent ps = PendingIntent.getService(this, 1, stop, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent ps = PendingIntent.getService(this, 1, stop, (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CH) : new Notification.Builder(this);
         b.setContentTitle("測速提醒執行中").setContentText("離開 App 也會繼續提醒，點這裡回到 App")
                 .setSmallIcon(R.drawable.ic_stat).setContentIntent(po).setOngoing(true)
