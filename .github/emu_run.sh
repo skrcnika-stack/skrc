@@ -3,7 +3,7 @@
 API=$1; FONT=$2
 bash .github/emu_test.sh $API $FONT
 n=$(grep -c "SpeedCamSay: FG" emu_out/app_log.txt 2>/dev/null || echo 0)
-if [ "$n" -lt 5 ]; then
+if [ "$n" -lt 10 ]; then
   echo "只有 $n 句前景語音，判定模擬器異常，重開再測一次"
   mv emu_out emu_try1
   adb reboot; sleep 10; adb wait-for-device
