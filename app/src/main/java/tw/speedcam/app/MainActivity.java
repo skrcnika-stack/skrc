@@ -342,7 +342,7 @@ public class MainActivity extends Activity {
                     out = String.valueOf(e.getMessage() != null ? e.getMessage() : e);
                 }
                 final String o = out; final boolean k = ok;
-                runOnUiThread(() -> web.evaluateJavascript("window.__tdxCb(" + JSONObject.quote(id) + "," + k + "," + JSONObject.quote(o) + ")", null));
+                runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.__tdxCb(" + JSONObject.quote(id) + "," + k + "," + JSONObject.quote(o) + ")", null); });
             }).start();
         }
     }
@@ -531,6 +531,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         if (tts != null) { tts.stop(); tts.shutdown(); }
+        // 畫面被系統重建（改字體大小、深色模式…）時，把舊的網頁停掉，不然會兩個畫面同時講話
+        try { if (web != null) { web.stopLoading(); web.loadUrl("about:blank"); web.removeAllViews(); web.destroy(); web = null; } } catch (Exception ignored) { }
         super.onDestroy();
     }
 }
