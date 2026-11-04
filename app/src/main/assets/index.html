@@ -521,7 +521,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611042345';
+var DATAV='202611050027';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -1342,6 +1342,23 @@ setInterval(function(){try{fit(true);}catch(e){}},5000);
 if(ok)return;var d=document.createElement('div');d.className='locw';d.id='wvWarn';d.style.top='auto';d.style.bottom='16px';
 d.innerHTML='<b>手機的「網頁元件」太舊</b><span>畫面可能會跑掉。請到 Play 商店更新「Android System WebView」，更新完重新打開 App。</span><button type="button">去更新</button>';
 document.body.appendChild(d);d.querySelector('button').onclick=function(){var u='https://play.google.com/store/apps/details?id=com.google.android.webview';try{if(window.AndroidNav&&AndroidNav.openUrl){AndroidNav.openUrl(u);return;}}catch(e){}window.open(u,'_blank');};})();
+
+
+/* ---------- 舊版網頁元件（Android 10 以前沒更新的手機）相容：用程式算出尺寸 ---------- */
+(function(){var old=false;try{old=!(window.CSS&&CSS.supports&&CSS.supports('width','min(1px,2px)')&&CSS.supports('aspect-ratio','1 / 1'));}catch(e){old=true;}
+if(!old&&location.hash!=='#oldwv')return;
+document.documentElement.classList.add('oldwv');
+var st=document.createElement('style');st.textContent=
+'.oldwv .ring svg,.oldwv .alert,.oldwv .mp,.oldwv body.drv .dtr svg{top:0;left:0;right:0;bottom:0}'+
+'.oldwv body.drv #drive>*{margin-top:6px;margin-bottom:6px}'+
+'.oldwv .dhead>*{margin-right:8px}.oldwv .dstat>div,.oldwv .dchips>div{margin:0 3px}'+
+'.oldwv .alert h2{font-size:18vw}.oldwv .alert .a-sp{font-size:34vw}.oldwv .alert.lv3 h2{font-size:13vw}';
+document.head.appendChild(st);
+function fitRing(){var r=document.querySelector('.ring');if(!r)return;var d=$('drive'),W=(d&&d.clientWidth)||innerWidth-32;
+var w=Math.max(220,Math.min(W,430,(innerHeight*0.62-120)*1.18));r.style.width=w+'px';r.style.height=(w*330/390)+'px';r.style.maxWidth='none';r.style.flex='none';
+var s=$('spd');if(s)s.style.fontSize=Math.round(Math.min(innerWidth*0.23,90,innerHeight*0.105))+'px';}
+fitRing();window.addEventListener('resize',fitRing);setInterval(fitRing,3000);
+})();
 
 /* ---------- 一打開就是行駛畫面，自動定位；定位沒開就提示 ---------- */
 (function(){var box=$('locWarn'),T=$('locT'),Sx=$('locS'),B=$('locFix'),why='';
