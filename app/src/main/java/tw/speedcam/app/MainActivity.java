@@ -20,7 +20,11 @@ import android.webkit.WebViewClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Set;
 
@@ -58,6 +62,7 @@ public class MainActivity extends Activity {
         s.setGeolocationEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         web.addJavascriptInterface(new Bridge(), "AndroidTTS");
+        web.addJavascriptInterface(new Tdx(), "AndroidTDX");
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -148,6 +153,59 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void stop() { runOnUiThread(() -> { try { tts.stop(); } catch (Exception ignored) {} }); }
+    }
+
+
+    /** TDX (交通部) bridge: token + GET, only to tdx.transportdata.tw. Key stays on the phone. */
+    public class Tdx {
+        private String token = null, tokenFor = null;
+        private long tokenExp = 0;
+
+        private String read(HttpURLConnection c, boolean err) throws Exception {
+            InputStream in = err ? c.getErrorStream() : c.getInputStream();
+            if (in == null) return "";
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192]; int n; int tot = 0;
+            while ((n = in.read(buf)) > 0) { o.write(buf, 0, n); tot += n; if (tot > 6000000) break; }
+            in.close();
+            return o.toString("UTF-8");
+        }
+
+        @JavascriptInterface
+        public void request(final String id, final String cid, final String sec, final String path) {
+            new Thread(() -> {
+                boolean ok = false; String out;
+                try {
+                    if (path == null || !path.startsWith("/api/")) throw new Exception("路徑不允許");
+                    if (token == null || !cid.equals(tokenFor) || System.currentTimeMillis() > tokenExp) {
+                        HttpURLConnection c = (HttpURLConnection) new URL("https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token").openConnection();
+                        c.setConnectTimeout(15000); c.setReadTimeout(20000);
+                        c.setRequestMethod("POST"); c.setDoOutput(true);
+                        c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                        String body = "grant_type=client_credentials&client_id=" + java.net.URLEncoder.encode(cid, "UTF-8")
+                                + "&client_secret=" + java.net.URLEncoder.encode(sec, "UTF-8");
+                        OutputStream os = c.getOutputStream(); os.write(body.getBytes("UTF-8")); os.close();
+                        int code = c.getResponseCode();
+                        String t = read(c, code >= 400);
+                        if (code >= 400) throw new Exception("金鑰驗證失敗 HTTP " + code + " " + (t.length() > 120 ? t.substring(0, 120) : t));
+                        JSONObject jo = new JSONObject(t);
+                        token = jo.getString("access_token"); tokenFor = cid;
+                        tokenExp = System.currentTimeMillis() + Math.max(60, jo.optLong("expires_in", 3600) - 120) * 1000L;
+                    }
+                    HttpURLConnection g = (HttpURLConnection) new URL("https://tdx.transportdata.tw" + path).openConnection();
+                    g.setConnectTimeout(15000); g.setReadTimeout(30000);
+                    g.setRequestProperty("authorization", "Bearer " + token);
+                    int code = g.getResponseCode();
+                    String t = read(g, code >= 400);
+                    if (code >= 400) throw new Exception("HTTP " + code + " " + (t.length() > 140 ? t.substring(0, 140) : t));
+                    out = t; ok = true;
+                } catch (Exception e) {
+                    out = String.valueOf(e.getMessage() != null ? e.getMessage() : e);
+                }
+                final String o = out; final boolean k = ok;
+                runOnUiThread(() -> web.evaluateJavascript("window.__tdxCb(" + JSONObject.quote(id) + "," + k + "," + JSONObject.quote(o) + ")", null));
+            }).start();
+        }
     }
 
     @Override
