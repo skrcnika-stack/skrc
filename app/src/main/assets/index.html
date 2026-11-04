@@ -277,25 +277,20 @@ body.drv #drive:not(.hide){gap:12px!important}
 .locw.hide{display:none}
 </style>
 
-<div class="wrap">
+<div class="wrap"><script>try{var _v=(JSON.parse(localStorage.getItem("sc_set")||"{}").veh)||"car";document.body.className=(_v==="car"?"car":"moto")+" drv tabs-off";}catch(e){document.body.className="car drv tabs-off";}</script>
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
-<div id="pg-drive" class="pg"><section id="start" aria-label="開始">
+<div id="pg-drive" class="pg"><section id="start" class="hide" aria-label="開始">
 <div class="demo hide" id="floatWarn" style="margin-bottom:10px">浮動視窗還沒開權限：離開 App 時一樣會用語音提醒，但不會浮出小視窗。<button class="chip" id="floatFix" type="button" style="margin-top:8px;border-color:var(--acc);color:var(--acc)">一鍵開啟權限</button></div>
 <div class="vsw" id="vSw" role="group" aria-label="車種"><button type="button" data-m="car"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/><path d="M5 12h14"/></svg>汽車（明亮）</button><button type="button" data-m="moto"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M8.5 16.5h5l3-6h-4l-2-3H8"/><path d="M15 7h3"/></svg>機車／重機（深色）</button></div>
 <p class="note" style="margin:10px 0 16px">會在前方 1 公里、500 公尺、150 公尺各用語音提醒一次；靠近測速點時超速，會一直重複，直到你降到限速以下。</p>
 <button class="btn pri" id="goGps" type="button">開始行駛</button>
 <p class="err" id="err" role="status"></p>
-<div style="margin-top:26px"><span class="lab">導航（用 Google 地圖）</span>
-<p class="note" style="margin:4px 0 8px">輸入目的地，會打開 Google 地圖開始導航；本 App 的限速、時速和前方測速點會浮在畫面上，並用語音提醒。</p>
-<input id="navDest" type="text" autocomplete="off" placeholder="目的地，例如：台中火車站" aria-label="目的地" style="width:100%;min-height:48px;margin-bottom:10px;padding:0 14px;border:1px solid var(--rule);border-radius:12px;background:var(--surf);color:var(--txt);font-size:16px">
-<button class="btn" id="goNav" type="button">用 Google 地圖導航，測速浮在上面</button>
-<p class="note" id="navSt" style="margin-top:8px" aria-live="polite"></p></div>
 
 </section>
 
 <div class="locw hide" id="locWarn" role="alert"><b id="locT">手機定位（GPS）沒有打開</b><span id="locS">打開定位才能提醒前方的測速照相。</span><button type="button" id="locFix">打開定位</button></div>
-<section id="drive" class="hide" aria-label="駕駛中">
+<section id="drive" aria-label="駕駛中">
 <div class="dwx" id="dWx" aria-live="off"><span class="wi" id="wxI">⛅</span><span><b id="wxT">--°</b> <span id="wxD">取得天氣中…</span></span><span class="wr" id="wxR"></span></div>
 <div class="dchips"><div><small id="chSunL">日落</small><b id="chSun">--:--</b></div><div><small>空氣品質 PM2.5</small><b id="chAir">--</b></div><div><small id="chBatL">手機電量</small><b id="chBat">--</b></div></div>
 <div class="ring" aria-label="目前時速">
@@ -401,6 +396,11 @@ body.drv #drive:not(.hide){gap:12px!important}
 <div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
 <div class="row"><span class="t"><b>開車時一起打開</b><span>打開測速提醒時，順便幫你打開導航或音樂</span></span><select id="linkSel" aria-label="開始時一起打開"><option value="">只開測速提醒</option><option value="com.google.android.apps.maps">Google 地圖</option><option value="com.google.android.apps.youtube.music">YouTube Music</option><option value="com.spotify.music">Spotify</option><option value="com.skysoft.kkbox.android">KKBOX</option></select></div>
 </div>
+<div class="sgrp"><span class="lab">用 Google 地圖導航</span>
+<p class="note" style="margin:4px 0 8px">輸入目的地，會打開 Google 地圖開始導航；本 App 的限速、時速和前方測速點會浮在畫面上，並用語音提醒。</p>
+<input id="navDest" type="text" autocomplete="off" placeholder="目的地，例如：台中火車站" aria-label="目的地" style="width:100%;min-height:48px;margin-bottom:10px;padding:0 14px;border:1px solid var(--rule);border-radius:12px;background:var(--surf);color:var(--txt);font-size:16px">
+<button class="btn" id="goNav" type="button">用 Google 地圖導航，測速浮在上面</button>
+<p class="note" id="navSt" style="margin-top:8px" aria-live="polite"></p></div>
 <div class="sgrp"><span class="lab">顯示</span>
 <div class="row"><span class="t"><b>HUD 抬頭顯示</b><span>行駛畫面左右反轉、只留大字，手機平放在擋風玻璃下方</span></span><button class="sw" id="swHud" type="button" role="switch" aria-checked="true" aria-label="HUD 抬頭顯示"></button></div>
 <div class="row"><span class="t"><b>GPS 訊號與海拔</b><span>行駛畫面左上角顯示</span></span><button class="sw" id="swGinfo" type="button" role="switch" aria-checked="true" aria-label="GPS 訊號與海拔"></button></div>
@@ -519,7 +519,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611042218';
+var DATAV='202611042233';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -1191,7 +1191,7 @@ var n=Date.now();if(n-lastMini>800){lastMini=n;var hd=S.hd!=null?S.hd:miniM.getB
 if(lead){var L=S.lead,b=new ML.LngLatBounds([S.lon,S.lat],[S.lon,S.lat]);b.extend([L.lon,L.lat]);
 miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch:50,maxZoom:17.4,duration:700,essential:true});}
 else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
-S.onEnd=function(){hideLead();TABOFF=false;setTimeout(syncDrv,0);};
+S.onEnd=function(){hideLead();TABOFF=false;setTimeout(syncDrv,0);setTimeout(function(){if(!S.run){var g=$('goGps');if(g)g.click();}},150);};
 S.onBegin=function(){S.lastP=null;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
 S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
 
@@ -1354,7 +1354,7 @@ setInterval(check,3000);document.addEventListener('visibilitychange',function(){
 /* 沒有手勢也先把音效準備好；第一次碰螢幕再解鎖 */
 document.addEventListener('pointerdown',function(){acx();},{once:true});
 goPage('drive');
-setTimeout(function(){if(!S.run){$('goGps').click();setTimeout(check,1500);}},300);
+if(!S.run){$('goGps').click();setTimeout(check,1500);}
 })();
 
 })();
