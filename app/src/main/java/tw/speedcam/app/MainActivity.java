@@ -109,6 +109,30 @@ public class MainActivity extends Activity {
         if (pendingCb != null) { pendingCb.invoke(pendingOrigin, ok, false); pendingCb = null; }
     }
 
+    private boolean autoFloat() {
+        return getSharedPreferences("p", MODE_PRIVATE).getBoolean("auto", true);
+    }
+
+    /** 按 Home、切換 App、開 Google 地圖時：自動改成浮動測速提示 */
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        try {
+            if (autoFloat() && (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this))
+                    && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Intent s = new Intent(this, OverlayService.class);
+                if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
+            }
+        } catch (Exception ignored) { }
+    }
+
+    /** 回到主介面：收起浮動視窗，維持主介面 */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try { stopService(new Intent(this, OverlayService.class)); } catch (Exception ignored) { }
+    }
+
     /** Native speech bridge (the phone's own Google zh-TW voices) */
     public class Bridge {
         @JavascriptInterface
@@ -218,6 +242,23 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean overlayOk() {
             return Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public boolean getAuto() { return autoFloat(); }
+
+        @JavascriptInterface
+        public void setAuto(boolean on) {
+            getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("auto", on).apply();
+        }
+
+        @JavascriptInterface
+        public void askOverlay() {
+            runOnUiThread(() -> {
+                try {
+                    startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+                } catch (Exception ignored) { }
+            });
         }
 
         @JavascriptInterface
