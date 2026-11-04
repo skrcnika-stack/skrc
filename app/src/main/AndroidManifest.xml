@@ -14,7 +14,10 @@
         <package android:name="com.google.android.apps.youtube.music" />
         <package android:name="com.spotify.music" />
         <package android:name="com.skysoft.kkbox.android" />
-        <intent><action android:name="android.intent.action.VIEW" /><data android:scheme="https" /></intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
     <application
         android:label="測速提醒"
@@ -24,7 +27,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard|navigation|smallestScreenSize|screenLayout|fontScale|uiMode|density|locale|layoutDirection|mcc|mnc|touchscreen"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
