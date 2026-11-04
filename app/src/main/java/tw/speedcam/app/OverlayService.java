@@ -52,7 +52,23 @@ public class OverlayService extends Service implements LocationListener {
     private int n = 0;
 
     private int curCam = -1, curStage = 0;
-    private long lastOver = 0;
+    private long lastOver = 0, overStart = 0;
+    private boolean moto = false, flash = false;
+    private android.media.ToneGenerator tone;
+    private void buzz(long[] p) {
+        try {
+            android.os.Vibrator v = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+            if (v == null) return;
+            if (Build.VERSION.SDK_INT >= 26) v.vibrate(android.os.VibrationEffect.createWaveform(p, -1));
+            else v.vibrate(p, -1);
+        } catch (Exception ignored) { }
+    }
+    private void beep(int lv) {
+        try {
+            if (tone == null) tone = new android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 90);
+            tone.startTone(lv >= 3 ? android.media.ToneGenerator.TONE_CDMA_HIGH_L : android.media.ToneGenerator.TONE_PROP_BEEP2, lv >= 3 ? 450 : 250);
+        } catch (Exception ignored) { }
+    }
     private static final int[] TH = {1000, 500, 150};
 
     /* 測試模式：不用 GPS，假裝朝一個真的測速點開過去 */
@@ -102,6 +118,7 @@ public class OverlayService extends Service implements LocationListener {
             return START_NOT_STICKY;
         }
         running = true;
+        try { moto = !"car".equals(getSharedPreferences("p", MODE_PRIVATE).getString("veh", "car")); } catch (Exception ignored) { }
         loadCams();
         tts = new TextToSpeech(this, st -> {
             if (st == TextToSpeech.SUCCESS) {
@@ -300,14 +317,29 @@ public class OverlayService extends Service implements LocationListener {
         int lim = cType[best] == 2 ? 0 : cLim[best];
         if (tvLimit != null) tvLimit.setText(lim > 0 ? String.valueOf(lim) : "--");
         boolean over = lim > 0 && sp > lim + 0.5f;
+        long nowMs = System.currentTimeMillis();
+        if (over && overStart == 0) overStart = nowMs;
+        if (!over) overStart = 0;
+        float ot = over ? (nowMs - overStart) / 1000f : 0f;
+        int lv = !over ? 0 : ot < (moto ? 3 : 5) ? 1 : ot < (moto ? 6 : 10) ? 2 : 3;
+        flash = !flash;
         String name = typeName(cType[best]);
         if (tvAlert != null) {
             String t = "前方 " + distLabel(bd) + "　" + name + (lim > 0 ? "　限速 " + lim : "");
             if (over) t = "超速！限速 " + lim + "　" + distLabel(bd);
             GradientDrawable ab = new GradientDrawable();
             ab.setCornerRadius(dp(10));
-            ab.setColor(over ? 0xFFF0413C : 0xFFFFA814);
-            tvAlert.setTextColor(over ? 0xFFFFFFFF : 0xFF1D1300);
+            boolean wht = lv >= 2 && flash;
+            ab.setColor(over ? (wht ? 0xFFFFFFFF : 0xFFF0413C) : 0xFFFFA814);
+            tvAlert.setTextColor(over ? (wht ? 0xFFC4120C : 0xFFFFFFFF) : 0xFF1D1300);
+            if (lv >= 3) t = "立刻減速！超速 " + Math.round(sp - lim) + "　" + distLabel(bd);
+            if (box != null) {
+                GradientDrawable bg = new GradientDrawable();
+                bg.setCornerRadius(dp(16));
+                bg.setColor(0xF2081224);
+                if (lv >= 2) bg.setStroke(dp(4), flash ? 0xFFF0413C : 0xFFFFFFFF);
+                box.setBackground(bg);
+            }
             tvAlert.setBackground(ab);
             tvAlert.setText(t);
             tvAlert.setVisibility(View.VISIBLE);
@@ -317,9 +349,15 @@ public class OverlayService extends Service implements LocationListener {
         if (hit >= 0) {
             curStage = hit + 1;
             say("前方" + spokenDist(TH[hit]) + " " + name + (lim > 0 ? " 限速" + lim : ""));
-        } else if (over && bd <= 500 && System.currentTimeMillis() - lastOver > 5000) {
-            lastOver = System.currentTimeMillis();
-            say("您已超速 限速" + lim);
+        } else if (over && bd <= 600) {
+            long ivl = lv == 1 ? (moto ? 3000 : 5000) : lv == 2 ? 3000 : 2000;
+            if (nowMs - lastOver > ivl) {
+                lastOver = nowMs;
+                int by = Math.round(sp - lim);
+                if (lv >= 2 || moto) beep(lv);
+                if (lv >= 2) buzz(lv >= 3 ? new long[]{0, 500, 120, 500, 120, 500} : new long[]{0, 300, 150, 300});
+                say(lv == 1 ? "您已超速 限速" + lim : lv == 2 ? "超速" + by + "公里 請減速" : "危險 超速" + by + "公里 立刻減速");
+            }
         }
     }
 
@@ -334,6 +372,7 @@ public class OverlayService extends Service implements LocationListener {
         try { if (lm != null) lm.removeUpdates(this); } catch (Exception ignored) { }
         try { if (wm != null && box != null) wm.removeView(box); } catch (Exception ignored) { }
         if (tts != null) { tts.stop(); tts.shutdown(); }
+        try { if (tone != null) tone.release(); } catch (Exception ignored) { }
         super.onDestroy();
     }
 }

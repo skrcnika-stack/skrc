@@ -264,6 +264,24 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean running() { return OverlayService.running; }
 
+        @JavascriptInterface
+        public void vibrate(String pattern) {
+            try {
+                String[] p = pattern.split(",");
+                long[] t = new long[p.length];
+                for (int i = 0; i < p.length; i++) t[i] = Long.parseLong(p[i].trim());
+                android.os.Vibrator v = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+                if (v == null) return;
+                if (Build.VERSION.SDK_INT >= 26) v.vibrate(android.os.VibrationEffect.createWaveform(t, -1));
+                else v.vibrate(t, -1);
+            } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public void setVeh(String v) {
+            getSharedPreferences("p", MODE_PRIVATE).edit().putString("veh", v == null ? "car" : v).apply();
+        }
+
         /** 浮動視窗測試：模擬開往測速點，並把 App 縮到背景 */
         @JavascriptInterface
         public String testOverlay() {
