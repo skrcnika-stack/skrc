@@ -269,9 +269,36 @@ public class MainActivity extends Activity {
             return o.toString("UTF-8");
         }
 
+        /** 內建金鑰（打包時才放進安裝檔，GitHub 上沒有） */
+        private String[] bk = null;
+        private boolean bkTried = false;
+        private synchronized String[] builtin() {
+            if (bkTried) return bk;
+            bkTried = true;
+            try (InputStream in = getAssets().open("tdx.bin")) {
+                ByteArrayOutputStream o = new ByteArrayOutputStream();
+                byte[] buf = new byte[512]; int n;
+                while ((n = in.read(buf)) > 0) o.write(buf, 0, n);
+                byte[] b = o.toByteArray();
+                byte[] k = java.security.MessageDigest.getInstance("SHA-256").digest("tw.speedcam.app-tdx".getBytes("UTF-8"));
+                for (int i = 0; i < b.length; i++) b[i] = (byte) (b[i] ^ k[i % k.length]);
+                String[] p = new String(b, "UTF-8").split("\n");
+                if (p.length >= 2 && !p[0].trim().isEmpty() && !p[1].trim().isEmpty()) bk = new String[]{p[0].trim(), p[1].trim()};
+            } catch (Exception ignored) { }
+            return bk;
+        }
+
         @JavascriptInterface
-        public void request(final String id, final String cid, final String sec, final String path) {
+        public boolean hasBuiltin() { return builtin() != null; }
+
+        @JavascriptInterface
+        public void request(final String id, final String cid0, final String sec0, final String path) {
             new Thread(() -> {
+                String cid = cid0, sec = sec0;
+                if (cid == null || cid.isEmpty() || sec == null || sec.isEmpty()) {
+                    String[] b = builtin();
+                    if (b != null) { cid = b[0]; sec = b[1]; }
+                }
                 boolean ok = false; String out;
                 try {
                     if (path == null || !path.startsWith("/api/")) throw new Exception("路徑不允許");
