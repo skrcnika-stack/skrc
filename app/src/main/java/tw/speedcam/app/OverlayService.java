@@ -47,8 +47,8 @@ public class OverlayService extends Service implements LocationListener {
     private TextToSpeech tts;
     private boolean ttsReady = false;
 
-    private double[] cLon = new double[2500], cLat = new double[2500];
-    private int[] cLim = new int[2500], cType = new int[2500];
+    private double[] cLon = new double[4000], cLat = new double[4000];
+    private int[] cLim = new int[4000], cType = new int[4000];
     private int n = 0;
 
     private int curCam = -1, curStage = 0;
@@ -168,7 +168,12 @@ public class OverlayService extends Service implements LocationListener {
     }
 
     private void loadCams() {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("cams.csv"), "UTF-8"))) {
+        loadCsv("cams.csv");
+        loadCsv("tech.csv");
+    }
+
+    private void loadCsv(String file) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open(file), "UTF-8"))) {
             String s;
             while ((s = br.readLine()) != null && n < cLon.length) {
                 String[] p = s.split(",");
@@ -274,7 +279,7 @@ public class OverlayService extends Service implements LocationListener {
     }
 
     private static String typeName(int t) {
-        return t == 1 ? "區間測速" : t == 2 ? "闖紅燈照相" : "固定測速";
+        return t == 1 ? "區間測速" : t == 2 ? "闖紅燈照相" : t == 3 ? "科技執法路口" : t == 4 ? "跨線取締" : "固定測速";
     }
 
     private static String spokenDist(int th) {
@@ -300,6 +305,7 @@ public class OverlayService extends Service implements LocationListener {
                 if (Math.abs(cLat[i] - la) > 0.015 || Math.abs(cLon[i] - lo) > 0.018) continue;
                 Location.distanceBetween(la, lo, cLat[i], cLon[i], res);
                 if (res[0] > 1200 || res[0] >= bd) continue;
+                if (cType[i] >= 3 && res[0] > 600) continue;
                 float diff = Math.abs(((res[1] - loc.getBearing() + 540f) % 360f) - 180f);
                 if (diff > 50f) continue;
                 best = i;
@@ -314,7 +320,7 @@ public class OverlayService extends Service implements LocationListener {
             return;
         }
         if (best != curCam) { curCam = best; curStage = 0; }
-        int lim = cType[best] == 2 ? 0 : cLim[best];
+        int lim = cType[best] >= 2 ? 0 : cLim[best];
         if (tvLimit != null) tvLimit.setText(lim > 0 ? String.valueOf(lim) : "--");
         boolean over = lim > 0 && sp > lim + 0.5f;
         long nowMs = System.currentTimeMillis();
@@ -345,7 +351,7 @@ public class OverlayService extends Service implements LocationListener {
             tvAlert.setVisibility(View.VISIBLE);
         }
         int hit = -1;
-        for (int i = 0; i < TH.length; i++) if (bd <= TH[i] && curStage <= i) hit = i;
+        for (int i = 0; i < TH.length; i++) if (bd <= TH[i] && curStage <= i && !(cType[best] >= 3 && i == 0)) hit = i;
         if (hit >= 0) {
             curStage = hit + 1;
             say("前方" + spokenDist(TH[hit]) + " " + name + (lim > 0 ? " 限速" + lim : ""));
