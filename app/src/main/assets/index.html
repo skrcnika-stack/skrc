@@ -523,7 +523,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050046';
+var DATAV='202611050105';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -686,7 +686,7 @@ try{S.wid=navigator.geolocation.watchPosition(function(p){
 S.acc=p.coords.accuracy;S.gpsOk=Date.now();if(S.onGpsOk)S.onGpsOk();S.alt=p.coords.altitude;var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
 if(S.prev){var d=dist(S.prev.lat,S.prev.lon,c.latitude,c.longitude),dt=(now-S.prev.t)/1000;
 var gl=0;if(sp==null&&dt>0){sp=d/dt*3.6;if(sp>220||dt>5){sp=S.spd||0;hd=S.hd;gl=1;}}if(hd==null&&d>5&&!gl)hd=bearing(S.prev.lat,S.prev.lon,c.latitude,c.longitude);if(d>5)S.prev={lat:c.latitude,lon:c.longitude,t:now};}else S.prev={lat:c.latitude,lon:c.longitude,t:now};
-tick(c.latitude,c.longitude,sp||0,hd);
+if(sp!=null&&S.spT){var q=Math.max(0.5,(now-S.spT)/1000),b=S.spd||0;if(sp>b+30*q)sp=b+30*Math.min(q,1);}S.spT=now;tick(c.latitude,c.longitude,sp||0,hd);
 },function(e){if(S.onGpsErr)S.onGpsErr(e);},{enableHighAccuracy:true,maximumAge:0,timeout:15000});return true;}catch(e){err.textContent='這個瀏覽器不支援定位。';return false;}}
 
 function show(w){$('start').classList.toggle('hide',w!=='start');$('drive').classList.toggle('hide',w!=='drive');}
