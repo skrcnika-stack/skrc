@@ -235,6 +235,40 @@ body.tabs-off #tabHandle{display:block}
 .zb button{min-width:44px;height:44px}
 @media (prefers-reduced-motion:reduce){.alert{animation:none;box-shadow:inset 0 0 0 9px rgba(255,95,91,.95)}}
 #tabs button[hidden],[hidden]{display:none!important}
+body.drv .top{display:none!important}
+body.drv .dact{display:none!important}
+body.drv .dhead{right:0;justify-content:space-between;gap:10px;padding:2px 14px}
+body.drv .dhead .gi{margin-left:auto}
+body.drv #drive:not(.hide){justify-content:center!important;gap:14px!important;padding:58px 0 18px}
+body.drv #drive .ring{margin:0 auto!important}
+
+.dwx,.dtr{display:none}
+body.drv .dwx{display:flex;flex:none;align-items:center;gap:10px;padding:8px 14px;border-radius:12px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--mut);min-height:40px}
+body.drv .dwx .wi{font-size:20px;line-height:1}body.drv .dwx b{color:var(--txt);font-family:var(--num);font-size:17px}
+body.drv .dwx .wr{margin-left:auto;text-align:right}body.drv .dwx .wr.rain{color:var(--amb);font-weight:700}
+body.drv .dtr{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;flex:none;padding:8px 14px;border-radius:12px;background:var(--surf);border:1px solid var(--line)}
+body.drv .dtr .sc{display:flex;flex-direction:column;align-items:center;min-width:64px;border-right:1px solid var(--line);padding-right:12px}
+body.drv .dtr .sc small{font-size:11px;color:var(--mut)}body.drv .dtr .sc b{font-family:var(--num);font-size:30px;line-height:1.1;color:var(--acc)}
+body.drv .dtr .sc b.mid{color:var(--amb)}body.drv .dtr .sc b.low{color:var(--red)}
+body.drv .dtr .sk{position:relative;height:58px}body.drv .dtr svg{position:absolute;inset:0;width:100%;height:100%}
+body.drv .dtr .sl{position:absolute;left:0;top:-2px;font-size:11px;color:var(--mut)}body.drv .dtr .sm{position:absolute;right:0;top:-2px;font-size:11px;color:var(--mut)}
+@media (max-height:760px){body.drv .dwx{display:none}}
+@media (max-height:600px){body.drv .dtr{display:none}}
+
+.dchips,.dday{display:none}
+body.drv .dchips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
+body.drv .dchips>div{display:flex;flex-direction:column;justify-content:center;padding:6px 10px;border-radius:12px;background:var(--surf);border:1px solid var(--line);min-height:48px;min-width:0}
+body.drv .dchips small{font-size:11px;color:var(--mut);white-space:nowrap}body.drv .dchips b{font-family:var(--num);font-size:16px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.drv .dchips b.g{color:var(--acc)}body.drv .dchips b.y{color:var(--amb)}body.drv .dchips b.r{color:var(--red)}
+body.drv .dday{display:flex;flex:none;align-items:center;gap:10px;padding:8px 14px;border-radius:12px;background:var(--surf);border:1px solid var(--line);font-size:12px;color:var(--mut)}
+body.drv .dday .h{font-weight:700;color:var(--txt);font-size:13px;white-space:nowrap}body.drv .dday .v{display:flex;flex:1;justify-content:space-between;gap:8px}
+body.drv .dday .v span{white-space:nowrap}body.drv .dday .v b{color:var(--txt);font-family:var(--num);font-size:15px}
+body.drv .dday.rest{border-color:var(--amb)}body.drv .dday.rest .h{color:var(--amb)}
+@media (max-height:860px){body.drv .dchips{display:none}}
+@media (max-height:900px){body.drv .dday{display:none}}
+@media (min-height:901px){body.drv .dpass{display:none}}
+body.drv #drive:not(.hide){gap:12px!important}
+@media (min-height:880px){body.drv .ring{width:min(100%,400px,calc((52dvh - 100px)*1.18))!important}}
 .bi{flex:none;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;color:var(--acc);border:1px solid var(--acc)}
 .locw{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:60;display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:16px;background:#F0413C;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .locw b{font-size:18px}.locw span{font-size:14px;line-height:1.5}.locw button{align-self:flex-start;margin-top:4px;min-height:42px;padding:0 18px;border:0;border-radius:12px;background:#fff;color:#C4120C;font-size:15px;font-weight:700}
@@ -260,6 +294,8 @@ body.tabs-off #tabHandle{display:block}
 
 <div class="locw hide" id="locWarn" role="alert"><b id="locT">手機定位（GPS）沒有打開</b><span id="locS">打開定位才能提醒前方的測速照相。</span><button type="button" id="locFix">打開定位</button></div>
 <section id="drive" class="hide" aria-label="駕駛中">
+<div class="dwx" id="dWx" aria-live="off"><span class="wi" id="wxI">⛅</span><span><b id="wxT">--°</b> <span id="wxD">取得天氣中…</span></span><span class="wr" id="wxR"></span></div>
+<div class="dchips"><div><small id="chSunL">日落</small><b id="chSun">--:--</b></div><div><small>空氣品質 PM2.5</small><b id="chAir">--</b></div><div><small id="chBatL">手機電量</small><b id="chBat">--</b></div></div>
 <div class="ring" aria-label="目前時速">
 <svg viewBox="0 0 390 330" role="img" aria-label="速度環">
 <path id="appT" fill="none" stroke="var(--surf2)" stroke-width="9" stroke-linecap="round"></path>
@@ -278,6 +314,8 @@ body.tabs-off #tabHandle{display:block}
 <div class="dhead" id="dHead"><i id="dArr">↑</i><span id="dDir">北</span><b id="dClock">--:--</b><span class="gi" id="dGi"></span><button type="button" class="vmode" id="vMode">汽車</button></div>
 <div class="dstat"><div>本趟里程<b id="stKm">0.0</b></div><div>行駛時間<b id="stT">0:00</b></div><div>平均時速<b id="stAv">0</b></div><div>最高時速<b id="stMx">0</b></div></div>
 <div class="dbar" id="dBar"><div class="tr"><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:85%"></i><i class="fl" id="dbFl"></i><span class="car" id="dbCar"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 12 L21 3 L14 21 L12 13 Z" fill="#2F80ED" stroke="#fff" stroke-width="2" stroke-linejoin="round" transform="rotate(45 12 12)"/></svg></span><span class="cm"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></span></div><div class="lb"><span>1 公里</span><span style="left:50%">500</span><span style="left:85%">150</span></div></div>
+<div class="dtr"><div class="sc"><small>安全分數</small><b id="scV">100</b></div><div class="sk"><span class="sl">最近 3 分鐘時速</span><span class="sm" id="skM"></span><svg id="spk" viewBox="0 0 300 58" preserveAspectRatio="none" aria-label="最近 3 分鐘時速"><path id="spkL" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"></path><path id="spkA" fill="var(--acc)" opacity=".14"></path><path id="spkP" fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></svg></div></div>
+<div class="dday" id="dDay"><span class="h" id="dayH">今日累計</span><span class="v"><span>里程 <b id="dyKm">0.0</b> 公里</span><span>行駛 <b id="dyT">0</b> 分</span><span>超速 <b id="dyOv">0</b> 次</span></span></div>
 <div class="dpass"><span>經過測速 <b id="psN">0</b> 處</span><span>語音提醒 <b id="psA">0</b> 次</span><span>超速 <b id="psO">0</b> 次</span></div>
 <div class="dlist" id="dList"></div>
 <div class="dact"><button type="button" id="muteBtn" class="dab"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="muteW" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span id="muteTx">語音開</span></button><button type="button" id="toMap" class="dab"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>看地圖</button><button class="dab end" id="stop" type="button">結束</button></div>
@@ -294,7 +332,7 @@ body.tabs-off #tabHandle{display:block}
 </section>
 
 <section id="pg-traf" class="pg hide" aria-label="即時路況">
-<div class="demo">這一頁目前是<b>示範資料</b>，不是真正的即時路況。要接真的，需要申請交通部 TDX 的免費金鑰，下一步再接。</div>
+<div class="demo hide" id="trWarn"></div>
 <div class="mapbar"><div class="seg" id="trSeg"><button type="button" data-v="all" aria-pressed="true">全部國道</button><button type="button" data-v="國1" aria-pressed="false">國1</button><button type="button" data-v="國3" aria-pressed="false">國3</button><button type="button" data-v="國5" aria-pressed="false">國5</button></div></div>
 <div class="mapbox"><div id="cvTraf" class="mp"></div><div class="mapnote hide" id="cvTrafNote"></div><div class="zb" style="top:10px"><button id="trZi" type="button" aria-label="放大">+</button><button id="trZo" type="button" aria-label="縮小">−</button><button id="trTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div></div>
 <div class="leg"><span><i style="background:#16B26B"></i>順暢 60+</span><span><i style="background:#FFA814"></i>車多 30–60</span><span><i style="background:#F0413C"></i>壅塞 &lt;30</span></div>
@@ -304,8 +342,8 @@ body.tabs-off #tabHandle{display:block}
 </section>
 
 <section id="pg-route" class="pg hide" aria-label="路線紀錄">
-<p class="note" style="margin:10px 0">每次在「行駛」頁開始，按「結束」就會存一筆路線。</p>
-<div class="note hide" id="tripEmpty" style="padding:20px 0">還沒有紀錄。到「行駛」頁按「開始行駛」，到了按「結束」就會存起來。</div>
+<p class="note" style="margin:10px 0">開著 App 行駛，路線會自動存起來（每分鐘更新一次）。</p>
+<div class="note hide" id="tripEmpty" style="padding:20px 0">還沒有紀錄。開著 App 開一段路，路線就會自動出現在這裡。</div>
 <div id="tripView" class="hide">
 <div class="mapbox" style="height:56vh;height:56dvh;min-height:320px"><div id="cvTrip" class="mp"></div><div class="mapnote hide" id="cvTripNote"></div>
 <div class="zb" style="top:10px"><button id="tripZi" type="button" aria-label="放大">+</button><button id="tripZo" type="button" aria-label="縮小">−</button><button id="tripTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button><button id="tripFol" type="button" aria-label="跟車或全程" class="tx">全程</button></div>
@@ -373,8 +411,8 @@ body.tabs-off #tabHandle{display:block}
 <div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div>
 <div class="row"><span class="t"><b>罰單查詢</b><span>打開監理服務網查詢罰單</span></span><button class="chip" id="fineGo" type="button">開啟</button></div>
 </div>
-<div style="margin-top:14px" hidden><span class="lab">即時路況金鑰（TDX）</span>
-<p class="note" style="margin:4px 0 8px">金鑰只存在這支手機裡，不會上傳。填好後按「儲存並測試」。</p>
+<div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX，選填）</span>
+<p class="note" style="margin:4px 0 8px">填了交通部 TDX 的金鑰，下方選單會多出「路況」，顯示國道即時車速。到 tdx.transportdata.tw 免費註冊就能拿到。金鑰只存在這支手機裡，不會上傳。</p>
 <input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
 <input id="tdxSec" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client Secret" aria-label="Client Secret" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
 <div style="display:flex;gap:8px"><button class="chip" id="tdxSave" type="button" style="flex:1;justify-content:center">儲存並測試</button><button class="chip" id="tdxClr" type="button" style="justify-content:center">清除</button></div>
@@ -479,7 +517,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041903';
+var DATAV='202611042005';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -841,8 +879,27 @@ var peak=Math.max(0,1-Math.min(Math.abs(hr-8)/2.2,Math.abs(hr-18)/2.6));var w=0.
 var x=hsh(k+':'+i+':'+slot),base=(k==='國1'||k==='國3')?100:90;
 if(x<0.10*w+0.02)return Math.round(14+x*300);if(x<0.30*w+0.06)return Math.round(38+x*100);return Math.round(base-12*x);}
 function trCol(v){return v<30?MC.r:v<60?MC.a:MC.g;}
-function buildTrSeg(){if(TRSEG)return;TRSEG=[];Object.keys(GEO.f).forEach(function(k){if(k.indexOf('國')!==0)return;var p=GEO.f[k].p,n=p.length/2;for(var a=0,si=0;a<n-1;a+=10,si++){var b=Math.min(a+10,n-1),c=[];for(var i=a;i<=b;i++)c.push([p[i*2],p[i*2+1]]);TRSEG.push({k:k,si:si,a:a,b:b,c:c,v:0});}});}
-function trGJ(){buildTrSeg();TRSEG.forEach(function(s){s.v=trSpeed(s.k,s.si);});return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
+function buildTrSeg(){if(TRSEG)return;if(RT.ok){trGJ();return;}TRSEG=[];Object.keys(GEO.f).forEach(function(k){if(k.indexOf('國')!==0)return;var p=GEO.f[k].p,n=p.length/2;for(var a=0,si=0;a<n-1;a+=10,si++){var b=Math.min(a+10,n-1),c=[];for(var i=a;i<=b;i++)c.push([p[i*2],p[i*2+1]]);TRSEG.push({k:k,si:si,a:a,b:b,c:c,v:0});}});}
+var RT={ok:false,shape:null,info:null,live:null,t:0,busy:false,err:''};
+function wktPts(g){var out=[],m=String(g||'').match(/-?\d+(\.\d+)?\s+-?\d+(\.\d+)?/g)||[];m.forEach(function(p){var a=p.trim().split(/\s+/);out.push([+(+a[0]).toFixed(5),+(+a[1]).toFixed(5)]);});return out;}
+function arr(j,k){if(!j)return [];if(Array.isArray(j))return j;return j[k]||j[k.toLowerCase()]||[];}
+function roadKey(n){var m=String(n||'').match(/國道\s*(\d+)/)||String(n||'').match(/國(\d+)/);return m?'國'+m[1]:String(n||'國道');}
+function tdxJ(path,cb){window.TDX(path,function(ok,txt){if(!ok){cb(null,txt);return;}try{cb(JSON.parse(txt));}catch(e){cb(null,'資料格式不對');}});}
+function loadReal(force){if(!window.TDXHas||!TDXHas()||RT.busy)return;if(!force&&RT.ok&&Date.now()-RT.t<55000)return;RT.busy=true;
+function live(){tdxJ('/api/basic/v2/Road/Traffic/Live/Freeway?%24format=JSON',function(j,e){RT.busy=false;if(!j){RT.err=e||'連不上';syncTrWarn();return;}
+var L={};arr(j,'LiveTraffics').forEach(function(r){var v=+(r.TravelSpeed!=null?r.TravelSpeed:r.travelSpeed);if(v>0&&v<200)L[r.SectionID||r.sectionID]=Math.round(v);});
+RT.live=L;RT.t=Date.now();RT.ok=Object.keys(L).length>0;RT.err=RT.ok?'':'目前沒有資料';RT.up=j.UpdateTime||j.SrcUpdateTime||'';TRSEG=null;syncTrWarn();if(S.page==='traf')refreshTraf();});}
+if(RT.shape){live();return;}
+tdxJ('/api/basic/v2/Road/Traffic/SectionShape/Freeway?%24format=JSON',function(j,e){if(!j){RT.busy=false;RT.err=e||'連不上';syncTrWarn();return;}
+var SH={};arr(j,'SectionShapes').forEach(function(r){var p=wktPts(r.Geometry||r.geometry);if(p.length>1)SH[r.SectionID||r.sectionID]=p;});RT.shape=SH;
+tdxJ('/api/basic/v2/Road/Traffic/Section/Freeway?%24format=JSON',function(j2){var I={};arr(j2,'Sections').forEach(function(r){var nm=r.SectionName;if(nm&&typeof nm==='object')nm=nm.Zh_tw||nm.zh_tw||'';
+I[r.SectionID||r.sectionID]={n:nm||'',r:r.RoadName||'',d:r.RoadDirection||''};});RT.info=I;live();});});}
+function syncTrWarn(){var w=$('trWarn');if(!w)return;var has=window.TDXHas&&TDXHas();var tb=document.querySelector('#tabs button[data-p=traf]');if(tb)tb.hidden=!has;
+if(!has){w.classList.add('hide');return;}if(RT.ok){w.classList.add('hide');return;}w.classList.remove('hide');w.textContent=RT.busy||!RT.err?'正在向交通部取得即時路況…':'取不到即時路況：'+RT.err;}
+window.__trReal=function(){RT.shape=null;RT.ok=false;RT.err='';TRSEG=null;syncTrWarn();loadReal(true);};
+function trGJ(){if(RT.ok&&RT.shape){TRSEG=[];Object.keys(RT.live).forEach(function(id){var c=RT.shape[id];if(!c)return;var inf=(RT.info||{})[id]||{};TRSEG.push({k:roadKey(inf.r),id:id,nm:inf.n,dir:inf.d,c:c,v:RT.live[id],real:true});});
+return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
+buildTrSeg();TRSEG.forEach(function(s){s.v=trSpeed(s.k,s.si);});return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
 function trFilter(){return TR.sel==='all'?null:['==',['get','k'],TR.sel];}
 var TRCLS=[['f0',['>=',['get','v'],60]],['f1',['all',['>=',['get','v'],30],['<',['get','v'],60]]],['f2',['<',['get','v'],30]]];
 function trFiltFor(cond){var f=trFilter();return f?['all',cond,f]:cond;}
@@ -869,13 +926,13 @@ if(vis&&trafM&&trafM.getLayer&&trafM.getLayer('tr-f0')){
 if(trafM.getLayer('tr-glow')){var o=.22+.38*(0.5+0.5*Math.sin(t/260));if(t-trGl>60){trGl=t;trafM.setPaintProperty('tr-glow','line-opacity',o);}}}
 requestAnimationFrame(trTick);}
 function initTraf(){if(trafM||trafM===false)return;trafM=mkMap('cvTraf',{overlay:ovTraf,pitch:35,bearing:-12,zoom:6.4});if(!trafM)trafM=false;}
-function refreshTraf(){buildTrSeg();var gj=trGJ();if(trafM&&trafM.getSource&&trafM.getSource('tr'))trafM.getSource('tr').setData(gj);drawTrafList();}
+function refreshTraf(){loadReal(false);buildTrSeg();var gj=trGJ();if(trafM&&trafM.getSource&&trafM.getSource('tr'))trafM.getSource('tr').setData(gj);drawTrafList();}
 function trKeysSegs(){return TRSEG.filter(function(s){return TR.sel==='all'||s.k===TR.sel;});}
 function drawTrafList(){buildTrSeg();var segs=trKeysSegs().slice().sort(function(x,y){return x.v-y.v;});var ul=$('trList');ul.innerHTML='';
-segs.slice(0,5).forEach(function(s){var li=document.createElement('li');li.style.cursor='pointer';var km0=Math.round(s.a/10),km1=Math.round(s.b/10);li.innerHTML='<span class="tn" style="font-family:var(--num);font-size:22px;font-weight:600;color:'+trCol(s.v)+';width:88px">'+s.v+'<small style="font-size:11px;font-weight:400;color:var(--mut)"> km/h</small></span><span style="flex:1">'+s.k+' · 約 '+km0+'–'+km1+' 公里處</span><span class="chip">看地圖</span>';
+segs.slice(0,5).forEach(function(s){var li=document.createElement('li');li.style.cursor='pointer';var km0=Math.round((s.a||0)/10),km1=Math.round((s.b||0)/10),lab=s.real?(s.k+' '+(s.nm||'')+(s.dir?'（'+({N:'北上',S:'南下',E:'東向',W:'西向'}[s.dir]||s.dir)+'）':'')):(s.k+' · 約 '+km0+'–'+km1+' 公里處');li.innerHTML='<span class="tn" style="font-family:var(--num);font-size:22px;font-weight:600;color:'+trCol(s.v)+';width:88px">'+s.v+'<small style="font-size:11px;font-weight:400;color:var(--mut)"> km/h</small></span><span style="flex:1">'+lab+'</span><span class="chip">看地圖</span>';
 li.addEventListener('click',function(){var c=s.c[Math.floor(s.c.length/2)];if(trafM)trafM.flyTo({center:c,zoom:12,pitch:55,duration:1200});window.scrollTo({top:0,behavior:'smooth'});});ul.appendChild(li);});
-var d=new Date();$('trTime').textContent='示範資料 · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' 時段';
-var red=segs.filter(function(s){return s.v<30;}).length,amb=segs.filter(function(s){return s.v>=30&&s.v<60;}).length;$('trSum').textContent='共 '+segs.length+' 段（每段約 5 公里）· 壅塞 '+red+' 段 · 車多 '+amb+' 段';}
+var d=RT.t?new Date(RT.t):new Date();$('trTime').textContent=(RT.ok?'交通部 TDX 即時資料 · ':'資料準備中 · ')+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' 更新';
+var red=segs.filter(function(s){return s.v<30;}).length,amb=segs.filter(function(s){return s.v>=30&&s.v<60;}).length;$('trSum').textContent='共 '+segs.length+' 段 · 壅塞 '+red+' 段 · 車多 '+amb+' 段';}
 document.querySelectorAll('#trSeg button').forEach(function(b){b.addEventListener('click',function(){TR.sel=b.dataset.v;document.querySelectorAll('#trSeg button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
 if(trafM&&trafM.getLayer&&trafM.getLayer('tr')){applyTrFilters(trafM);
 if(TR.sel==='all')trafM.flyTo({center:[120.97,23.7],zoom:6.4,pitch:35,bearing:-12});else{buildTrSeg();var lo0=999,lo1=0,la0=99,la1=0;trKeysSegs().forEach(function(s){s.c.forEach(function(q){lo0=Math.min(lo0,q[0]);lo1=Math.max(lo1,q[0]);la0=Math.min(la0,q[1]);la1=Math.max(la1,q[1]);});});trafM.fitBounds([[lo0,la0],[lo1,la1]],{padding:40,pitch:40,duration:1000});}}
@@ -891,7 +948,10 @@ if(!l||dist(l[0],l[1],lat,lon)>=10){r.push([+lat.toFixed(5),+lon.toFixed(5),Math
 function saveTrip(){var r=S.rec;if(!r||r.length<3)return;var d=0,mx=0;for(var i=1;i<r.length;i++){d+=dist(r[i-1][0],r[i-1][1],r[i][0],r[i][1]);}
 r.forEach(function(p){if(p[2]>mx)mx=p[2];});if(d<60)return;
 var dur=r[r.length-1][3]||1;var step=Math.max(1,Math.ceil(r.length/700));var pts=r.filter(function(p,i){return i%step===0||i===r.length-1;});
-var a=loadTrips();a.unshift({t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);S.rec=[];}
+var a=loadTrips().filter(function(q){return q.t!==S.t0;});a.unshift({t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);}
+setInterval(function(){if(S.run)saveTrip();},60000);
+document.addEventListener('visibilitychange',function(){if(document.hidden&&S.run)saveTrip();});
+window.addEventListener('pagehide',function(){if(S.run)saveTrip();});
 var TRIP=null,PLAY=null,RATE=4,TZ=16.3,TFOL=true;
 function fmtDur(s){var m=Math.floor(s/60),h=Math.floor(m/60);return h?h+' 小時 '+(m%60)+' 分':m+' 分 '+(s%60)+' 秒';}
 function fmtDate(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
@@ -1145,11 +1205,12 @@ var st=$('tdxSt'),dbg=$('tdxDbg'),idI=$('tdxId'),seI=$('tdxSec');
 var k0=ld();if(k0){idI.value=k0.i;seI.value=k0.s;st.textContent='已儲存金鑰。';}
 var PATHS=['/api/basic/v2/Road/Traffic/Live/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/Section/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/SectionShape/Freeway?%24top=1&%24format=JSON'];
 function test(){dbg.textContent='';var i=0,okAny=false,out=[];
-function next(){if(i>=PATHS.length){st.textContent=okAny?'連線成功，已收到交通部資料。':'連線失敗，請看下方訊息。';st.style.color=okAny?'':'var(--red)';dbg.textContent=out.join('\n\n');return;}
+function next(){if(i>=PATHS.length){st.textContent=okAny?'連線成功！下方選單已經多了「路況」。':'連線失敗，請看下方訊息。';if(okAny&&window.__trReal)window.__trReal();st.style.color=okAny?'':'var(--red)';dbg.textContent=out.join('\n\n');return;}
 var p=PATHS[i++];window.TDX(p,function(ok,t){if(ok)okAny=true;var nm=p.split('?')[0].replace('/api/basic/v2/','');out.push((ok?'OK ':'失敗 ')+nm+'\n'+String(t).slice(0,ok?260:160));next();});}
 st.textContent='連線中…';st.style.color='';next();}
 $('tdxSave').onclick=function(){var i=idI.value.trim(),s=seI.value.trim();if(!i||!s){st.textContent='兩個欄位都要填。';return;}sv({i:i,s:s});test();};
-$('tdxClr').onclick=function(){sv(null);idI.value='';seI.value='';st.textContent='已清除金鑰。';dbg.textContent='';};
+$('tdxClr').onclick=function(){sv(null);idI.value='';seI.value='';st.textContent='已清除金鑰。';dbg.textContent='';if(window.__trReal)window.__trReal();};
+setTimeout(function(){if(window.__trReal)window.__trReal();},1500);
 })();
 
 /* ---------- 用 Google 地圖導航 + 浮動測速提示 ---------- */
@@ -1179,6 +1240,72 @@ setTimeout(sync,300);};
 sync();document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
 var fb=$('floatFix');if(fb)fb.onclick=function(){try{AndroidNav.setAuto(true);AndroidNav.askOverlay();}catch(e){}setTimeout(sync,300);};
 })();
+
+/* ---------- 主畫面：天氣、安全分數、最近 3 分鐘時速 ---------- */
+(function(){
+var H=[],lastT=0,overS=0;
+var _render=render;render=function(spd,camNext,anyNext,lim,over){_render.apply(this,arguments);try{extra(spd,lim,over);}catch(e){}};
+var _begin=begin;begin=function(m){H=[];overS=0;lastT=0;_begin.apply(this,arguments);};
+function extra(spd,lim,over){var now=Date.now();if(!S.run)return;
+if(lastT){var dt=Math.min(5,(now-lastT)/1000);if(over)overS+=dt;}lastT=now;
+if(!H.length||now-H[H.length-1][0]>=1000)H.push([now,spd,lim]);while(H.length&&now-H[0][0]>180000)H.shift();
+var sc=Math.max(0,Math.round(100-overS/3-(S.nOv||0)*2)),e=$('scV');e.textContent=sc;e.className=sc>=85?'':sc>=60?'mid':'low';
+var mx=60;H.forEach(function(h){if(h[1]>mx)mx=h[1];if(h[2]&&h[2]>mx)mx=h[2];});mx=Math.ceil(mx/20)*20+10;
+var t0=now-180000,X=function(t){return ((t-t0)/180000*300).toFixed(1);},Y=function(v){return (58-v/mx*54).toFixed(1);};
+var d='';H.forEach(function(h,i){d+=(i?'L':'M')+X(h[0])+' '+Y(h[1]);});$('spkP').setAttribute('d',d);
+$('spkA').setAttribute('d',H.length>1?d+'L'+X(H[H.length-1][0])+' 58L'+X(H[0][0])+' 58Z':'');
+var L=lim||null;for(var i=H.length-1;i>=0&&L==null;i--)if(H[i][2])L=H[i][2];
+$('spkL').setAttribute('d',L?'M0 '+Y(L)+'L300 '+Y(L):'');
+var top=0;H.forEach(function(h){if(h[1]>top)top=h[1];});$('skM').textContent=H.length>2?'最高 '+Math.round(top):'';
+wxMaybe();}
+/* 天氣（Open-Meteo，免費不用金鑰）：每 15 分鐘或移動 5 公里更新一次 */
+var WX={t:0,lat:null,lon:null,busy:false};
+var WC={0:['☀️','晴'],1:['🌤️','晴時多雲'],2:['⛅','多雲'],3:['☁️','陰'],45:['🌫️','有霧'],48:['🌫️','有霧'],51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],61:['🌦️','小雨'],63:['🌧️','下雨'],65:['🌧️','大雨'],80:['🌦️','陣雨'],81:['🌧️','陣雨'],82:['⛈️','大陣雨'],95:['⛈️','雷雨'],96:['⛈️','雷雨'],99:['⛈️','雷雨']};
+function wxMaybe(){if(WX.busy||!S.lat||!window.fetch)return;var now=Date.now(),moved=WX.lat==null?1e9:dist(WX.lat,WX.lon,S.lat,S.lon);
+if(now-WX.t<900000&&moved<5000)return;if(WX.fail&&now-WX.fail<120000)return;WX.busy=true;
+var u='https://api.open-meteo.com/v1/forecast?latitude='+S.lat.toFixed(3)+'&longitude='+S.lon.toFixed(3)+'&current=temperature_2m,weather_code&hourly=precipitation_probability&forecast_hours=3&timezone=auto';
+fetch(u).then(function(r){return r.json();}).then(function(j){WX.busy=false;WX.t=Date.now();WX.lat=S.lat;WX.lon=S.lon;WX.fail=0;
+var c=j.current||{},w=WC[c.weather_code]||['🌡️',''],p=((j.hourly||{}).precipitation_probability||[]).slice(0,3),pm=p.length?Math.max.apply(null,p):null;
+$('wxI').textContent=w[0];$('wxT').textContent=c.temperature_2m!=null?Math.round(c.temperature_2m)+'°':'--°';$('wxD').textContent=w[1];
+var r=$('wxR');if(pm==null){r.textContent='';r.className='wr';}else{r.textContent=pm>=60?'3 小時內可能下雨 '+pm+'%'+(S.veh!=='car'?'，記得帶雨衣':''):'降雨機率 '+pm+'%';r.className='wr'+(pm>=60?' rain':'');}
+}).catch(function(){WX.busy=false;WX.fail=Date.now();if(!WX.t){$('wxD').textContent='天氣暫時取不到';}});}
+})();
+
+
+/* ---------- 主畫面：日出日落、空氣品質、電量、今日累計、疲勞提醒 ---------- */
+(function(){
+function today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+var DY;try{DY=JSON.parse(localStorage.getItem('sc_day')||'null');}catch(e){}if(!DY||DY.d!==today())DY={d:today(),km:0,sec:0,ov:0};
+var last={km:0,t:0,ov:0},restAt=0,saveT=0;
+var _b=begin;begin=function(){last={km:0,t:0,ov:0};restAt=0;_b.apply(this,arguments);};
+var _r=render;render=function(){_r.apply(this,arguments);try{upd();}catch(e){}};
+function upd(){if(!S.run)return;var now=Date.now();if(DY.d!==today())DY={d:today(),km:0,sec:0,ov:0};
+var km=S.km||0,el=(now-S.t0)/1000,ov=S.nOv||0;
+if(km>last.km)DY.km+=km-last.km;if(last.t&&el>last.t)DY.sec+=Math.min(10,el-last.t);if(ov>last.ov)DY.ov+=ov-last.ov;last={km:km,t:el,ov:ov};
+if(now-saveT>15000){saveT=now;try{localStorage.setItem('sc_day',JSON.stringify(DY));}catch(e){}}
+$('dyKm').textContent=(DY.km/1000).toFixed(1);$('dyT').textContent=Math.floor(DY.sec/60);$('dyOv').textContent=DY.ov;
+/* 連續行駛 2 小時提醒休息，之後每 1 小時 */
+var dd=$('dDay'),need=el>=7200;dd.classList.toggle('rest',need);$('dayH').textContent=need?'該休息了':'今日累計';
+if(need&&(!restAt||now-restAt>=3600000)&&now>=(S.busy||0)){restAt=now;say('您已經連續行駛'+(el>=10800?'超過三小時':'兩小時')+'，建議找地方休息一下。',1,1);}
+sun();}
+/* 日出日落、空氣品質：跟天氣一樣用 Open-Meteo，每 30 分鐘或移動 10 公里更新 */
+var A={t:0,lat:null,lon:null,busy:false,sr:null,ss:null};
+function hm(s){var d=new Date(s);return isNaN(d)?null:d;}
+function f2(d){return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function sun(){var now=new Date();if(A.ss){var lab,val;if(now<A.sr){lab='日出';val=A.sr;}else if(now<A.ss){lab='日落';val=A.ss;}else{lab='已日落';val=null;}
+$('chSunL').textContent=lab;$('chSun').textContent=val?f2(val):'記得開燈';$('chSun').className=!val||(lab==='日落'&&A.ss-now<1800000)?'y':'';}
+if(A.busy||!S.lat||!window.fetch)return;var ms=Date.now(),mv=A.lat==null?1e9:dist(A.lat,A.lon,S.lat,S.lon);if(ms-A.t<1800000&&mv<10000)return;if(A.fail&&ms-A.fail<120000)return;A.busy=true;
+var q='latitude='+S.lat.toFixed(3)+'&longitude='+S.lon.toFixed(3);
+Promise.all([fetch('https://api.open-meteo.com/v1/forecast?'+q+'&daily=sunrise,sunset&forecast_days=1&timezone=auto').then(function(r){return r.json();}).catch(function(){return null;}),
+fetch('https://air-quality-api.open-meteo.com/v1/air-quality?'+q+'&current=pm2_5&timezone=auto').then(function(r){return r.json();}).catch(function(){return null;})]).then(function(rs){
+A.busy=false;A.t=Date.now();A.lat=S.lat;A.lon=S.lon;if(!rs[0]&&!rs[1])A.fail=Date.now();
+try{var dl=rs[0].daily;A.sr=hm(dl.sunrise[0]);A.ss=hm(dl.sunset[0]);}catch(e){}
+try{var pm=rs[1].current.pm2_5;if(pm!=null){var b=$('chAir');b.textContent=Math.round(pm)+(pm<=15.4?' 良好':pm<=35.4?' 普通':pm<=54.4?' 敏感注意':' 不良');b.className=pm<=15.4?'g':pm<=35.4?'':pm<=54.4?'y':'r';}}catch(e){}
+});}
+/* 手機電量 */
+try{if(navigator.getBattery)navigator.getBattery().then(function(bt){function p(){var v=Math.round(bt.level*100),e=$('chBat');e.textContent=v+'%'+(bt.charging?' ⚡':'');e.className=bt.charging?'g':v<=20?'r':v<=35?'y':'';}p();bt.addEventListener('levelchange',p);bt.addEventListener('chargingchange',p);});else $('chBat').textContent='--';}catch(e){}
+})();
+
 /* ---------- 一打開就是行駛畫面，自動定位；定位沒開就提示 ---------- */
 (function(){var box=$('locWarn'),T=$('locT'),Sx=$('locS'),B=$('locFix'),why='';
 function nat(f){try{return window.AndroidNav&&AndroidNav[f]?AndroidNav[f]():null;}catch(e){return null;}}
