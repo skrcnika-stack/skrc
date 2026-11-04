@@ -45,7 +45,7 @@ public class AlertEngine {
     private double hd = -1;
     private boolean hasPrev = false;
     private double pLat, pLon;
-    private long pT;
+    private long pT, lastT = 0;
 
     /* 給畫面用的結果 */
     public float speed = 0f;
@@ -69,7 +69,7 @@ public class AlertEngine {
 
     public void resetTrip() {
         stage.clear(); seenAt.clear(); over = false; lv = 0; nSay = 0; lastSay = 0; busyUntil = 0;
-        sp200 = -1f; hd = -1; hasPrev = false;
+        sp200 = -1f; hd = -1; hasPrev = false; lastT = 0;
     }
 
     static final double R = 6371000, D2R = Math.PI / 180;
@@ -135,6 +135,9 @@ public class AlertEngine {
             }
         } else { hasPrev = true; pLat = la; pLon = lo; pT = now; }
         double spd = (sp == null ? 0 : sp) * (1 + cal / 100.0);
+        // 車子不可能 1 秒加速超過 30 公里：GPS 突然跳很高就慢慢跟上
+        if (lastT > 0) { double q = Math.max(0.5, (now - lastT) / 1000.0); if (spd > speed + 30 * q) spd = speed + 30 * Math.min(q, 1); }
+        lastT = now;
         if (h != null && spd >= 3) hd = h;
         speed = (float) spd;
         moving = spd >= 8 && hd >= 0;
