@@ -198,6 +198,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="row"><span class="t"><b>語速</b><span>聽起來太快或太慢可以調</span></span><div class="seg" id="segR"><button type="button" data-v="0.9" aria-pressed="false">慢</button><button type="button" data-v="1" aria-pressed="true">標準</button><button type="button" data-v="1.12" aria-pressed="false">快</button></div></div>
 <div class="row"><span class="t"><b>超速重複間隔</b><span>超速時每隔幾秒提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="3" aria-pressed="false">3 秒</button><button type="button" data-v="5" aria-pressed="true">5 秒</button><button type="button" data-v="10" aria-pressed="false">10 秒</button></div></div>
 <div class="row"><span class="t"><b>取締熱點提醒</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
+<div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
 <div class="row" style="border-bottom:1px solid var(--line)"><span class="t"><b>資料</b><span>警政署固定測速照相設置地點 1872 處（本島＋離島）· 取締熱點 145 處</span></span></div></div>
 <div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX）</span>
 <p class="note" style="margin:4px 0 8px">金鑰只存在這支手機裡，不會上傳。填好後按「儲存並測試」。</p>
@@ -751,6 +752,20 @@ else if(r==='need_overlay')say('請在跳出的畫面找到「測速提醒」，
 else if(r==='ok')say('已打開 Google 地圖。測速提示會浮在畫面上，要停止就點浮動視窗右邊的 ✕。');
 else say('沒有成功，請再按一次。');};
 $('navStop').onclick=function(){if(window.AndroidNav){try{AndroidNav.stop();}catch(e){}}say('已停止浮動提示。');};
+})();
+
+/* ---------- 縮小時自動浮動 ---------- */
+(function(){var sw=$('swFloat'),sub=$('swFloatSub');if(!sw)return;
+function paint(on){sw.setAttribute('aria-checked',on?'true':'false');}
+function sync(){if(!window.AndroidNav){sub.textContent='安裝版 App 才有這個功能';paint(false);return;}
+var on=true;try{on=AndroidNav.getAuto();}catch(e){}paint(on);
+var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}
+sub.textContent=on&&!ok?'還差一步：點這裡的開關，到系統頁面允許「顯示在其他應用程式上層」':'按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來';}
+sw.onclick=function(){if(!window.AndroidNav)return;var on=sw.getAttribute('aria-checked')!=='true';
+try{AndroidNav.setAuto(on);}catch(e){}paint(on);
+if(on){var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}if(!ok){try{AndroidNav.askOverlay();}catch(e){}}}
+setTimeout(sync,300);};
+sync();document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
 })();
 goPage('drive');
 
