@@ -150,6 +150,19 @@ body.drv .cam .ctx{font-size:clamp(13px,4.2vw,18px)}
 .dhead{display:none}
 body.drv .dhead{display:flex;position:absolute;left:0;top:12px;z-index:20;gap:8px;align-items:center;font-size:13px;color:var(--mut);min-height:34px;padding:2px 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg0)}
 .dhead b{color:var(--txt);font-family:var(--num);font-size:16px}.dhead i{font-style:normal;display:inline-block;color:var(--acc);font-size:15px;transition:transform .4s}
+
+/* 汽車模式：明亮介面 */
+body.car{--bg:#F3F6FA;--bg0:#FFFFFF;--surf:#FFFFFF;--surf2:#E2E8F1;--line:#DCE3ED;--rule:#C3CDDB;--txt:#0D1828;--mut:#5B6B83;--acc:#0A9E7A;--accT:#0A9E7A;--amb:#D98200;--red:#E0342F;color-scheme:light}
+body.car .cam.hot{color:#7B4FE0}body.car .cam.tech{color:#1C76D8}body.car .cam.cross{color:#D62E7A}body.car .cam.over{color:#E0342F}
+body.car .dstat div,body.car .dnext,body.car .dbar,body.car .dhead,body.car .top .chip{box-shadow:0 1px 3px rgba(16,30,54,.08)}
+body.car #tabs{box-shadow:0 -2px 10px rgba(16,30,54,.08)}
+body.car .btn.pri{color:#fff}
+body.car .ring #arcGlow{opacity:.18}
+.vsw{display:flex;gap:0;margin:4px 0 12px;border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--surf)}
+.vsw button{flex:1;min-height:52px;border:0;background:transparent;color:var(--mut);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.vsw button[aria-pressed=true]{background:var(--acc);color:#fff}
+body:not(.car) .vsw button[aria-pressed=true]{color:#04251d}
+.dhead .vmode{border:0;background:transparent;color:var(--acc);font-weight:700;font-size:13px;padding:0 0 0 6px;border-left:1px solid var(--line);margin-left:2px;min-height:28px}
 .dbar,.dpass{display:none}
 body.drv .dbar{display:block;flex:none;padding:10px 14px 4px;border-radius:12px;background:var(--surf);border:1px solid var(--line)}
 .dbar .tr{position:relative;height:10px;border-radius:5px;background:var(--surf2);margin:10px 14px 0 4px}
@@ -193,6 +206,7 @@ body.tabs-off #tabHandle{display:block}
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
 <div id="pg-drive" class="pg"><section id="start" aria-label="開始">
+<div class="vsw" id="vSw" role="group" aria-label="車種"><button type="button" data-m="car"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/><path d="M5 12h14"/></svg>汽車（明亮）</button><button type="button" data-m="moto"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M8.5 16.5h5l3-6h-4l-2-3H8"/><path d="M15 7h3"/></svg>機車／重機（深色）</button></div>
 <p class="note" style="margin:10px 0 16px">會在前方 1 公里、500 公尺、150 公尺各用語音提醒一次；靠近測速點時超速，會一直重複，直到你降到限速以下。</p>
 <button class="btn pri" id="goSim" type="button">模擬行駛（先試試看）</button>
 <div style="height:10px"></div>
@@ -202,7 +216,7 @@ body.tabs-off #tabHandle{display:block}
 <p class="note" style="margin:4px 0 8px">輸入目的地，會打開 Google 地圖開始導航；本 App 的限速、時速和前方測速點會浮在畫面上，並用語音提醒。</p>
 <input id="navDest" type="text" autocomplete="off" placeholder="目的地，例如：台中火車站" aria-label="目的地" style="width:100%;min-height:48px;margin-bottom:10px;padding:0 14px;border:1px solid var(--rule);border-radius:12px;background:var(--surf);color:var(--txt);font-size:16px">
 <button class="btn" id="goNav" type="button">用 Google 地圖導航，測速浮在上面</button>
-<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="chip" id="navStop" type="button">停止浮動提示</button><span class="note" id="navSt" style="flex:1" aria-live="polite"></span></div></div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="chip" id="navTest" type="button" style="border-color:var(--acc);color:var(--acc)">測試浮動視窗</button><button class="chip" id="navStop" type="button">停止浮動提示</button><span class="note" id="navSt" style="flex:1" aria-live="polite"></span></div></div>
 
 </section>
 
@@ -222,7 +236,7 @@ body.tabs-off #tabHandle{display:block}
 <div class="sign" id="sign">--</div>
 </div>
 
-<div class="dhead" id="dHead"><i id="dArr">↑</i><span id="dDir">北</span><b id="dClock">--:--</b></div>
+<div class="dhead" id="dHead"><i id="dArr">↑</i><span id="dDir">北</span><b id="dClock">--:--</b><button type="button" class="vmode" id="vMode">汽車</button></div>
 <div class="dstat"><div>本趟里程<b id="stKm">0.0</b></div><div>行駛時間<b id="stT">0:00</b></div><div>平均時速<b id="stAv">0</b></div><div>最高時速<b id="stMx">0</b></div></div>
 <div class="dbar" id="dBar"><div class="tr"><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:85%"></i><i class="fl" id="dbFl"></i><span class="car" id="dbCar"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 12 L21 3 L14 21 L12 13 Z" fill="#2F80ED" stroke="#fff" stroke-width="2" stroke-linejoin="round" transform="rotate(45 12 12)"/></svg></span><span class="cm"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></span></div><div class="lb"><span>1 公里</span><span style="left:50%">500</span><span style="left:85%">150</span></div></div>
 <div class="dpass"><span>經過測速 <b id="psN">0</b> 處</span><span>語音提醒 <b id="psA">0</b> 次</span><span>超速 <b id="psO">0</b> 次</span></div>
@@ -392,7 +406,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041219';
+var DATAV='202611041335';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -925,7 +939,17 @@ $('hotCount').textContent=q?(n?('找到 '+n+' 處'):'找不到符合的路名。
 $('hotQ').addEventListener('input',renderHot);
 
 /* ---------- 設定：車種 ---------- */
-document.querySelectorAll('#segV button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===S.veh));b.addEventListener('click',function(){S.veh=b.dataset.v;document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});save();});});
+var LASTMOTO='big';try{LASTMOTO=localStorage.getItem('sc_lastmoto')||'big';}catch(e){}
+function syncTheme(){var car=S.veh==='car';document.body.classList.toggle('car',car);document.body.classList.toggle('moto',!car);
+document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===S.veh));});
+document.querySelectorAll('#vSw button').forEach(function(x){x.setAttribute('aria-pressed',String((x.dataset.m==='car')===car));});
+var vm=$('vMode');if(vm)vm.textContent=car?'汽車':(S.veh==='big'?'大型重機':'機車');
+try{var mc=document.querySelector('meta[name=theme-color]');if(mc)mc.setAttribute('content',car?'#F3F6FA':'#050B17');}catch(e){}}
+function setVeh(v){S.veh=v;if(v!=='car'){LASTMOTO=v;try{localStorage.setItem('sc_lastmoto',v);}catch(e){}}save();syncTheme();}
+document.querySelectorAll('#segV button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.v);});});
+document.querySelectorAll('#vSw button').forEach(function(b){b.addEventListener('click',function(){setVeh(b.dataset.m==='car'?'car':LASTMOTO);});});
+$('vMode').addEventListener('click',function(){setVeh(S.veh==='car'?LASTMOTO:'car');});
+syncTheme();
 /* 行駛頁的小 3D 地圖：追著你走 */
 var miniM=null,miniMk=null,lastMini=0;
 function mkMeEl(){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(47,128,237,.28)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#2F80ED" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"></path></svg>';return el;}
@@ -1002,6 +1026,10 @@ if(r==='need_location')say('請先允許位置權限，再按一次。');
 else if(r==='need_overlay')say('請在跳出的畫面找到「測速提醒」，打開「顯示在其他應用程式上層」，回來再按一次。');
 else if(r==='ok')say('已打開 Google 地圖。測速提示會浮在畫面上，要停止就點浮動視窗右邊的 ✕。');
 else say('沒有成功，請再按一次。');};
+$('navTest').onclick=function(){var st=$('navSt');if(!window.AndroidNav||!AndroidNav.testOverlay){st.textContent='這個測試只能在手機上的 App 裡用。';return;}
+var r='';try{r=AndroidNav.testOverlay();}catch(e){r='err';}
+if(r==='need_overlay')st.textContent='請先在剛打開的設定頁，開啟「顯示在其他應用程式上層」，回來再按一次測試。';
+else if(r==='ok')st.textContent='測試中：App 會縮到背景，浮動視窗會模擬開往測速點並語音提醒。回到 App 就自動結束。';else st.textContent='無法啟動測試。';};
 $('navStop').onclick=function(){if(window.AndroidNav){try{AndroidNav.stop();}catch(e){}}say('已停止浮動提示。');};
 })();
 
