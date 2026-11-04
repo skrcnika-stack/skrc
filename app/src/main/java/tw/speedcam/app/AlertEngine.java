@@ -124,9 +124,13 @@ public class AlertEngine {
         Double h = brg != null && !brg.isNaN() ? (double) brg : null;
         if (hasPrev) {
             double d = dist(pLat, pLon, la, lo), dt = (now - pT) / 1000.0;
-            if (sp == null && dt > 0) sp = d / dt * 3.6;
+            boolean glitch = false;
+            if (sp == null && dt > 0) {
+                sp = d / dt * 3.6;
+                if (sp > 220) { sp = (double) speed / (1 + cal / 100.0); glitch = true; } // GPS 跳點，不採用
+            }
             if (d > 5) {
-                if (h == null) h = bearing(pLat, pLon, la, lo);
+                if (h == null && !glitch) h = bearing(pLat, pLon, la, lo);
                 pLat = la; pLon = lo; pT = now;
             }
         } else { hasPrev = true; pLat = la; pLon = lo; pT = now; }

@@ -361,7 +361,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         tvLimit = new TextView(this);
         tvLimit.setGravity(Gravity.CENTER);
         tvLimit.setText("--");
-        tvLimit.setTextSize(18);
+        tvLimit.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 18);
         tvLimit.setTextColor(0xFF111111);
         tvLimit.setTypeface(null, android.graphics.Typeface.BOLD);
         GradientDrawable ov = new GradientDrawable();
@@ -373,7 +373,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
         tvSpeed = new TextView(this);
         tvSpeed.setText("0");
-        tvSpeed.setTextSize(30);
+        tvSpeed.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 30);
         tvSpeed.setTextColor(0xFFEAF1FB);
         tvSpeed.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -382,13 +382,16 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
         TextView unit = new TextView(this);
         unit.setText(" km/h");
-        unit.setTextSize(11);
+        unit.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 11);
         unit.setTextColor(0xFF8FA3BF);
         row.addView(unit);
 
         TextView open = new TextView(this);
         open.setText("回主畫面");
-        open.setTextSize(13);
+        open.setSingleLine(true);
+        open.setMinWidth(dp(76));
+        open.setGravity(Gravity.CENTER);
+        open.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 13);
         open.setTypeface(null, android.graphics.Typeface.BOLD);
         open.setTextColor(0xFF04251D);
         GradientDrawable ob = new GradientDrawable();
@@ -403,7 +406,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
         TextView close = new TextView(this);
         close.setText("✕");
-        close.setTextSize(16);
+        close.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16);
         close.setTextColor(0xFF8FA3BF);
         close.setPadding(dp(14), dp(4), dp(2), dp(4));
         close.setOnClickListener(v -> { prefs().edit().putBoolean("drv", false).apply(); stopSelf(); });
@@ -411,7 +414,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         box.addView(row);
 
         tvAlert = new TextView(this);
-        tvAlert.setTextSize(14);
+        tvAlert.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 14);
         tvAlert.setTypeface(null, android.graphics.Typeface.BOLD);
         tvAlert.setPadding(dp(10), dp(6), dp(10), dp(6));
         tvAlert.setVisibility(View.GONE);

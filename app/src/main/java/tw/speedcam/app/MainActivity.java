@@ -65,6 +65,8 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);
         s.setGeolocationEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
+        // 不管手機「字型大小」調多大，App 的版面都用標準字級，才不會擠爆
+        s.setTextZoom(100);
         web.addJavascriptInterface(new Bridge(), "AndroidTTS");
         web.addJavascriptInterface(new Tdx(), "AndroidTDX");
         web.addJavascriptInterface(new Nav(), "AndroidNav");
