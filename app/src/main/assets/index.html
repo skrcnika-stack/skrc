@@ -38,7 +38,7 @@ select{max-width:55%;min-height:40px;padding:0 10px;border-radius:8px;border:1px
 .ring svg{position:absolute;inset:0;width:100%;height:100%}
 .spd{position:absolute;left:0;right:0;top:33%;text-align:center;font-family:var(--num);font-weight:600;font-size:min(25vw,96px);line-height:1;letter-spacing:-3px;font-variant-numeric:tabular-nums}
 .unit{position:absolute;left:0;right:0;top:66%;text-align:center;font-size:13px;letter-spacing:3px;color:var(--mut)}
-.sign{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:17%;aspect-ratio:1;height:auto;border-radius:50%;border:6px solid var(--red);background:#F7F5EF;color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--num);font-weight:700;font-size:26px}
+.sign{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:17%;aspect-ratio:1;height:auto;border-radius:50%;border:6px solid var(--red);background:#F7F5EF;color:#0D1828;display:flex;align-items:center;justify-content:center;font-family:var(--num);font-weight:700;font-size:26px}
 .nolim{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:12px;color:var(--mut)}
 .card{margin-top:10px;padding:12px 16px 12px;background:var(--surf);border:1px solid var(--line);border-radius:16px}
 .card .big{white-space:nowrap;font-family:var(--num);font-weight:600;font-size:56px;line-height:1;color:var(--amb);font-variant-numeric:tabular-nums}
@@ -406,7 +406,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041345';
+var DATAV='202611041348';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
