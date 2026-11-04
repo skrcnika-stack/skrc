@@ -91,6 +91,33 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 
 
 /* ---- QA 修正 ---- */
+.ring{max-width:310px;margin-top:0}
+.campill{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto 0;max-width:340px;min-height:42px;padding:8px 16px;border-radius:14px;background:var(--amb);color:#1d1300;font-weight:700;font-size:16px;line-height:1.2;text-align:center}
+.campill.none{background:var(--surf);color:var(--mut);font-weight:500;border:1px solid var(--line)}
+.campill.hot{background:#8B5CF6;color:#fff}.campill.over{background:var(--red);color:#fff}
+.dmap{height:clamp(300px,calc(100dvh - 500px),620px);max-height:none;min-height:0;margin-top:10px;border-radius:18px}
+.endbtn{position:absolute;left:10px;bottom:26px;z-index:7;min-height:44px;padding:0 24px;border-radius:14px;border:1px solid var(--red);background:rgba(5,11,23,.92);color:#ffb4b1;font-weight:700;font-size:16px}
+.ldcam{display:flex;flex-direction:column;align-items:center;pointer-events:none;transform:translateY(-4px)}
+.ldcam .t{font-size:13px;font-weight:700;color:#111;background:rgba(255,255,255,.95);border-radius:8px;padding:1px 7px;margin-bottom:3px;white-space:nowrap}
+.ldcam .d{width:34px;height:34px;border-radius:50%;border:3px solid #fff;display:grid;place-items:center;color:#fff;box-shadow:0 0 0 6px rgba(255,168,20,.3)}
+.ldlab{pointer-events:none;background:#0b1426;color:#EAF1FB;border:2px solid #FFA814;border-radius:14px;padding:1px 10px;font-family:var(--num);font-weight:700;font-size:16px;white-space:nowrap}
+.hud{position:absolute;left:10px;top:10px;z-index:6;display:flex;gap:10px;align-items:center;background:rgba(5,11,23,.9);border:1px solid var(--rule);border-radius:16px;padding:6px 12px 6px 14px}
+.hud b{display:block;font-family:var(--num);font-size:46px;font-weight:700;line-height:.95;font-variant-numeric:tabular-nums}.hud small{display:block;font-size:11px;letter-spacing:.2em;color:var(--mut)}
+.hud.over{border-color:var(--red)}.hud.over b{color:#ff8b87}
+.hsg{width:46px;height:46px;border-radius:50%;background:#F7F5EF;border:5px solid var(--red);color:#111;display:grid;place-items:center;font-family:var(--num);font-weight:700;font-size:19px}
+.hban{position:absolute;left:10px;right:62px;top:78px;z-index:6;border-radius:12px;padding:7px 12px;font-weight:700;font-size:14px;background:var(--amb);color:#1d1300}
+.hban.hot{background:#8B5CF6;color:#fff}.hban.over{background:var(--red);color:#fff}
+.htoast{position:absolute;left:10px;right:10px;bottom:26px;z-index:6;border-radius:12px;padding:9px 12px;font-size:14px;background:rgba(5,11,23,.94);border:1px solid var(--rule);color:var(--txt)}
+.htoast.bad{border-color:var(--red)}.htoast.bad b{color:#ff8b87}
+.tlc{margin-top:10px;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.tlt{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.tls{position:relative;height:64px;touch-action:none;cursor:pointer}.tls svg{display:block;width:100%;height:100%}
+.tctl{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.tpl{width:56px;height:56px;border-radius:50%;border:0;background:var(--acc);color:#04251d;font-size:22px;font-weight:700}
+.tsk{width:44px;height:44px;border-radius:50%;border:1px solid var(--rule);background:var(--surf);color:var(--txt);font-size:15px}
+.tsp{display:flex;gap:5px}.tsp button{min-height:40px;padding:0 9px;border-radius:10px;border:1px solid var(--rule);background:var(--surf);color:var(--mut);font-size:13px}
+.tsp button[aria-pressed=true]{border-color:var(--acc);color:var(--acc);font-weight:700}
+.tcam{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .stopbar{position:sticky;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:30;margin-top:14px;padding:10px 0 8px;background:linear-gradient(to top,var(--bg) 70%,rgba(5,11,23,0))}
 .seg button{height:42px;padding:0 13px}
 .chip{min-height:40px;padding:4px 12px}
@@ -125,6 +152,9 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <section id="drive" class="hide" aria-label="駕駛中">
 <div class="ring" aria-label="目前時速">
 <svg viewBox="0 0 390 330" role="img" aria-label="速度環">
+<path id="appT" fill="none" stroke="var(--surf2)" stroke-width="9" stroke-linecap="round"></path>
+<path id="appA" fill="none" stroke="var(--amb)" stroke-width="9" stroke-linecap="round"></path>
+<g id="appTk"></g>
 <path id="track" fill="none" stroke="var(--surf2)" stroke-width="10" stroke-linecap="round"></path>
 <g id="ticks"></g>
 <path id="arcGlow" fill="none" stroke="var(--acc)" stroke-width="22" stroke-linecap="round" opacity=".28" style="filter:blur(7px)"></path>
@@ -133,20 +163,14 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="spd" id="spd">0</div><div class="unit">KM/H</div>
 <div class="sign" id="sign">--</div>
 </div>
-<div class="card" aria-live="polite">
-<div class="lab" id="camLab">前方測速</div>
-<div class="big" id="dist" style="margin-top:2px">--<small id="distU"></small></div><div style="font-size:13px;color:var(--mut);margin-top:4px;min-height:20px" id="camMeta"></div>
-<div class="rail"><i id="rail"></i></div>
-<div class="stages" id="stages"><span data-s="1">1 公里</span><span data-s="2">500 公尺</span><span data-s="3">150 公尺</span></div>
-</div>
-<div class="mapbox" id="miniBox" style="height:150px;min-height:0;margin-top:10px"><div id="cvMini" class="mp"></div></div>
+<div class="campill" id="camPill" aria-live="polite"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg><span id="camTx">前方沒有測速</span></div>
+<div class="mapbox dmap" id="miniBox"><div id="cvMini" class="mp"></div><div class="mapnote hide" id="cvMiniNote"></div><div class="zb" style="top:10px"><button id="mZi" type="button" aria-label="放大">+</button><button id="mZo" type="button" aria-label="縮小">−</button></div><button class="endbtn" id="stop" type="button">結束</button></div>
 <ul class="log" id="log" aria-label="剛剛播報的語音"></ul>
 <div class="sim hide" id="simBox">
 <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lab">模擬車速</span><b class="tn" style="font-family:var(--num);font-size:20px" id="simV">55</b></div>
 <input type="range" id="simR" min="15" max="110" value="55" aria-label="模擬車速">
 <div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" id="simOver">超速 +12</button><button class="chip" type="button" id="simOk">降到限速</button><button class="chip" type="button" id="simAgain">重來一次</button></div>
 </div>
-<div class="stopbar"><button class="btn" id="stop" type="button" style="min-height:48px;font-size:15px">結束</button></div>
 </section></div>
 
 <section id="pg-map" class="pg hide" aria-label="地圖">
@@ -171,8 +195,13 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <p class="note" style="margin:10px 0">每次在「行駛」頁開始，按「結束」就會存一筆路線。模擬行駛也會存，方便你測試。</p>
 <div class="note hide" id="tripEmpty" style="padding:20px 0">還沒有紀錄。到「行駛」頁按「模擬行駛」跑一下，再按「結束」。</div>
 <div id="tripView" class="hide">
-<div class="mapbox" style="height:50vh;height:50dvh;min-height:280px"><div id="cvTrip" class="mp"></div><div class="mapnote hide" id="cvTripNote"></div><div class="zb" style="top:10px"><button id="tripPlay" type="button" aria-label="播放軌跡" class="tx" style="width:auto;padding:0 12px">▶ 播放</button><button id="tripZi" type="button" aria-label="放大">+</button><button id="tripZo" type="button" aria-label="縮小">−</button><button id="tripTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div>
-<div style="position:absolute;left:12px;bottom:26px;font-family:var(--num);font-size:24px;font-weight:600;color:#fff;text-shadow:0 1px 4px #000,0 0 8px #000;z-index:5" id="tripRead"></div></div>
+<div class="mapbox" style="height:56vh;height:56dvh;min-height:320px"><div id="cvTrip" class="mp"></div><div class="mapnote hide" id="cvTripNote"></div>
+<div class="zb" style="top:10px"><button id="tripZi" type="button" aria-label="放大">+</button><button id="tripZo" type="button" aria-label="縮小">−</button><button id="tripTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button><button id="tripFol" type="button" aria-label="跟車或全程" class="tx">全程</button></div>
+<div class="hud" id="tripHud"><div><b id="hudSp">0</b><small>KM/H</small></div><div class="hsg" id="hudLim">--</div></div>
+<div class="hban hide" id="hudBan"></div>
+<div class="htoast hide" id="hudEv"></div></div>
+<div class="tlc"><div class="tlt"><span id="tlNow">0:00</span><span id="tlAll"></span></div><div class="tls" id="tlSvg"></div></div>
+<div class="tctl"><button type="button" class="tsk" id="tripBk" aria-label="倒退 10 秒">⏮</button><button type="button" class="tpl" id="tripPlay" aria-label="播放">▶</button><button type="button" class="tsk" id="tripFw" aria-label="快轉 10 秒">⏭</button><div class="tsp" id="tripRate"><button type="button" data-r="1">×1</button><button type="button" data-r="4">×4</button><button type="button" data-r="16">×16</button><button type="button" data-r="64">×64</button></div></div>
 <div class="stat" id="tripStat"></div>
 <div class="leg"><span><i style="background:#2F80ED"></i>&lt;40</span><span><i style="background:#16B26B"></i>40–70</span><span><i style="background:#FFA814"></i>70–90</span><span><i style="background:#F0413C"></i>90+</span><span>● 起點 綠 · 終點 紅</span></div>
 <button class="chip" id="tripDel" type="button" style="margin-top:10px">刪除這筆</button>
@@ -199,7 +228,8 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="row"><span class="t"><b>超速重複間隔</b><span>超速時每隔幾秒提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="3" aria-pressed="false">3 秒</button><button type="button" data-v="5" aria-pressed="true">5 秒</button><button type="button" data-v="10" aria-pressed="false">10 秒</button></div></div>
 <div class="row"><span class="t"><b>取締熱點提醒</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
 <div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
-<div class="row" style="border-bottom:1px solid var(--line)"><span class="t"><b>資料</b><span>警政署固定測速照相設置地點 1872 處（本島＋離島）· 取締熱點 145 處</span></span></div></div>
+<div class="row" style="border-bottom:1px solid var(--line)"><span class="t"><b>資料</b><span id="dataSub">警政署固定測速照相設置地點 1872 處（本島＋離島）· 取締熱點 145 處</span></span></div>
+<div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料與路況會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div></div>
 <div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX）</span>
 <p class="note" style="margin:4px 0 8px">金鑰只存在這支手機裡，不會上傳。填好後按「儲存並測試」。</p>
 <input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
@@ -303,11 +333,13 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-(function(){
+var DATAV='202611041131';
+(function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);DATAV=j.v;}}catch(e){}})();
+function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
 HOTS.forEach(function(h,i){ITEMS.push({id:'h'+i,k:'h',lon:h[0],lat:h[1],n:h[2],name:h[3]});});
-ITEMS.forEach(function(it){var k=key(it.lat,it.lon);(G[k]=G[k]||[]).push(it);});
-})();
+ITEMS.forEach(function(it){var k=key(it.lat,it.lon);(G[k]=G[k]||[]).push(it);});}
+buildIdx();
 function near(la,lo){var out=[],a=Math.floor(la*50),b=Math.floor(lo*50);for(var i=-1;i<=1;i++)for(var j=-1;j<=1;j++){var c=G[(a+i)+','+(b+j)];if(c)for(var n=0;n<c.length;n++)out.push(c[n]);}return out;}
 
 /* ---------- 語音（女聲優先）---------- */
@@ -348,6 +380,12 @@ function arcPath(v){var a=P(0,RC),b=P(v,RC);var large=270*Math.min(v,120)/120>18
 var g='';for(var v=0;v<=120;v+=5){var maj=v%10===0,a=P(v,maj?100:105),b=P(v,114);g+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" stroke="'+(maj?'var(--rule)':'var(--line)')+'" stroke-width="'+(maj?1.6:1)+'"></path>';}
 for(v=0;v<=120;v+=20){var p=P(v,84);g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" text-anchor="middle" dominant-baseline="central" font-size="11" fill="var(--mut)" font-family="Space Grotesk,sans-serif">'+v+'</text>';}
 $('ticks').innerHTML=g;})();
+var RA=150;
+function PA(f,r){var a=(135+270*f)*D2R;return [CX+r*Math.cos(a),CY+r*Math.sin(a)];}
+function appPath(f){f=Math.max(0,Math.min(1,f));var a=PA(0,RA),b=PA(f,RA);return 'M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'A'+RA+' '+RA+' 0 '+(270*f>180?1:0)+' 1 '+b[0].toFixed(1)+' '+b[1].toFixed(1);}
+(function(){var e=PA(1,RA);$('appT').setAttribute('d','M'+PA(0,RA)[0].toFixed(1)+' '+PA(0,RA)[1].toFixed(1)+'A'+RA+' '+RA+' 0 1 1 '+e[0].toFixed(1)+' '+e[1].toFixed(1));
+var g='';[[0,'1公里'],[0.5,'500'],[0.85,'150']].forEach(function(s){var a=PA(s[0],RA-9),b=PA(s[0],RA+9),l=PA(s[0],RA+21);g+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" stroke="var(--mut)" stroke-width="2"></path><text x="'+l[0].toFixed(1)+'" y="'+l[1].toFixed(1)+'" text-anchor="middle" dominant-baseline="central" font-size="11" fill="var(--mut)">'+s[1]+'</text>';});
+$('appTk').innerHTML=g;})();
 
 /* ---------- 主迴圈 ---------- */
 var STAGE_TXT={1:'前方一公里，有固定測速照相',2:'前方500公尺，測速',3:'前方150公尺，測速照相'};
@@ -396,12 +434,13 @@ var col=over?'var(--red)':(lim!=null&&spd>=lim-10)?'var(--amb)':'var(--acc)';
 $('arc').setAttribute('d',arcPath(spd));$('arcGlow').setAttribute('d',arcPath(spd));$('arc').setAttribute('stroke',col);$('arcGlow').setAttribute('stroke',col);
 $('spd').style.color=over?'var(--red)':'var(--txt)';
 var sg=$('sign');if(lim!=null){sg.textContent=lim;sg.style.display='flex';}else{sg.style.display='none';}
-var n=anyNext;
-if(n){var m=Math.round(n.d);var big=m>=1000?(m/1000).toFixed(1):String(m);$('dist').firstChild.nodeValue=big;$('distU').textContent=m>=1000?'公里':'公尺';
-$('camLab').textContent=n.it.k==='h'?'前方取締熱點':'前方測速照相';$('camMeta').textContent=typeName(n.it)+(n.it.k==='c'?' · 限速 '+n.it.lim:'');
-$('rail').style.width=Math.max(0,Math.min(100,(1-n.d/1000)*100))+'%';
-var a=S.al[n.it.id]||{stage:0};document.querySelectorAll('#stages span').forEach(function(sp){sp.classList.toggle('on',+sp.dataset.s<=a.stage&&n.it.k==='c');});
-}else{$('dist').firstChild.nodeValue='--';$('distU').textContent='';$('camLab').textContent='前方 1.5 公里內沒有測速照相';$('camMeta').textContent=S.hd==null||spd<8?'開始移動後才會判斷方向':'';$('rail').style.width='0';document.querySelectorAll('#stages span').forEach(function(sp){sp.classList.remove('on');});}
+var n=anyNext,pill=$('camPill'),tx='前方沒有測速',cls='campill none',pr=0,pc='var(--amb)';
+if(n){var m=Math.round(n.d),ds=m>=1000?(m/1000).toFixed(1)+' 公里':m+' 公尺';pr=1-n.d/1000;
+if(n.it.k==='h'){tx='移動測速熱點（推估）　'+ds;cls='campill hot';pc='#8B5CF6';}
+else{var tn=n.it.t===1?'區間測速':n.it.t===2?'闖紅燈照相':'固定測速';tx=over?'超速！限速 '+lim+'　'+ds:'前方 '+ds+'　'+tn;cls='campill'+(over?' over':'');pc=over?'var(--red)':'var(--amb)';}
+S.lead={lat:n.it.lat,lon:n.it.lon,d:n.d,k:n.it.k,t:n.it.t,lim:n.it.lim,over:over};}
+else{tx=S.hd==null||spd<8?'開始移動後才會判斷前方測速':'前方 1.5 公里內沒有測速';S.lead=null;}
+$('camTx').textContent=tx;pill.className=cls;$('appA').setAttribute('d',n?appPath(pr):'');$('appA').setAttribute('stroke',pc);
 var al=$('alert');al.classList.toggle('show',over);
 if(over){$('aSp').textContent=s;$('aSign').textContent=lim;$('aLim').textContent=lim;$('aOver').textContent='超速 +'+Math.round(spd-lim);$('aDist').textContent=Math.round(camNext.d);$('aVoice').textContent=(S.vg==='m'?'男聲':'女聲')+' · 每 '+S.iv+' 秒重複播報';}
 }
@@ -435,9 +474,9 @@ render(0,null,null,null,false);
 if(mode==='sim'){simStart();S.timer=setInterval(simStep,500);}
 show('drive');
 if(S.onBegin)S.onBegin();
-say(mode==='sim'?'模擬開始，路上小心。':'開始定位，路上小心。',1,1);
+say(mode==='sim'?'模擬開始。':'開始定位。',1,1);
 }
-function stop(){if(S.run)saveTrip();S.run=false;if(S.timer){clearInterval(S.timer);S.timer=null;}if(S.wid!=null){try{navigator.geolocation.clearWatch(S.wid);}catch(e){}S.wid=null;}if(S.lock){try{S.lock.release();}catch(e){}S.lock=null;}
+function stop(){if(S.run)saveTrip();if(S.onEnd)S.onEnd();S.run=false;if(S.timer){clearInterval(S.timer);S.timer=null;}if(S.wid!=null){try{navigator.geolocation.clearWatch(S.wid);}catch(e){}S.wid=null;}if(S.lock){try{S.lock.release();}catch(e){}S.lock=null;}
 try{if(window.AndroidTTS)window.AndroidTTS.stop();window.speechSynthesis.cancel();}catch(e){}$('alert').classList.remove('show');$('modeTxt').textContent='未開始';show('start');}
 
 /* ---------- 介面 ---------- */
@@ -496,7 +535,7 @@ function offlineStyle(){buildGJ();return {version:8,sources:{land:{type:'geojson
 
 /* ---- 明亮淺色風格：把 OpenFreeMap 的街道圖重新上色 ---- */
 var MC={g:'#16B26B',a:'#FFA814',r:'#F0413C',b:'#2F80ED',v:'#7B5CF0',cam:'#FF9500'};
-var SK={bg:'#eef1f6',land:'#f0f2f7',res:'#e9edf4',park:'#cde8d0',water:'#a8d2f4',sand:'#f3eedf',inst:'#e6ebf5',bld:'#e1e6ef',bldo:'#d2d9e5',ext:['#e8ecf5','#dbe3f0','#c3d0e7','#a7badc'],wat:'#9ccaf0',parkl:'#bfe0c4',bound:'#aab5cc',aero:'#e3e8f1',cas:'#cbd2e0',mcas:'#dfa13a',mw:'#f7bd4f',tp:'#ffffff',st:'#ffffff',lk:'#fff4dc',sv:'#f7f8fb',pa:'#d6dce8',rl:'#c6cddb',txt:'#3a455b',big:'#0f1a30',wt:'#4a86c5',halo:'#ffffff'};
+var SK={bg:'#e6eef8',land:'#f4efe3',res:'#efe9d9',park:'#8fd694',water:'#5db4f5',sand:'#f7e3b5',inst:'#f6dadf',bld:'#f0d7b8',bldo:'#dcb98f',ext:['#f6dcc0','#efc3a0','#c8b4ee','#9db2ee'],wat:'#4aa3ea',parkl:'#7cc785',bound:'#9aa6c4',aero:'#dfe6f4',cas:'#b4bfd4',mcas:'#d17400',mw:'#ff9f1c',tp:'#ffd34d',st:'#ffffff',lk:'#ffe29a',sv:'#f7f8fb',pa:'#cbd3e6',rl:'#b9c2d6',txt:'#2c3650',big:'#0f1a30',wt:'#2f7dc4',halo:'#ffffff'};
 function skin(m){var st;try{st=m.getStyle();}catch(e){return;}if(!st||!st.layers)return;var C=SK;
 function P(id,a,v){try{m.setPaintProperty(id,a,v);}catch(e){}}
 st.layers.forEach(function(l){var id=l.id,t=l.type,sl=l['source-layer']||'';
@@ -654,50 +693,139 @@ function saveTrip(){var r=S.rec;if(!r||r.length<3)return;var d=0,mx=0;for(var i=
 r.forEach(function(p){if(p[2]>mx)mx=p[2];});if(d<60)return;
 var dur=r[r.length-1][3]||1;var step=Math.max(1,Math.ceil(r.length/700));var pts=r.filter(function(p,i){return i%step===0||i===r.length-1;});
 var a=loadTrips();a.unshift({t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);S.rec=[];}
-var TRIP=null,PLAY=null;
+var TRIP=null,PLAY=null,RATE=4,TZ=16.3,TFOL=true;
 function fmtDur(s){var m=Math.floor(s/60),h=Math.floor(m/60);return h?h+' 小時 '+(m%60)+' 分':m+' 分 '+(s%60)+' 秒';}
 function fmtDate(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function clk(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);}
 function spCol(v){return v<40?MC.b:v<70?MC.g:v<90?MC.a:MC.r;}
+function thumb(t){var p=t.p,a=99,b=0,c=999,d=0;p.forEach(function(q){a=Math.min(a,q[0]);b=Math.max(b,q[0]);c=Math.min(c,q[1]);d=Math.max(d,q[1]);});
+var w=Math.max(1e-5,(d-c)*Math.cos(a*D2R)),h=Math.max(1e-5,b-a),sc=Math.min(68/w,40/h),ox=42-(w*sc)/2,oy=28-(h*sc)/2;
+var pts=p.filter(function(q,i){return i%Math.ceil(p.length/40)===0;}).map(function(q){return (ox+(q[1]-c)*Math.cos(a*D2R)*sc).toFixed(1)+','+(oy+(b-q[0])*sc).toFixed(1);}).join(' ');
+return '<svg viewBox="0 0 84 56" width="84" height="56" style="border-radius:10px;background:#e6eef8;flex:none"><polyline points="'+pts+'" fill="none" stroke="#2F80ED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';}
 function renderTrips(){var a=loadTrips(),ul=$('tripList');ul.innerHTML='';$('tripEmpty').classList.toggle('hide',a.length>0);
 if(!a.length){$('tripView').classList.add('hide');}
 a.forEach(function(t,i){var li=document.createElement('li');li.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer';
-li.innerHTML='<div style="flex:1;min-width:0"><b style="font-size:15px">'+fmtDate(t.t)+' · '+(t.m==='sim'?'模擬行駛':'GPS')+'</b><div class="note">'+(t.d/1000).toFixed(1)+' 公里 · '+fmtDur(t.dur)+' · 均速 '+t.av+' · 最高 '+t.mx+'</div></div><span class="chip">查看</span>';
-li.addEventListener('click',function(){openTrip(i);});ul.appendChild(li);});}
-function tripGJ(upto){var p=TRIP.p,f=[];for(var i=1;i<p.length;i++){if(upto!=null&&i>upto)break;f.push({type:'Feature',properties:{v:p[i][2],i:i},geometry:{type:'LineString',coordinates:[[p[i-1][1],p[i-1][0]],[p[i][1],p[i][0]]]}});}return {type:'FeatureCollection',features:f};}
+li.innerHTML=thumb(t)+'<div style="flex:1;min-width:0"><b style="font-size:15px">'+fmtDate(t.t)+' · '+(t.m==='sim'?'模擬行駛':'GPS')+'</b><div class="note">'+(t.d/1000).toFixed(1)+' 公里 · '+fmtDur(t.dur)+' · 均速 '+t.av+' · 最高 '+t.mx+'</div></div><span class="chip">▶ 播放</span>';
+li.addEventListener('click',function(){openTrip(i,true);});ul.appendChild(li);});}
+/* 這趟路線經過了哪些測速點（固定：45 公尺內；熱點：250 公尺內） */
+function tripCams(){if(TRIP.cams)return TRIP.cams;var p=TRIP.p,best={};
+function tAt(fi){var i=Math.min(p.length-2,Math.max(0,Math.floor(fi))),f=fi-i;if(p.length<2)return [p[0][3],p[0][2]];return [p[i][3]+(p[i+1][3]-p[i][3])*f,p[i][2]+(p[i+1][2]-p[i][2])*f];}
+for(var i=0;i<p.length;i++){var sub=1;if(i>0){sub=Math.max(1,Math.ceil(dist(p[i-1][0],p[i-1][1],p[i][0],p[i][1])/25));}
+for(var s=(i===0?1:1);s<=sub;s++){var f=i>0?s/sub:1,la=i>0?p[i-1][0]+(p[i][0]-p[i-1][0])*f:p[0][0],lo=i>0?p[i-1][1]+(p[i][1]-p[i-1][1])*f:p[0][1],fi=i>0?i-1+f:0;
+near(la,lo).forEach(function(it){var d=dist(la,lo,it.lat,it.lon),lim=it.k==='h'?250:45;if(d>lim)return;var b=best[it.id];if(!b||d<b.d)best[it.id]={it:it,d:d,fi:fi};});
+if(i===0)break;}}
+var out=Object.keys(best).map(function(k){var b=best[k],it=b.it,tt=tAt(b.fi),sp=Math.round(tt[1]);return {id:it.id,k:it.k,t:it.t,lon:it.lon,lat:it.lat,lim:+it.lim||0,fi:b.fi,tm:tt[0],sp:sp,over:it.k==='c'&&sp>+it.lim};});
+out.sort(function(a,b){return a.fi-b.fi;});TRIP.cams=out;return out;}
+function tripGJ(){var p=TRIP.p,f=[];for(var i=1;i<p.length;i++){f.push({type:'Feature',properties:{v:p[i][2],i:i},geometry:{type:'LineString',coordinates:[[p[i-1][1],p[i-1][0]],[p[i][1],p[i][0]]]}});}return {type:'FeatureCollection',features:f};}
 function tripEnds(){var p=TRIP.p,s=p[0],e=p[p.length-1];return {type:'FeatureCollection',features:[{type:'Feature',properties:{c:'s'},geometry:{type:'Point',coordinates:[s[1],s[0]]}},{type:'Feature',properties:{c:'e'},geometry:{type:'Point',coordinates:[e[1],e[0]]}}]};}
-function ovTrip(m){
-if(!m.getSource('trk'))m.addSource('trk',{type:'geojson',data:TRIP?tripGJ():{type:'FeatureCollection',features:[]}});
-if(!m.getSource('tre'))m.addSource('tre',{type:'geojson',data:TRIP?tripEnds():{type:'FeatureCollection',features:[]}});
-if(!m.getSource('trm'))m.addSource('trm',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-m.addLayer({id:'trk-case',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],10,6,18,16],'line-opacity':.95}});
-m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r],'line-width':['interpolate',['linear'],['zoom'],10,3.5,18,10]}});
+function tripCamGJ(){var cs=TRIP?tripCams():[];return {type:'FeatureCollection',features:cs.map(function(c){return {type:'Feature',properties:{k:c.k,o:c.over?1:0},geometry:{type:'Point',coordinates:[c.lon,c.lat]}};})};}
+function tripZoneGJ(){var cs=TRIP?tripCams():[];return {type:'FeatureCollection',features:cs.filter(function(c){return c.k==='h';}).map(function(c){return circlePoly(c.lon,c.lat,250);})};}
+function ovTrip(m){var E={type:'FeatureCollection',features:[]};
+if(!m.getSource('trk'))m.addSource('trk',{type:'geojson',data:TRIP?tripGJ():E});
+if(!m.getSource('tre'))m.addSource('tre',{type:'geojson',data:TRIP?tripEnds():E});
+if(!m.getSource('trm'))m.addSource('trm',{type:'geojson',data:E});
+if(!m.getSource('trp'))m.addSource('trp',{type:'geojson',data:E});
+if(!m.getSource('trc'))m.addSource('trc',{type:'geojson',data:TRIP?tripCamGJ():E});
+if(!m.getSource('trz'))m.addSource('trz',{type:'geojson',data:TRIP?tripZoneGJ():E});
+var W=['interpolate',['linear'],['zoom'],10,3.5,18,10],WC=['interpolate',['linear'],['zoom'],10,6,18,16],CL=['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r];
+m.addLayer({id:'trk-rest',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8fa3c4','line-width':W,'line-opacity':.55,'line-dasharray':[1,1.6]}});
+m.addLayer({id:'trk-case',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':WC,'line-opacity':.95}});
+m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':CL,'line-width':W}});
+m.addLayer({id:'trp',type:'line',source:'trp',layout:{'line-cap':'round'},paint:{'line-color':CL,'line-width':W}});
+m.addLayer({id:'trz-f',type:'fill',source:'trz',paint:{'fill-color':'#8B5CF6','fill-opacity':0.22}});
+m.addLayer({id:'trz-l',type:'line',source:'trz',paint:{'line-color':'#8B5CF6','line-width':2.5,'line-dasharray':[2,2]}});
+m.addLayer({id:'trc',type:'circle',source:'trc',paint:{'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,12],'circle-color':['case',['==',['get','o'],1],MC.r,['==',['get','k'],'h'],'#8B5CF6',MC.cam],'circle-stroke-color':'#fff','circle-stroke-width':3}});
 m.addLayer({id:'tre',type:'circle',source:'tre',paint:{'circle-radius':8,'circle-color':['match',['get','c'],'s',MC.g,MC.r],'circle-stroke-color':'#fff','circle-stroke-width':2.5}});
-m.addLayer({id:'trm',type:'circle',source:'trm',paint:{'circle-radius':10,'circle-color':'#fff','circle-stroke-color':['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r],'circle-stroke-width':5}});}
+m.addLayer({id:'trm',type:'circle',source:'trm',paint:{'circle-radius':10,'circle-color':'#fff','circle-stroke-color':CL,'circle-stroke-width':5}});
+setTrkFilter(m,-1);}
+function setTrkFilter(m,i){if(!m||!m.getLayer('trk'))return;var a=i<0?['<=',['get','i'],0]:['<=',['get','i'],i],b=i<0?['>',['get','i'],-1]:['>',['get','i'],i];
+if(i<0){a=['==',['get','i'],-99];b=['>',['get','i'],-1];}
+m.setFilter('trk',a);m.setFilter('trk-case',a);m.setFilter('trk-rest',b);}
+function tripReady(){return !!(tripM&&tripM.getSource&&tripM.getSource('trk')&&tripM.getLayer('trk'));}
 function fitTrip(){if(!tripM||!TRIP)return;var p=TRIP.p,lo0=999,lo1=0,la0=99,la1=0;p.forEach(function(q){lo0=Math.min(lo0,q[1]);lo1=Math.max(lo1,q[1]);la0=Math.min(la0,q[0]);la1=Math.max(la1,q[0]);});
-tripM.fitBounds([[lo0,la0],[lo1,la1]],{padding:50,pitch:50,bearing:0,duration:900,maxZoom:17});}
-function openTrip(i){var a=loadTrips();TRIP=a[i];TRIP.i=i;$('tripView').classList.remove('hide');PLAY=null;
-$('tripStat').innerHTML='<div><span class="lab">距離</span><b class="tn">'+(TRIP.d/1000).toFixed(1)+'</b> 公里</div><div><span class="lab">時間</span><b class="tn">'+fmtDur(TRIP.dur)+'</b></div><div><span class="lab">均速 / 最高</span><b class="tn">'+TRIP.av+' / '+TRIP.mx+'</b></div>';
-$('tripRead').textContent='—';
-if(!tripM&&tripM!==false){tripM=mkMap('cvTrip',{overlay:ovTrip,pitch:50,zoom:12,onReady:function(m){fitTrip();}});if(!tripM)tripM=false;}
-else if(tripM){tripM.resize();if(tripM.getSource('trk')){tripM.getSource('trk').setData(tripGJ());tripM.getSource('tre').setData(tripEnds());tripM.getSource('trm').setData({type:'FeatureCollection',features:[]});fitTrip();}}
-$('tripView').scrollIntoView({behavior:'smooth',block:'start'});}
-function brg(a,b){return bearing(a[0],a[1],b[0],b[1]);}
-function setPlayBtn(on){var b=$('tripPlay');if(b)b.textContent=on?'⏸ 暫停':'▶ 播放';}
-function playTrip(){if(PLAY&&PLAY.on){PLAY.on=false;PLAY=null;setPlayBtn(false);if(tripM&&tripM.getSource('trk')){tripM.getSource('trk').setData(tripGJ());tripM.getSource('trm').setData({type:'FeatureCollection',features:[]});fitTrip();}return;}if(!TRIP||!tripM||!tripM.getSource('trk'))return;setPlayBtn(true);var p=TRIP.p,t0=performance.now(),total=Math.max(7000,Math.min(18000,TRIP.dur*90));PLAY={on:true};var hd=0;
-tripM.getSource('trk').setData(tripGJ(0));
-function step(now){if(!PLAY||!PLAY.on)return;var f=Math.min(1,(now-t0)/total);var idx=f*(p.length-1);var i=Math.min(p.length-2,Math.floor(idx)),fr=idx-i,a=p[i],b=p[i+1];
-var pos=[a[0]+(b[0]-a[0])*fr,a[1]+(b[1]-a[1])*fr],sp=Math.round(a[2]+(b[2]-a[2])*fr);
-if(dist(a[0],a[1],b[0],b[1])>2){var nb=brg(a,b);var dd=((nb-hd+540)%360)-180;hd=(hd+dd*0.12+360)%360;}
-tripM.getSource('trk').setData(tripGJ(i+1));
+tripM.fitBounds([[lo0,la0],[lo1,la1]],{padding:50,pitch:45,bearing:0,duration:900,maxZoom:17});}
+function buildTL(){var p=TRIP.p,dur=Math.max(1,TRIP.dur),mx=Math.max(60,TRIP.mx);var pts='M0 64';p.forEach(function(q){pts+=' L'+(q[3]/dur*1000).toFixed(1)+' '+(64-q[2]/mx*58).toFixed(1);});pts+=' L1000 64Z';
+var s='<svg viewBox="0 0 1000 64" preserveAspectRatio="none"><path d="'+pts+'" fill="rgba(71,232,192,.22)" stroke="#47E8C0" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
+TRIP.cams.forEach(function(c){s+='<i class="tlm" style="position:absolute;top:2px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:'+(c.over?'#F0413C':c.k==='h'?'#8B5CF6':'#FFA814')+';left:'+(c.tm/dur*100).toFixed(2)+'%"></i>';});
+s+='<i id="tlHead" style="position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#EAF1FB;left:0"></i>';
+$('tlSvg').innerHTML=s;$('tlAll').textContent=clk(dur)+(TRIP.cams.length?'　● 測速點　':'　')+(TRIP.cams.some(function(c){return c.over;})?'● 超速':'');}
+function pickRate(){var r=64;[1,4,16,64].some(function(x){if(TRIP.dur/x<=75){r=x;return true;}return false;});setRate(r);}
+function setRate(r){RATE=r;document.querySelectorAll('#tripRate button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.r===r));});}
+function setPlayBtn(on){var b=$('tripPlay');if(b){b.textContent=on?'❚❚':'▶';b.setAttribute('aria-label',on?'暫停':'播放');}}
+function setFol(f){TFOL=f;$('tripFol').textContent=f?'全程':'跟車';}
+function openTrip(i,auto){var a=loadTrips();TRIP=a[i];if(!TRIP)return;TRIP.i=i;var cs=tripCams(),ov=cs.filter(function(c){return c.over;}).length;
+if(PLAY&&PLAY.raf)cancelAnimationFrame(PLAY.raf);PLAY={t:0,on:false,hd:0,i:0};setPlayBtn(false);setFol(true);
+$('tripView').classList.remove('hide');
+$('tripStat').innerHTML='<div><span class="lab">距離</span><b class="tn">'+(TRIP.d/1000).toFixed(1)+'</b> 公里</div><div><span class="lab">時間</span><b class="tn">'+fmtDur(TRIP.dur)+'</b></div><div><span class="lab">均速 / 最高</span><b class="tn">'+TRIP.av+' / '+TRIP.mx+'</b></div><div><span class="lab">超速</span><b class="tn" style="color:'+(ov?'var(--red)':'inherit')+'">'+ov+'</b> 次</div>';
+buildTL();pickRate();
+if(!tripM&&tripM!==false){tripM=mkMap('cvTrip',{overlay:ovTrip,pitch:50,zoom:12,onReady:function(m){fitTrip();renderFrame(PLAY?PLAY.t:0,true);}});if(!tripM)tripM=false;}
+else if(tripM){tripM.resize();if(tripReady()){tripM.getSource('trk').setData(tripGJ());tripM.getSource('tre').setData(tripEnds());tripM.getSource('trc').setData(tripCamGJ());tripM.getSource('trz').setData(tripZoneGJ());renderFrame(0,true);fitTrip();}}
+$('tripView').scrollIntoView({behavior:'smooth',block:'start'});
+if(auto){var n=0,iv=setInterval(function(){n++;if(tripReady()&&PLAY&&!PLAY.on&&TRIP&&TRIP.i===i){clearInterval(iv);setTimeout(playTrip,500);}else if(n>40)clearInterval(iv);},250);}}
+function aheadCam(fi,pos){var cs=TRIP.cams;for(var k=0;k<cs.length;k++){var c=cs[k];if(c.fi>fi+0.001){var d=dist(pos[0],pos[1],c.lat,c.lon);if(d<=1000)return {c:c,d:d};return null;}}return null;}
+function renderFrame(t,seek){if(!TRIP||!PLAY)return;var p=TRIP.p,n=p.length,dur=Math.max(1,TRIP.dur);t=Math.max(0,Math.min(dur,t));PLAY.t=t;
+var lo=0,hi=n-2;if(n<2)return;while(lo<hi){var mid=(lo+hi+1)>>1;if(p[mid][3]<=t)lo=mid;else hi=mid-1;}var i=lo,a=p[i],b=p[i+1],span=Math.max(0.001,b[3]-a[3]),fr=Math.max(0,Math.min(1,(t-a[3])/span));
+var pos=[a[0]+(b[0]-a[0])*fr,a[1]+(b[1]-a[1])*fr],sp=Math.round(a[2]+(b[2]-a[2])*fr),fi=i+fr;
+if(dist(a[0],a[1],b[0],b[1])>2){var nb=brg(a,b),dd=((nb-PLAY.hd+540)%360)-180;PLAY.hd=(PLAY.hd+dd*(seek?1:0.14)+360)%360;}
+var ah=aheadCam(fi,pos),over=false,lim=null;
+if(ah&&ah.c.k==='c'&&ah.d<=600){lim=ah.c.lim;over=sp>lim;}
+$('hudSp').textContent=sp;$('hudLim').textContent=lim==null?'--':lim;$('tripHud').classList.toggle('over',over);
+var ban=$('hudBan');if(ah){var ds=ah.d>=1000?(ah.d/1000).toFixed(1)+' 公里':Math.round(ah.d)+' 公尺';ban.textContent=ah.c.k==='h'?'移動測速熱點（推估）　'+ds:(over?'超速！限速 '+lim+'　':'前方 '+ds+'　')+(ah.c.t===1?'區間測速':ah.c.t===2?'闖紅燈照相':'固定測速 '+ah.c.lim);ban.className='hban'+(ah.c.k==='h'?' hot':over?' over':'');}else ban.className='hban hide';
+var ev=$('hudEv'),win=Math.max(3,3*RATE),shown=null;TRIP.cams.forEach(function(c){if(c.tm<=t&&t-c.tm<=win)shown=c;});
+if(shown){ev.className='htoast'+(shown.over?' bad':'');ev.innerHTML=shown.k==='h'?'<b>經過取締熱點</b>　歷史統計推估，不是警察當時的位置':'<b>經過'+(shown.t===1?'區間測速':shown.t===2?'闖紅燈照相':'固定測速')+'</b>　時速 '+shown.sp+'／限速 '+shown.lim+(shown.over?'　<b>超速 +'+(shown.sp-shown.lim)+'</b>':'　沒有超速');}else ev.className='htoast hide';
+$('tlNow').textContent=clk(t);var hd=$('tlHead');if(hd)hd.style.left=(t/dur*100)+'%';
+if(!tripReady())return;
+setTrkFilter(tripM,i);
+tripM.getSource('trp').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{v:a[2]},geometry:{type:'LineString',coordinates:[[a[1],a[0]],[pos[1],pos[0]]]}}]});
 tripM.getSource('trm').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{v:sp},geometry:{type:'Point',coordinates:[pos[1],pos[0]]}}]});
-tripM.jumpTo({center:[pos[1],pos[0]],bearing:hd,pitch:62,zoom:16.3});
-$('tripRead').textContent=sp+' km/h · '+fmtDur(Math.round(a[3]+(b[3]-a[3])*fr));
-if(f<1)requestAnimationFrame(step);else{PLAY=null;setPlayBtn(false);tripM.getSource('trk').setData(tripGJ());tripM.getSource('trm').setData({type:'FeatureCollection',features:[]});fitTrip();}}
-requestAnimationFrame(step);}
+if(TFOL&&(PLAY.on||seek===2))tripM.jumpTo({center:[pos[1],pos[0]],bearing:PLAY.hd,pitch:62,zoom:TZ});}
+function brg(a,b){return bearing(a[0],a[1],b[0],b[1]);}
+function playTrip(){if(!TRIP||!PLAY||!tripReady())return;
+if(PLAY.on){PLAY.on=false;if(PLAY.raf)cancelAnimationFrame(PLAY.raf);setPlayBtn(false);return;}
+if(PLAY.t>=TRIP.dur-0.2)PLAY.t=0;PLAY.on=true;setPlayBtn(true);var last=performance.now();
+function step(now){if(!PLAY||!PLAY.on)return;var dt=Math.min(0.1,(now-last)/1000);last=now;var nt=PLAY.t+dt*RATE;
+if(nt>=TRIP.dur){renderFrame(TRIP.dur);PLAY.on=false;setPlayBtn(false);setFol(false);setTrkFilter(tripM,TRIP.p.length);fitTrip();return;}
+renderFrame(nt);PLAY.raf=requestAnimationFrame(step);}
+PLAY.raf=requestAnimationFrame(step);}
+function seekFrac(x,snap){if(!TRIP||!PLAY)return;var r=$('tlSvg').getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/Math.max(1,r.width))),dur=TRIP.dur;
+if(snap){TRIP.cams.forEach(function(c){if(!c.over)return;var cx=r.left+c.tm/dur*r.width;if(Math.abs(cx-x)<=16)f=Math.max(0,c.tm-4)/dur;});}
+renderFrame(f*dur,2);}
+(function(){var el=$('tlSvg'),dn=false;el.addEventListener('pointerdown',function(e){dn=true;try{el.setPointerCapture(e.pointerId);}catch(x){}seekFrac(e.clientX,true);});
+el.addEventListener('pointermove',function(e){if(dn)seekFrac(e.clientX,false);});el.addEventListener('pointerup',function(){dn=false;});el.addEventListener('pointercancel',function(){dn=false;});})();
 $('tripPlay').addEventListener('click',playTrip);
+$('tripBk').addEventListener('click',function(){if(PLAY)renderFrame(PLAY.t-10,2);});
+$('tripFw').addEventListener('click',function(){if(PLAY)renderFrame(PLAY.t+10,2);});
+document.querySelectorAll('#tripRate button').forEach(function(b){b.addEventListener('click',function(){setRate(+b.dataset.r);});});
 $('tripTilt').addEventListener('click',function(){if(!tripM)return;var p=tripM.getPitch();tripM.easeTo({pitch:p>10?0:62,duration:600});});
-zoomBtns(function(){return tripM||null;},'tripZi','tripZo');
-$('tripDel').addEventListener('click',function(){if(!TRIP)return;var a=loadTrips();a.splice(TRIP.i,1);saveTrips(a);TRIP=null;PLAY=null;setPlayBtn(false);$('tripView').classList.add('hide');renderTrips();});
+$('tripFol').addEventListener('click',function(){setFol(!TFOL);if(TFOL){if(PLAY)renderFrame(PLAY.t,2);}else fitTrip();});
+$('tripZi').addEventListener('click',function(){TZ=Math.min(18.5,TZ+1);if(tripM&&!(PLAY&&PLAY.on&&TFOL))tripM.zoomIn({duration:250});});
+$('tripZo').addEventListener('click',function(){TZ=Math.max(11,TZ-1);if(tripM&&!(PLAY&&PLAY.on&&TFOL))tripM.zoomOut({duration:250});});
+$('tripDel').addEventListener('click',function(){if(!TRIP)return;var a=loadTrips();a.splice(TRIP.i,1);saveTrips(a);if(PLAY&&PLAY.raf)cancelAnimationFrame(PLAY.raf);TRIP=null;PLAY=null;setPlayBtn(false);$('tripView').classList.add('hide');renderTrips();});
+
+/* ---------- 自動更新：測速點資料、路況 ---------- */
+var RAWPACK='https://raw.githubusercontent.com/skrcnika-stack/skrc/main/data/pack.json';
+var AUTO=true;try{AUTO=localStorage.getItem('sc_auto')!=='0';}catch(e){}
+var lastChk=0,chkAt=0,chkFail=false;
+function vtxt(v){return v&&v.length>=12?v.slice(0,4)+'/'+v.slice(4,6)+'/'+v.slice(6,8)+' '+v.slice(8,10)+':'+v.slice(10,12):v;}
+function autoSub(){var e=$('autoSub'),d=$('dataSub');if(d)d.textContent='警政署測速照相 '+CAMS.length+' 處 · 取締熱點 '+HOTS.length+' 處 · 資料版本 '+vtxt(DATAV);
+if(!e)return;if(!AUTO){e.textContent='已關閉。要最新資料，請重新開啟並打開這個開關';return;}
+var tm=chkAt?(('0'+new Date(chkAt).getHours()).slice(-2)+':'+('0'+new Date(chkAt).getMinutes()).slice(-2)):'';
+e.textContent='測速點資料開啟 App 時自動檢查，路況每 60 秒自動刷新'+(chkAt?(chkFail?'；上次檢查（'+tm+'）連不上，稍後再試':'；上次檢查 '+tm+'，已是最新'):'');}
+function refreshGJ(){CAMGJ={type:'FeatureCollection',features:CAMS.map(function(m){return {type:'Feature',properties:{t:m[0],r:m[1],lim:m[4]},geometry:{type:'Point',coordinates:[m[2],m[3]]}};})};
+HOTGJ={type:'FeatureCollection',features:HOTS.map(function(h){return {type:'Feature',properties:{n:h[2],name:h[3]},geometry:{type:'Point',coordinates:[h[0],h[1]]}};})};
+[mapM,miniM].forEach(function(m){if(m&&m.getSource){if(m.getSource('cams'))m.getSource('cams').setData(CAMGJ);if(m.getSource('hots'))m.getSource('hots').setData(HOTGJ);}});
+HOTL=HOTS.map(function(h,i){return {i:i,lon:h[0],lat:h[1],n:h[2],name:h[3]};}).sort(function(a,b){return b.n-a.n;});if(S.page==='hot')renderHot();}
+function checkData(force){if(!AUTO||!navigator.onLine||typeof fetch!=='function')return;var n=Date.now();if(!force&&n-lastChk<30*60e3)return;lastChk=n;
+fetch(RAWPACK+'?t='+n,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http');return r.json();}).then(function(j){chkFail=false;chkAt=Date.now();
+if(j&&typeof j.v==='string'&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots&&j.hots.length>20){try{localStorage.setItem('sc_pack',JSON.stringify(j));}catch(e){}
+CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);DATAV=j.v;buildIdx();refreshGJ();S.al={};}
+autoSub();}).catch(function(){chkFail=true;chkAt=Date.now();autoSub();});}
+sw('swAuto',AUTO);autoSub();
+$('swAuto').addEventListener('click',function(){AUTO=!AUTO;try{localStorage.setItem('sc_auto',AUTO?'1':'0');}catch(e){}sw('swAuto',AUTO);autoSub();if(AUTO)checkData(true);});
+setTimeout(function(){checkData(true);},2500);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)checkData(false);});
+window.addEventListener('online',function(){checkData(true);});
+setInterval(function(){if(AUTO&&S.page==='traf'&&!document.hidden)refreshTraf();},60000);
 
 /* ---------- 熱點頁 ---------- */
 var HOTL=HOTS.map(function(h,i){return {i:i,lon:h[0],lat:h[1],n:h[2],name:h[3]};}).sort(function(a,b){return b.n-a.n;});
@@ -713,10 +841,45 @@ document.querySelectorAll('#segV button').forEach(function(b){b.setAttribute('ar
 /* 行駛頁的小 3D 地圖：追著你走 */
 var miniM=null,miniMk=null,lastMini=0;
 function mkMeEl(){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(47,128,237,.28)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#2F80ED" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"></path></svg>';return el;}
-function initMini(){if(miniM||miniM===false)return;miniM=mkMap('cvMini',{overlay:ovMap,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
-miniMk=new ML.Marker({element:mkMeEl(),rotationAlignment:'map',pitchAlignment:'map'});miniMk._on=false;}
+var MZ=16.2;
+function circlePoly(lon,lat,rm){var c=[],k=Math.cos(lat*D2R);for(var i=0;i<=48;i++){var a=i/48*2*Math.PI;c.push([lon+rm*Math.cos(a)/111320/k,lat+rm*Math.sin(a)/111320]);}return {type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[c]}};}
+var EMPTY={type:'FeatureCollection',features:[]};
+function ovLead(m){
+if(!m.getSource('ldz'))m.addSource('ldz',{type:'geojson',data:EMPTY});
+if(!m.getSource('ld'))m.addSource('ld',{type:'geojson',data:EMPTY});
+m.addLayer({id:'ldz-f',type:'fill',source:'ldz',paint:{'fill-color':'#8B5CF6','fill-opacity':0.22}});
+m.addLayer({id:'ldz-l',type:'line',source:'ldz',paint:{'line-color':'#8B5CF6','line-width':3,'line-dasharray':[2,2]}});
+m.addLayer({id:'ld-glow',type:'line',source:'ld',layout:{'line-cap':'round'},paint:{'line-color':'#FFA814','line-width':16,'line-blur':8,'line-opacity':0.55}});
+m.addLayer({id:'ld',type:'line',source:'ld',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#FFA814','line-width':6,'line-dasharray':[1.6,1.2]}});}
+function ovMini(m){ovMap(m);ovLead(m);}
+var ldCam=null,ldLab=null,ldKey='';
+function camEl(){var el=document.createElement('div');el.className='ldcam';el.innerHTML='<div class="t"></div><div class="d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></div>';return el;}
+function initMini(){if(miniM||miniM===false)return;miniM=mkMap('cvMini',{overlay:ovMini,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
+miniMk=new ML.Marker({element:mkMeEl(),rotationAlignment:'map',pitchAlignment:'map'});miniMk._on=false;
+ldCam=new ML.Marker({element:camEl(),anchor:'bottom'});ldCam._on=false;ldLab=new ML.Marker({element:(function(){var e=document.createElement('div');e.className='ldlab';return e;})()});ldLab._on=false;}
+function hideLead(){if(!miniM)return;try{if(miniM.getSource('ld')){miniM.getSource('ld').setData(EMPTY);miniM.getSource('ldz').setData(EMPTY);}}catch(e){}
+if(ldCam&&ldCam._on){ldCam.remove();ldCam._on=false;}if(ldLab&&ldLab._on){ldLab.remove();ldLab._on=false;}ldKey='';}
+function fmtD(d){return d>=1000?(d/1000).toFixed(1)+' km':Math.round(d)+' m';}
+function updateLead(){var L=S.lead;if(!L||!S.lat||L.d>1200){hideLead();return false;}
+var col=L.over?'#F0413C':L.k==='h'?'#8B5CF6':'#FFA814';
+try{if(miniM.getSource('ld')){
+miniM.getSource('ld').setData({type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[[S.lon,S.lat],[L.lon,L.lat]]}}]});
+var key=L.k+L.lon+L.lat;if(key!==ldKey){ldKey=key;miniM.getSource('ldz').setData(L.k==='h'?{type:'FeatureCollection',features:[circlePoly(L.lon,L.lat,300)]}:EMPTY);}
+miniM.setPaintProperty('ld','line-color',col);miniM.setPaintProperty('ld-glow','line-color',col);
+miniM.setPaintProperty('ld','line-dasharray',L.k==='h'?[0.4,1.8]:[1.6,1.2]);}}catch(e){}
+var ce=ldCam.getElement();ce.querySelector('.t').textContent=L.k==='h'?'移動測速（推估）':(L.t===1?'區間測速 ':L.t===2?'闖紅燈 ':'固定測速 ')+(L.k==='h'?'':L.lim);ce.querySelector('.d').style.background=col;ce.querySelector('.d').style.boxShadow='0 0 0 6px '+col+'4d';
+ldCam.setLngLat([L.lon,L.lat]);if(!ldCam._on){ldCam.addTo(miniM);ldCam._on=true;}
+var lb=ldLab.getElement();lb.textContent=fmtD(L.d);lb.style.borderColor=col;ldLab.setLngLat([(S.lon+L.lon)/2,(S.lat+L.lat)/2]);if(!ldLab._on){ldLab.addTo(miniM);ldLab._on=true;}
+return true;}
 function updateMini(){if(!miniM||!S.run||!S.lat)return;miniMk.setLngLat([S.lon,S.lat]);miniMk.setRotation(S.hd||0);if(!miniMk._on){miniMk.addTo(miniM);miniMk._on=true;}
-var n=Date.now();if(n-lastMini>800){lastMini=n;miniM.easeTo({center:[S.lon,S.lat],zoom:16,bearing:S.hd!=null?S.hd:miniM.getBearing(),pitch:60,duration:700,essential:true});}}
+var lead=updateLead();
+var n=Date.now();if(n-lastMini>800){lastMini=n;var hd=S.hd!=null?S.hd:miniM.getBearing();
+if(lead){var L=S.lead,b=new ML.LngLatBounds([S.lon,S.lat],[S.lon,S.lat]);b.extend([L.lon,L.lat]);
+miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch:50,maxZoom:17.4,duration:700,essential:true});}
+else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
+$('mZi').addEventListener('click',function(){MZ=Math.min(18.5,MZ+1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
+$('mZo').addEventListener('click',function(){MZ=Math.max(12,MZ-1);lastMini=0;if(miniM&&!S.lead)miniM.easeTo({zoom:MZ,duration:250});});
+S.onEnd=function(){hideLead();};
 S.onBegin=function(){FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
 S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
 
