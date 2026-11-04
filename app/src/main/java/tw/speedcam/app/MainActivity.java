@@ -150,6 +150,7 @@ public class MainActivity extends Activity {
     /** App 離開畫面（按 Home、切 App、關螢幕、開 Google 地圖）3 秒後：背景服務接手提醒，並浮出小視窗 */
     private final android.os.Handler floatH = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean inFront = false;
+    private boolean askedLoc = false;
     private final Runnable floatRun = () -> {
         try {
             if (inFront) return;
@@ -369,6 +370,46 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setVeh(String v) {
             getSharedPreferences("p", MODE_PRIVATE).edit().putString("veh", v == null ? "car" : v).apply();
+        }
+
+        /** 手機定位（GPS）有沒有打開 */
+        @JavascriptInterface
+        public boolean locOn() {
+            try {
+                android.location.LocationManager lm = (android.location.LocationManager) getSystemService(LOCATION_SERVICE);
+                if (lm == null) return true;
+                if (Build.VERSION.SDK_INT >= 28) return lm.isLocationEnabled();
+                return lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                        || lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER);
+            } catch (Exception e) { return true; }
+        }
+
+        /** 有沒有允許位置權限 */
+        @JavascriptInterface
+        public boolean locPerm() { return locOk(); }
+
+        /** 要位置權限：還能跳視窗就跳，不行就打開 App 的權限設定頁 */
+        @JavascriptInterface
+        public void askLoc() {
+            runOnUiThread(() -> {
+                try {
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) || !askedLoc) {
+                        askedLoc = true;
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
+                    } else {
+                        startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName())));
+                    }
+                } catch (Exception ignored) { }
+            });
+        }
+
+        /** 打開手機的定位設定頁 */
+        @JavascriptInterface
+        public void openLocSettings() {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); } catch (Exception ignored) { }
+            });
         }
 
         /** 主畫面開始／結束行駛：行駛中離開 App，一定會在背景繼續提醒 */
