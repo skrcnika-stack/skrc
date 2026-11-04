@@ -72,7 +72,7 @@ select{max-width:55%;min-height:40px;padding:0 10px;border-radius:8px;border:1px
 #tabs button[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
 .mapbar{display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap}
 .mapbar .chip[aria-pressed="true"]{color:var(--txt);border-color:var(--acc)}
-.mapbox{position:relative;height:56vh;height:56dvh;max-height:560px;min-height:300px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg0)}
+.mapbox{position:relative;height:56vh;height:56dvh;max-height:560px;min-height:300px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#e9edf4}
 .mapbox canvas{width:100%;height:100%;display:block}
 .zb{position:absolute;right:10px;display:flex;flex-direction:column;gap:6px}
 .zb button{width:40px;height:40px;border-radius:10px;border:1px solid var(--rule);background:rgba(5,11,23,.82);font-size:22px;line-height:1;color:var(--txt)}
@@ -92,7 +92,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 </style>
 
 <div class="wrap">
-<div class="top"><h1>測速提醒</h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
+<div class="top"><h1 id="ttl">測速提醒</h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
 <div id="pg-drive" class="pg"><section id="start" aria-label="開始">
 <p class="note" style="margin:10px 0 16px">會在前方 1 公里、500 公尺、150 公尺各用語音提醒一次；靠近測速點時超速，會一直重複，直到你降到限速以下。</p>
@@ -134,7 +134,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="mapbar"><div class="seg" id="mapLay"><button type="button" data-l="cam" aria-pressed="true">測速</button><button type="button" data-l="hot" aria-pressed="true">熱點</button><button type="button" data-l="fw" aria-pressed="true">國道</button></div><button class="chip" id="mapMe" type="button">定位我</button><button class="chip" id="mapFollow" type="button" aria-pressed="false">跟隨</button><button class="chip" id="mapAll" type="button">全台</button></div>
 <div class="mapbox"><div id="cvMap" class="mp"></div><div class="mapnote hide" id="cvMapNote"></div><div class="zb" style="top:10px"><button id="mapZi" type="button" aria-label="放大">+</button><button id="mapZo" type="button" aria-label="縮小">−</button><button id="mapTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div></div>
 <div class="card" id="mapInfo" style="margin-top:10px;min-height:64px"></div>
-<div class="leg"><span><i style="background:var(--amb)"></i>固定測速</span><span><i style="background:var(--vio)"></i>區間測速</span><span><i style="background:#71C9FA"></i>闖紅燈</span><span><i style="border:2px solid var(--red)"></i>取締熱點</span></div>
+<div class="leg"><span><i style="background:#FF9500"></i>固定測速</span><span><i style="background:#7B5CF0"></i>區間測速</span><span><i style="background:#2F80ED"></i>闖紅燈</span><span><i style="border:2px solid var(--red)"></i>取締熱點</span></div>
 <p class="note" style="margin-top:10px">地圖是彩色街道圖，有 3D 建築，需要網路；沒網路時會顯示簡化地圖。按「跟隨」再開始行駛，地圖會 3D 追著你走。底圖 © OpenStreetMap 貢獻者、OpenFreeMap；測速資料：警政署。</p>
 </section>
 
@@ -142,7 +142,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="demo">這一頁目前是<b>示範資料</b>，不是真正的即時路況。要接真的，需要申請交通部 TDX 的免費金鑰，下一步再接。</div>
 <div class="mapbar"><div class="seg" id="trSeg"><button type="button" data-v="all" aria-pressed="true">全部國道</button><button type="button" data-v="國1" aria-pressed="false">國1</button><button type="button" data-v="國3" aria-pressed="false">國3</button><button type="button" data-v="國5" aria-pressed="false">國5</button></div></div>
 <div class="mapbox"><div id="cvTraf" class="mp"></div><div class="mapnote hide" id="cvTrafNote"></div><div class="zb" style="top:10px"><button id="trZi" type="button" aria-label="放大">+</button><button id="trZo" type="button" aria-label="縮小">−</button><button id="trTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div></div>
-<div class="leg"><span><i style="background:var(--acc)"></i>順暢 60+</span><span><i style="background:var(--amb)"></i>車多 30–60</span><span><i style="background:var(--red)"></i>壅塞 &lt;30</span></div>
+<div class="leg"><span><i style="background:#16B26B"></i>順暢 60+</span><span><i style="background:#FFA814"></i>車多 30–60</span><span><i style="background:#F0413C"></i>壅塞 &lt;30</span></div>
 <p class="note" style="margin-top:6px">線上的白色光點會流動：越順，跑得越快；車多變慢；壅塞時幾乎不動，並閃紅光。</p>
 <p class="note" id="trTime" style="margin-top:8px"></p><p class="note" id="trSum"></p>
 <h2>最慢的路段</h2><ul class="log" id="trList"></ul>
@@ -155,7 +155,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="mapbox" style="height:50vh;height:50dvh;min-height:280px"><div id="cvTrip" class="mp"></div><div class="mapnote hide" id="cvTripNote"></div><div class="zb" style="top:10px"><button id="tripPlay" type="button" aria-label="播放軌跡" class="tx" style="width:auto;padding:0 12px">▶ 播放</button><button id="tripZi" type="button" aria-label="放大">+</button><button id="tripZo" type="button" aria-label="縮小">−</button><button id="tripTilt" type="button" aria-label="3D 傾斜" class="tx">3D</button></div>
 <div style="position:absolute;left:12px;bottom:26px;font-family:var(--num);font-size:24px;font-weight:600;color:#fff;text-shadow:0 1px 4px #000,0 0 8px #000;z-index:5" id="tripRead"></div></div>
 <div class="stat" id="tripStat"></div>
-<div class="leg"><span><i style="background:#71C9FA"></i>&lt;40</span><span><i style="background:var(--acc)"></i>40–70</span><span><i style="background:var(--amb)"></i>70–90</span><span><i style="background:var(--red)"></i>90+</span><span>● 起點 綠 · 終點 紅</span></div>
+<div class="leg"><span><i style="background:#2F80ED"></i>&lt;40</span><span><i style="background:#16B26B"></i>40–70</span><span><i style="background:#FFA814"></i>70–90</span><span><i style="background:#F0413C"></i>90+</span><span>● 起點 綠 · 終點 紅</span></div>
 <button class="chip" id="tripDel" type="button" style="margin-top:10px">刪除這筆</button>
 </div>
 <h2>全部紀錄</h2><ul class="log" id="tripList" style="margin-top:4px"></ul>
@@ -442,7 +442,7 @@ var mapM=null,trafM=null,tripM=null;
 function goPage(p){
 PAGES.forEach(function(k){$('pg-'+k).classList.toggle('hide',k!==p);});
 document.querySelectorAll('#tabs button').forEach(function(b){b.setAttribute('aria-current',b.dataset.p===p?'page':'false');});
-S.page=p;
+S.page=p;var TT={drive:'測速提醒',map:'測速地圖',traf:'即時路況',route:'路線紀錄',hot:'取締熱點',set:'設定'};$('ttl').textContent=TT[p]||'測速提醒';$('modeChip').classList.toggle('hide',p!=='drive');
 if(p==='map'){initMap();setTimeout(function(){if(mapM)mapM.resize();},40);}
 if(p==='traf'){initTraf();refreshTraf();setTimeout(function(){if(trafM)trafM.resize();},40);}
 if(p==='route'){renderTrips();}
@@ -466,6 +466,43 @@ function offlineStyle(){buildGJ();return {version:8,sources:{land:{type:'geojson
 {id:'bg',type:'background',paint:{'background-color':'#2b6cb0'}},
 {id:'land',type:'fill',source:'land',paint:{'fill-color':'#7bbf6a'}},
 {id:'landl',type:'line',source:'land',paint:{'line-color':'#4f8f47','line-width':1}}]};}
+
+/* ---- 明亮淺色風格：把 OpenFreeMap 的街道圖重新上色 ---- */
+var MC={g:'#16B26B',a:'#FFA814',r:'#F0413C',b:'#2F80ED',v:'#7B5CF0',cam:'#FF9500'};
+var SK={bg:'#eef1f6',land:'#f0f2f7',res:'#e9edf4',park:'#cde8d0',water:'#a8d2f4',sand:'#f3eedf',inst:'#e6ebf5',bld:'#e1e6ef',bldo:'#d2d9e5',ext:['#e8ecf5','#dbe3f0','#c3d0e7','#a7badc'],wat:'#9ccaf0',parkl:'#bfe0c4',bound:'#aab5cc',aero:'#e3e8f1',cas:'#cbd2e0',mcas:'#dfa13a',mw:'#f7bd4f',tp:'#ffffff',st:'#ffffff',lk:'#fff4dc',sv:'#f7f8fb',pa:'#d6dce8',rl:'#c6cddb',txt:'#3a455b',big:'#0f1a30',wt:'#4a86c5',halo:'#ffffff'};
+function skin(m){var st;try{st=m.getStyle();}catch(e){return;}if(!st||!st.layers)return;var C=SK;
+function P(id,a,v){try{m.setPaintProperty(id,a,v);}catch(e){}}
+st.layers.forEach(function(l){var id=l.id,t=l.type,sl=l['source-layer']||'';
+if(t==='background'){P(id,'background-color',C.bg);return;}
+if(t==='raster'||id==='road_area_pattern'){try{m.setLayoutProperty(id,'visibility','none');}catch(e){}return;}
+if(t==='fill'){
+ if(sl==='water'){P(id,'fill-color',C.water);return;}
+ if(sl==='park'||/wood|grass|park|wetland/.test(id)){P(id,'fill-color',C.park);P(id,'fill-opacity',0.95);return;}
+ if(/sand|pitch|track/.test(id)){P(id,'fill-color',C.sand);return;}
+ if(/hospital|school|cemetery/.test(id)){P(id,'fill-color',C.inst);return;}
+ if(sl==='building'){P(id,'fill-color',C.bld);P(id,'fill-outline-color',C.bldo);return;}
+ if(sl==='aeroway'){P(id,'fill-color',C.aero);return;}
+ if(sl==='landuse'){P(id,'fill-color',C.res);return;}
+ P(id,'fill-color',C.land);return;}
+if(t==='fill-extrusion'){P(id,'fill-extrusion-color',['interpolate',['linear'],['coalesce',['get','render_height'],10],0,C.ext[0],25,C.ext[1],80,C.ext[2],200,C.ext[3]]);P(id,'fill-extrusion-opacity',0.95);return;}
+if(t==='line'){var c=null;
+ if(sl==='waterway')c=C.wat;else if(sl==='park')c=C.parkl;else if(sl==='boundary')c=C.bound;else if(sl==='aeroway')c=C.pa;
+ else if(sl==='transportation'){
+  if(/casing/.test(id))c=/motorway/.test(id)?C.mcas:C.cas;
+  else if(/motorway/.test(id))c=C.mw;else if(/trunk_primary/.test(id))c=C.tp;else if(/secondary_tertiary/.test(id))c=C.st;
+  else if(/link/.test(id))c=C.lk;else if(/service|track/.test(id))c=C.sv;else if(/path|pedestrian/.test(id))c=C.pa;
+  else if(/rail|transit|hatching/.test(id))c=C.rl;else c=C.st;}
+ if(c)P(id,'line-color',c);return;}
+if(t==='symbol'){
+ if(/^poi_r(20|7|1)$/.test(id)){try{m.setLayoutProperty(id,'visibility','none');}catch(e){}return;}
+ if(/shield|arrow/.test(id)){P(id,'icon-opacity',0.6);P(id,'text-opacity',0.8);return;}
+ var big=/city|country|state|capital/.test(id);
+ P(id,'text-color',big?C.big:/water|waterway/.test(id)?C.wt:C.txt);P(id,'text-halo-color',C.halo);P(id,'text-halo-width',1.6);P(id,'text-halo-blur',0.4);
+ try{if(m.getLayoutProperty(id,'text-field'))m.setLayoutProperty(id,'text-field',['coalesce',['get','name:zh-Hant'],['get','name:zh'],['get','name:zh-Hans'],['get','name']]);}catch(e){}
+ if(/poi/.test(id))P(id,'icon-opacity',0.6);}
+});
+try{m.setLight({anchor:'viewport',color:'#ffffff',intensity:0.5,position:[1.25,215,48]});}catch(e){}
+}
 function add3D(m){try{var st=m.getStyle();if(!st||!st.layers)return;
 if(st.layers.some(function(l){return l.type==='fill-extrusion';}))return;
 var src=null;Object.keys(st.sources||{}).forEach(function(k){if(st.sources[k].type==='vector'&&!src)src=k;});if(!src)return;
@@ -479,7 +516,7 @@ try{m=new ML.Map({container:id,style:STYLE_ON,center:o.center||[120.97,23.7],zoo
 catch(e){var el=$(id);el.innerHTML='<div class="note" style="padding:16px">這支手機不支援 3D 地圖（WebGL）。</div>';return null;}
 m._ok=false;m._off=false;
 function toOffline(){if(m._off||m._ok)return;m._off=true;if(note){note.textContent='沒有網路，顯示簡化地圖。有網路時重開 App 會是完整街道 3D 地圖。';note.classList.remove('hide');}try{m.setStyle(offlineStyle());}catch(e){}}
-m.on('style.load',function(){if(!m._off){m._ok=true;if(note)note.classList.add('hide');add3D(m);}o.overlay(m);if(o.onReady)o.onReady(m);});
+m.on('style.load',function(){if(!m._off){m._ok=true;if(note)note.classList.add('hide');skin(m);add3D(m);}o.overlay(m);if(o.onReady)o.onReady(m);});
 m.on('error',function(e){if(!m._ok&&!m._off)setTimeout(toOffline,1200);});
 setTimeout(function(){if(!m._ok)toOffline();},9000);
 m.on('click',function(e){if(o.onClick)o.onClick(m,e);});
@@ -492,26 +529,26 @@ var LAY={cam:true,hot:true,fw:true},FOLLOW=false,SEL=null,meMk=null,lastFollow=0
 function applyLay(m){if(!m||!m.getLayer)return;[['cams','cam'],['hots','hot'],['fw','fw'],['fw-case','fw']].forEach(function(x){if(m.getLayer(x[0]))m.setLayoutProperty(x[0],'visibility',LAY[x[1]]?'visible':'none');});}
 function ovMap(m){buildGJ();
 if(!m.getSource('fw'))m.addSource('fw',{type:'geojson',data:FWGJ});
-m.addLayer({id:'fw-case',type:'line',source:'fw',paint:{'line-color':'#3b2a99','line-width':['interpolate',['linear'],['zoom'],5,3,12,10],'line-opacity':.5}});
-m.addLayer({id:'fw',type:'line',source:'fw',paint:{'line-color':'#C7B8FF','line-width':['interpolate',['linear'],['zoom'],5,1.4,12,4.5]}});
+m.addLayer({id:'fw-case',type:'line',source:'fw',paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],5,3.4,12,10],'line-opacity':.9}});
+m.addLayer({id:'fw',type:'line',source:'fw',paint:{'line-color':MC.v,'line-width':['interpolate',['linear'],['zoom'],5,1.5,12,4.5]}});
 if(!m.getSource('cams'))m.addSource('cams',{type:'geojson',data:CAMGJ});
-m.addLayer({id:'cams',type:'circle',source:'cams',paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,2.2,9,4,14,8,17,12],'circle-color':['match',['get','t'],1,'#AA9AFC',2,'#71C9FA','#FFBF3B'],'circle-stroke-color':'#050B17','circle-stroke-width':1.2}});
+m.addLayer({id:'cams',type:'circle',source:'cams',paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,1.5,8,2.6,11,4.5,14,8,17,12],'circle-color':['match',['get','t'],1,MC.v,2,MC.b,MC.cam],'circle-stroke-color':'#ffffff','circle-stroke-width':['interpolate',['linear'],['zoom'],5,0.4,11,1.6],'circle-opacity':1}});
 if(!m.getSource('hots'))m.addSource('hots',{type:'geojson',data:HOTGJ});
-m.addLayer({id:'hots',type:'circle',source:'hots',paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,5,10,9,15,16],'circle-color':'rgba(255,95,91,.22)','circle-stroke-color':'#FF5F5B','circle-stroke-width':2}});
+m.addLayer({id:'hots',type:'circle',source:'hots',paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,3,10,8,15,16],'circle-color':'rgba(240,65,60,.14)','circle-stroke-color':'#F0413C','circle-stroke-width':['interpolate',['linear'],['zoom'],5,0.8,12,2],'circle-stroke-opacity':0.85}});
 if(!m.getSource('sel'))m.addSource('sel',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
 m.addLayer({id:'sel',type:'circle',source:'sel',paint:{'circle-radius':16,'circle-color':'rgba(255,255,255,.08)','circle-stroke-color':'#ffffff','circle-stroke-width':3}});
 applyLay(m);}
 function setSel(b){SEL=b;if(!mapM||!mapM.getSource('sel'))return;mapM.getSource('sel').setData({type:'FeatureCollection',features:b?[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[b.lon,b.lat]}}]:[]});showInfo(b);}
 function showInfo(b){var el=$('mapInfo');if(!b){el.innerHTML='<span class="note">點地圖上的點，看是哪一種測速、限速多少。單指拖曳、兩指縮放與轉向，按「3D」可傾斜。</span>';return;}
 if(b.k==='h')el.innerHTML='<b style="color:var(--red)">取締熱點</b><div style="font-size:13px;margin-top:2px">'+esc(b.name)+'</div><div class="note">歷史取締統計 '+b.n+' 件 · 常有移動式取締，不是即時位置</div>';
-else{var tn=b.t===1?'區間測速':b.t===2?'闖紅燈照相':'固定測速';el.innerHTML='<b style="color:'+(b.t===1?'var(--vio)':b.t===2?'#71C9FA':'var(--amb)')+'">'+tn+'</b><div style="font-size:13px;margin-top:2px">'+(b.r?'國道':'一般道路')+' · 限速 '+b.lim+'</div><div class="note">'+b.lat.toFixed(5)+', '+b.lon.toFixed(5)+'</div>';}}
+else{var tn=b.t===1?'區間測速':b.t===2?'闖紅燈照相':'固定測速';el.innerHTML='<b style="color:'+(b.t===1?MC.v:b.t===2?MC.b:MC.cam)+'">'+tn+'</b><div style="font-size:13px;margin-top:2px">'+(b.r?'國道':'一般道路')+' · 限速 '+b.lim+'</div><div class="note">'+b.lat.toFixed(5)+', '+b.lon.toFixed(5)+'</div>';}}
 function initMap(){if(mapM||mapM===false)return;
 mapM=mkMap('cvMap',{overlay:ovMap,onClick:function(m,e){var ls=['cams','hots'].filter(function(x){return m.getLayer(x)&&LAY[x==='cams'?'cam':'hot'];});if(!ls.length)return;var bb=[[e.point.x-14,e.point.y-14],[e.point.x+14,e.point.y+14]];var f=m.queryRenderedFeatures(bb,{layers:ls});if(!f.length){setSel(null);return;}var q=f[0],p=q.properties,c=q.geometry.coordinates;
 setSel(q.layer.id==='hots'?{k:'h',lon:c[0],lat:c[1],n:p.n,name:p.name}:{k:'c',lon:c[0],lat:c[1],t:+p.t,r:+p.r,lim:+p.lim});},
 onReady:function(m){updateMe();if(m===mapM&&SEL)setSel(SEL);}});
 if(!mapM){mapM=false;return;}
 showInfo(null);}
-function ensureMe(){if(!ML||!mapM)return null;if(!meMk){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(76,240,194,.22)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#4CF0C2" stroke="#050B17" stroke-width="2.5" stroke-linejoin="round"></path></svg>';meMk=new ML.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map'});meMk._on=false;}return meMk;}
+function ensureMe(){if(!ML||!mapM)return null;if(!meMk){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(47,128,237,.28)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#2F80ED" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"></path></svg>';meMk=new ML.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map'});meMk._on=false;}return meMk;}
 function posNow(){if(S.run&&S.lat)return {lat:S.lat,lon:S.lon,hd:S.hd};if(S.me)return {lat:S.me.lat,lon:S.me.lon,hd:null};return null;}
 function updateMe(){var u=posNow();if(!u||!mapM)return;var mk=ensureMe();if(!mk)return;mk.setLngLat([u.lon,u.lat]);mk.setRotation(u.hd||0);if(!mk._on){mk.addTo(mapM);mk._on=true;}
 if(FOLLOW&&S.run&&S.page==='map'){var n=Date.now();if(n-lastFollow>800){lastFollow=n;mapM.easeTo({center:[u.lon,u.lat],zoom:Math.max(mapM.getZoom(),16),bearing:u.hd!=null?u.hd:mapM.getBearing(),pitch:60,duration:700,essential:true});}}}
@@ -535,7 +572,7 @@ function trSpeed(k,i){var d=new Date();var slot=Math.floor(d.getTime()/600000);v
 var peak=Math.max(0,1-Math.min(Math.abs(hr-8)/2.2,Math.abs(hr-18)/2.6));var w=0.12+0.5*peak;
 var x=hsh(k+':'+i+':'+slot),base=(k==='國1'||k==='國3')?100:90;
 if(x<0.10*w+0.02)return Math.round(14+x*300);if(x<0.30*w+0.06)return Math.round(38+x*100);return Math.round(base-12*x);}
-function trCol(v){return v<30?COL.red:v<60?COL.amb:COL.acc;}
+function trCol(v){return v<30?MC.r:v<60?MC.a:MC.g;}
 function buildTrSeg(){if(TRSEG)return;TRSEG=[];Object.keys(GEO.f).forEach(function(k){if(k.indexOf('國')!==0)return;var p=GEO.f[k].p,n=p.length/2;for(var a=0,si=0;a<n-1;a+=10,si++){var b=Math.min(a+10,n-1),c=[];for(var i=a;i<=b;i++)c.push([p[i*2],p[i*2+1]]);TRSEG.push({k:k,si:si,a:a,b:b,c:c,v:0});}});}
 function trGJ(){buildTrSeg();TRSEG.forEach(function(s){s.v=trSpeed(s.k,s.si);});return {type:'FeatureCollection',features:TRSEG.map(function(s){return {type:'Feature',properties:{k:s.k,v:s.v},geometry:{type:'LineString',coordinates:s.c}};})};}
 function trFilter(){return TR.sel==='all'?null:['==',['get','k'],TR.sel];}
@@ -547,9 +584,9 @@ TRCLS.forEach(function(c){if(m.getLayer('tr-'+c[0]))m.setFilter('tr-'+c[0],trFil
 if(m.getLayer('tr-glow'))m.setFilter('tr-glow',trFiltFor(TRCLS[2][1]));}
 function ovTraf(m){var gj=trGJ();if(m.getSource('tr'))m.getSource('tr').setData(gj);else m.addSource('tr',{type:'geojson',data:gj});
 var W=['interpolate',['linear'],['zoom'],5,2.4,12,8];
-m.addLayer({id:'tr-case',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#0a1424','line-width':['interpolate',['linear'],['zoom'],5,4,12,14],'line-opacity':.75}});
-m.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':COL.red,'line-width':['interpolate',['linear'],['zoom'],5,9,12,26],'line-blur':6,'line-opacity':.35}});
-m.addLayer({id:'tr',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],COL.red,30,COL.amb,60,COL.acc],'line-width':W}});
+m.addLayer({id:'tr-case',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],5,4.6,12,14],'line-opacity':.95}});
+m.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':MC.r,'line-width':['interpolate',['linear'],['zoom'],5,9,12,26],'line-blur':6,'line-opacity':.35}});
+m.addLayer({id:'tr',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],MC.r,30,MC.a,60,MC.g],'line-width':W}});
 TRCLS.forEach(function(c){m.addLayer({id:'tr-'+c[0],type:'line',source:'tr',layout:{'line-cap':'butt','line-join':'round'},paint:{'line-color':'#ffffff','line-opacity':c[0]==='f2'?.55:.8,'line-width':['interpolate',['linear'],['zoom'],5,1.1,12,3.6],'line-dasharray':[0,4,3]}});});
 applyTrFilters(m);startTrAnim();}
 /* 動畫：順暢＝光點跑得快，車多＝慢，壅塞＝很慢＋紅光閃爍 */
@@ -590,7 +627,7 @@ var a=loadTrips();a.unshift({t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Ma
 var TRIP=null,PLAY=null;
 function fmtDur(s){var m=Math.floor(s/60),h=Math.floor(m/60);return h?h+' 小時 '+(m%60)+' 分':m+' 分 '+(s%60)+' 秒';}
 function fmtDate(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
-function spCol(v){return v<40?COL.sky:v<70?COL.acc:v<90?COL.amb:COL.red;}
+function spCol(v){return v<40?MC.b:v<70?MC.g:v<90?MC.a:MC.r;}
 function renderTrips(){var a=loadTrips(),ul=$('tripList');ul.innerHTML='';$('tripEmpty').classList.toggle('hide',a.length>0);
 if(!a.length){$('tripView').classList.add('hide');}
 a.forEach(function(t,i){var li=document.createElement('li');li.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer';
@@ -602,10 +639,10 @@ function ovTrip(m){
 if(!m.getSource('trk'))m.addSource('trk',{type:'geojson',data:TRIP?tripGJ():{type:'FeatureCollection',features:[]}});
 if(!m.getSource('tre'))m.addSource('tre',{type:'geojson',data:TRIP?tripEnds():{type:'FeatureCollection',features:[]}});
 if(!m.getSource('trm'))m.addSource('trm',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-m.addLayer({id:'trk-case',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#0a1424','line-width':['interpolate',['linear'],['zoom'],10,6,18,16],'line-opacity':.8}});
-m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],COL.sky,40,COL.acc,70,COL.amb,90,COL.red],'line-width':['interpolate',['linear'],['zoom'],10,3.5,18,10]}});
-m.addLayer({id:'tre',type:'circle',source:'tre',paint:{'circle-radius':8,'circle-color':['match',['get','c'],'s',COL.acc,COL.red],'circle-stroke-color':'#fff','circle-stroke-width':2.5}});
-m.addLayer({id:'trm',type:'circle',source:'trm',paint:{'circle-radius':10,'circle-color':'#fff','circle-stroke-color':['step',['get','v'],COL.sky,40,COL.acc,70,COL.amb,90,COL.red],'circle-stroke-width':5}});}
+m.addLayer({id:'trk-case',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],10,6,18,16],'line-opacity':.95}});
+m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r],'line-width':['interpolate',['linear'],['zoom'],10,3.5,18,10]}});
+m.addLayer({id:'tre',type:'circle',source:'tre',paint:{'circle-radius':8,'circle-color':['match',['get','c'],'s',MC.g,MC.r],'circle-stroke-color':'#fff','circle-stroke-width':2.5}});
+m.addLayer({id:'trm',type:'circle',source:'trm',paint:{'circle-radius':10,'circle-color':'#fff','circle-stroke-color':['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r],'circle-stroke-width':5}});}
 function fitTrip(){if(!tripM||!TRIP)return;var p=TRIP.p,lo0=999,lo1=0,la0=99,la1=0;p.forEach(function(q){lo0=Math.min(lo0,q[1]);lo1=Math.max(lo1,q[1]);la0=Math.min(la0,q[0]);la1=Math.max(la1,q[0]);});
 tripM.fitBounds([[lo0,la0],[lo1,la1]],{padding:50,pitch:50,bearing:0,duration:900,maxZoom:17});}
 function openTrip(i){var a=loadTrips();TRIP=a[i];TRIP.i=i;$('tripView').classList.remove('hide');PLAY=null;
@@ -644,7 +681,7 @@ $('hotQ').addEventListener('input',renderHot);
 document.querySelectorAll('#segV button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===S.veh));b.addEventListener('click',function(){S.veh=b.dataset.v;document.querySelectorAll('#segV button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});save();});});
 /* 行駛頁的小 3D 地圖：追著你走 */
 var miniM=null,miniMk=null,lastMini=0;
-function mkMeEl(){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(76,240,194,.22)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#4CF0C2" stroke="#050B17" stroke-width="2.5" stroke-linejoin="round"></path></svg>';return el;}
+function mkMeEl(){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(47,128,237,.28)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#2F80ED" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"></path></svg>';return el;}
 function initMini(){if(miniM||miniM===false)return;miniM=mkMap('cvMini',{overlay:ovMap,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
 miniMk=new ML.Marker({element:mkMeEl(),rotationAlignment:'map',pitchAlignment:'map'});miniMk._on=false;}
 function updateMini(){if(!miniM||!S.run||!S.lat)return;miniMk.setLngLat([S.lon,S.lat]);miniMk.setRotation(S.hd||0);if(!miniMk._on){miniMk.addTo(miniM);miniMk._on=true;}
