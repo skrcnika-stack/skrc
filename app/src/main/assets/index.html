@@ -106,6 +106,7 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 .cam .cd{display:flex;align-items:baseline;gap:3px;white-space:nowrap}.cam .cd b{font-family:var(--num);font-size:clamp(28px,9.5vw,40px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}.cam .cd small{font-size:14px;font-weight:700}
 .cam .ctx{font-size:clamp(13px,4vw,16px);font-weight:700;color:var(--txt)}.cam .csb{font-size:11px;color:var(--mut)}
 .cam.none{color:var(--mut)}.cam.none .cd,.cam.none .csb{display:none}.cam.none .ctx{font-size:12px;font-weight:400;color:var(--mut);max-width:150px}
+.cam.mine{color:#2EDB86}body.car .cam.mine{color:#0E9F5B}.dbar.mine .fl{background:linear-gradient(90deg,rgba(22,178,107,.35),#16B26B)}.dbar.mine .cm{background:#16B26B}
 .cam.hot{color:#B794FF}.cam.tech{color:#2FD3F0}.cam.cross{color:#FF6FB1}.cam .csb{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cam.over{color:#ff6b66}
 .dmap{height:clamp(300px,calc(100dvh - 500px),620px);max-height:none;min-height:0;margin-top:10px;border-radius:18px}
 .endbtn{position:absolute;left:10px;bottom:26px;z-index:7;min-height:44px;padding:0 24px;border-radius:14px;border:1px solid var(--red);background:rgba(5,11,23,.92);color:#ffb4b1;font-weight:700;font-size:16px}
@@ -174,6 +175,14 @@ body.car .ring #arcGlow{opacity:.18}
 body:not(.car) .vsw button[aria-pressed=true]{color:#04251d}
 .dhead .vmode{border:0;background:transparent;color:var(--acc);font-weight:700;font-size:13px;padding:0 0 0 6px;border-left:1px solid var(--line);margin-left:2px;min-height:28px}
 
+.sgrp{margin-top:14px}.sgrp>.lab{display:block;margin:0 2px 4px;color:var(--acc);letter-spacing:.12em}
+.row .dot{width:10px;height:10px;border-radius:50%;flex:none;margin-right:2px}
+#linkSel{min-height:40px;max-width:150px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);padding:0 8px;font-size:14px}
+.bkbox{padding:8px 0}.bkbox textarea{width:100%;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:12px;padding:8px}
+body.hud #drive{transform:scaleX(-1)}body.hud.drv .dstat,body.hud.drv .dbar,body.hud.drv .dpass,body.hud.drv .dlist,body.hud.drv .dhead{display:none}
+body.hud{--bg:#000;--bg0:#000}body.hud .ring{width:min(100%,440px)!important}body.hud .spd{font-size:min(30vw,150px)!important}
+.dhead .gi{font-size:12px;color:var(--mut);border-left:1px solid var(--line);padding-left:6px}
+.plist .pi{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.plist .pi b{font-family:var(--num);font-size:18px}.plist .pi .o{color:var(--red);font-weight:700}
 .dlist,.dact{display:none}
 body.drv .dlist{display:flex;flex-direction:column;gap:6px;flex:none}
 .dlist .dl{display:flex;align-items:center;gap:10px;min-height:38px;padding:5px 12px;border-radius:12px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--mut)}
@@ -261,7 +270,7 @@ body.tabs-off #tabHandle{display:block}
 <div class="sign" id="sign">--</div>
 </div>
 
-<div class="dhead" id="dHead"><i id="dArr">↑</i><span id="dDir">北</span><b id="dClock">--:--</b><button type="button" class="vmode" id="vMode">汽車</button></div>
+<div class="dhead" id="dHead"><i id="dArr">↑</i><span id="dDir">北</span><b id="dClock">--:--</b><span class="gi" id="dGi"></span><button type="button" class="vmode" id="vMode">汽車</button></div>
 <div class="dstat"><div>本趟里程<b id="stKm">0.0</b></div><div>行駛時間<b id="stT">0:00</b></div><div>平均時速<b id="stAv">0</b></div><div>最高時速<b id="stMx">0</b></div></div>
 <div class="dbar" id="dBar"><div class="tr"><i class="tk" style="left:0"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:85%"></i><i class="fl" id="dbFl"></i><span class="car" id="dbCar"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 12 L21 3 L14 21 L12 13 Z" fill="#2F80ED" stroke="#fff" stroke-width="2" stroke-linejoin="round" transform="rotate(45 12 12)"/></svg></span><span class="cm"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></span></div><div class="lb"><span>1 公里</span><span style="left:50%">500</span><span style="left:85%">150</span></div></div>
 <div class="dpass"><span>經過測速 <b id="psN">0</b> 處</span><span>語音提醒 <b id="psA">0</b> 次</span><span>超速 <b id="psO">0</b> 次</span></div>
@@ -305,6 +314,7 @@ body.tabs-off #tabHandle{display:block}
 <div class="leg"><span><i style="background:#2F80ED"></i>&lt;40</span><span><i style="background:#16B26B"></i>40–70</span><span><i style="background:#FFA814"></i>70–90</span><span><i style="background:#F0413C"></i>90+</span><span>● 起點 綠 · 終點 紅</span></div>
 <button class="chip" id="tripDel" type="button" style="margin-top:10px">刪除這筆</button>
 </div>
+<div id="passView" class="hide"><h2>過點紀錄</h2><p class="note">最近 60 天經過測速點時的時速。紅色是超速。</p><div class="plist" id="passList"></div></div>
 <h2>全部紀錄</h2><ul class="log" id="tripList" style="margin-top:4px"></ul>
 </section>
 
@@ -316,19 +326,49 @@ body.tabs-off #tabHandle{display:block}
 </section>
 
 <section id="pg-set" class="pg hide" aria-label="設定">
-<div style="margin-top:8px">
-<div class="row"><span class="t"><b>車種</b><span>目前三種共用同一組限速；各車種專屬規則還在查證</span></span><div class="seg" id="segV"><button type="button" data-v="car" aria-pressed="true">汽車</button><button type="button" data-v="big" aria-pressed="false">大型重機</button><button type="button" data-v="small" aria-pressed="false">普通重機</button></div></div></div>
-<div style="margin-top:14px"><span class="lab">語音設定</span>
+<div class="sgrp"><span class="lab">行車模式</span>
+<div class="row"><span class="t"><b>車種</b><span>目前三種共用同一組限速；各車種專屬規則還在查證</span></span><div class="seg" id="segV"><button type="button" data-v="car" aria-pressed="true">汽車</button><button type="button" data-v="big" aria-pressed="false">大型重機</button><button type="button" data-v="small" aria-pressed="false">普通重機</button></div></div>
+</div>
+<div class="sgrp"><span class="lab">警示項目</span>
+<div class="row"><i class="dot" style="background:#FF9500"></i><span class="t"><b>固定測速</b><span>警政署 1872 處（含國道）</span></span><button class="sw" id="enC0" type="button" role="switch" aria-checked="true" aria-label="固定測速"></button></div>
+<div class="row"><i class="dot" style="background:#7B5CF0"></i><span class="t"><b>區間測速</b><span>進入區間前提醒</span></span><button class="sw" id="enC1" type="button" role="switch" aria-checked="true" aria-label="區間測速"></button></div>
+<div class="row"><i class="dot" style="background:#2F80ED"></i><span class="t"><b>闖紅燈照相</b><span></span></span><button class="sw" id="enC2" type="button" role="switch" aria-checked="true" aria-label="闖紅燈照相"></button></div>
+<div class="row"><i class="dot" style="background:#00B4D8"></i><span class="t"><b>科技執法</b><span>621 處，路口違規</span></span><button class="sw" id="enT" type="button" role="switch" aria-checked="true" aria-label="科技執法"></button></div>
+<div class="row"><i class="dot" style="background:#FF4FA0"></i><span class="t"><b>跨線取締</b><span>跨越雙白線、槽化線</span></span><button class="sw" id="enX" type="button" role="switch" aria-checked="true" aria-label="跨線取締"></button></div>
+<div class="row"><i class="dot" style="background:#8B5CF6"></i><span class="t"><b>移動測速熱點</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
+<div class="row"><i class="dot" style="background:#16B26B"></i><span class="t"><b>我的自建點</b><span>在「地圖」頁長按地圖新增，例如常臨檢的地方</span></span><button class="sw" id="enU" type="button" role="switch" aria-checked="true" aria-label="我的自建點"></button></div>
+</div>
+<div class="sgrp"><span class="lab">速度</span>
+<div class="row"><span class="t"><b>超速寬限值</b><span>超過限速多少才提醒；建議 3，高速公路不會一直叫</span></span><div class="seg" id="segGr"><button type="button" data-v="0" aria-pressed="false">0</button><button type="button" data-v="3" aria-pressed="false">3</button><button type="button" data-v="5" aria-pressed="false">5</button><button type="button" data-v="10" aria-pressed="false">10</button></div></div>
+<div class="row"><span class="t"><b>GPS 速度校正</b><span>讓 App 時速跟儀表板一樣；車上儀表通常比較快</span></span><div class="seg" id="segCal"><button type="button" data-v="0" aria-pressed="false">0%</button><button type="button" data-v="3" aria-pressed="false">+3%</button><button type="button" data-v="5" aria-pressed="false">+5%</button><button type="button" data-v="8" aria-pressed="false">+8%</button></div></div>
+</div>
+<div class="sgrp"><span class="lab">警示方式</span>
 <div class="row"><span class="t"><b>語音播報</b><span>不用看螢幕，聽就知道</span></span><button class="sw" id="swVoice" type="button" role="switch" aria-checked="true" aria-label="語音播報"></button></div>
 <div class="row"><span class="t"><b>聲音</b><span id="gSub">女聲優先</span></span><div class="seg" id="segG"><button type="button" data-v="f" aria-pressed="true">女聲</button><button type="button" data-v="m" aria-pressed="false">男聲</button></div><button class="chip" id="hello" type="button" aria-label="試聽">試聽</button></div>
 <div class="row"><span class="t"><b>選聲音</b><span>優先用臺灣腔，每台手機的聲音不同</span></span><select id="voiceSel" aria-label="選聲音"></select></div>
 <p class="note" id="twTip" hidden style="margin:6px 0 10px;color:var(--amb)">這台裝置沒有臺灣腔的中文語音，現在聽到的是別的腔調。iPhone：設定 → 輔助使用 → 語音內容 → 聲音 → 中文 → 國語（臺灣）Mei-Jia，下載「優化版」。Android：設定 → 文字轉語音 → 語言 → 中文（臺灣）。電腦用 Edge 瀏覽器，選「HsiaoChen」或「HsiaoYu」的 Online (Natural) 聲音最自然。</p>
 <div class="row"><span class="t"><b>語速</b><span>聽起來太快或太慢可以調</span></span><div class="seg" id="segR"><button type="button" data-v="0.9" aria-pressed="false">慢</button><button type="button" data-v="1" aria-pressed="true">標準</button><button type="button" data-v="1.12" aria-pressed="false">快</button></div></div>
-<div class="row"><span class="t"><b>超速重複間隔</b><span>超速時每隔幾秒提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="3" aria-pressed="false">3 秒</button><button type="button" data-v="5" aria-pressed="true">5 秒</button><button type="button" data-v="10" aria-pressed="false">10 秒</button></div></div>
-<div class="row"><span class="t"><b>取締熱點提醒</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
+<div class="row"><span class="t"><b>提醒距離</b><span>自動：時速 90 以上提早到 1.5 公里、800、300 公尺提醒</span></span><div class="seg" id="segDm"><button type="button" data-v="auto" aria-pressed="false">自動</button><button type="button" data-v="std" aria-pressed="false">標準</button></div></div>
+<div class="row"><span class="t"><b>漸近音</b><span>最後 300 公尺，越接近嗶聲越密</span></span><button class="sw" id="swNear" type="button" role="switch" aria-checked="true" aria-label="漸近音"></button></div>
+<div class="row"><span class="t"><b>提醒時降低音樂</b><span>播報時自動把音樂、導航聲音調小</span></span><button class="sw" id="swDuck" type="button" role="switch" aria-checked="true" aria-label="提醒時降低音樂"></button></div>
+<div class="row"><span class="t"><b>遠距超速提醒間隔</b><span>離測速點 200 公尺外，超速時多久提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="10" aria-pressed="true">10 秒</button><button type="button" data-v="15" aria-pressed="false">15 秒</button><button type="button" data-v="20" aria-pressed="false">20 秒</button></div></div>
+</div>
+<div class="sgrp"><span class="lab">背景執行 · 浮動視窗</span>
 <div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
+<div class="row"><span class="t"><b>開始時一起打開</b><span>按「用手機 GPS 開始」時，順便打開這個 App</span></span><select id="linkSel" aria-label="開始時一起打開"><option value="">不要</option><option value="com.google.android.apps.maps">Google 地圖</option><option value="com.google.android.apps.youtube.music">YouTube Music</option><option value="com.spotify.music">Spotify</option><option value="com.skysoft.kkbox.android">KKBOX</option></select></div>
+</div>
+<div class="sgrp"><span class="lab">顯示</span>
+<div class="row"><span class="t"><b>HUD 抬頭顯示</b><span>行駛畫面左右反轉、只留大字，手機平放在擋風玻璃下方</span></span><button class="sw" id="swHud" type="button" role="switch" aria-checked="true" aria-label="HUD 抬頭顯示"></button></div>
+<div class="row"><span class="t"><b>GPS 訊號與海拔</b><span>行駛畫面左上角顯示</span></span><button class="sw" id="swGinfo" type="button" role="switch" aria-checked="true" aria-label="GPS 訊號與海拔"></button></div>
+</div>
+<div class="sgrp"><span class="lab">紀錄與資料</span>
+<div class="row"><span class="t"><b>過點紀錄</b><span id="passSub">每次經過測速點的時速、有沒有超速</span></span><button class="chip" id="passGo" type="button">查看</button></div>
+<div class="row"><span class="t"><b>備份／還原</b><span>把設定和自建點複製成一段文字，換手機時貼回來</span></span><button class="chip" id="bkGo" type="button">打開</button></div>
+<div class="bkbox hide" id="bkBox"><textarea id="bkTx" rows="4" aria-label="備份文字" placeholder="按「匯出」會出現備份文字；要還原就把文字貼在這裡再按「匯入」"></textarea><div style="display:flex;gap:8px;margin-top:6px"><button class="chip" id="bkOut" type="button">匯出（複製）</button><button class="chip" id="bkIn" type="button">匯入</button><span class="note" id="bkSt" style="align-self:center"></span></div></div>
 <div class="row" style="border-bottom:1px solid var(--line)"><span class="t"><b>資料</b><span id="dataSub">警政署固定測速照相設置地點 1872 處（本島＋離島）· 取締熱點 145 處 · 科技執法 621 處</span></span></div>
-<div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料與路況會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div></div>
+<div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料與路況會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div>
+<div class="row"><span class="t"><b>罰單查詢</b><span>打開監理服務網查詢罰單</span></span><button class="chip" id="fineGo" type="button">開啟</button></div>
+</div>
 <div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX）</span>
 <p class="note" style="margin:4px 0 8px">金鑰只存在這支手機裡，不會上傳。填好後按「儲存並測試」。</p>
 <input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
@@ -422,9 +462,9 @@ var GEO={"c":[[119.985,25.971,119.979,25.957,119.967,25.951,119.965,25.958,119.9
 (function(){
 'use strict';
 var $=function(i){return document.getElementById(i);};
-var S={rate:1,vname:'',last:{},mode:null,run:false,lat:0,lon:0,spd:0,hd:null,prev:null,vg:'f',voice:true,iv:5,hot:true,al:{},over:false,lastSay:0,nSay:0,lastTick:0,simV:55,sim:null,timer:null,wid:null,lock:null,log:[],page:'drive',veh:'car',vnf:'',vnm:'',rec:[],t0:0,me:null};
-try{var sv=JSON.parse(localStorage.getItem('sc_set')||'{}');if(sv.vg)S.vg=sv.vg;if(sv.iv)S.iv=sv.iv;if(sv.voice===false)S.voice=false;if(sv.hot===false)S.hot=false;if(sv.rate)S.rate=sv.rate;if(sv.vname)S.vname=sv.vname;if(sv.veh)S.veh=sv.veh;if(sv.vnf)S.vnf=sv.vnf;if(sv.vnm)S.vnm=sv.vnm;}catch(e){}
-function save(){try{localStorage.setItem('sc_set',JSON.stringify({vg:S.vg,iv:S.iv,voice:S.voice,hot:S.hot,rate:S.rate,vname:S.vname,veh:S.veh,vnf:S.vnf,vnm:S.vnm}));localStorage.setItem('sc_voice',S.vg);}catch(e){}}
+var S={rate:1,vname:'',last:{},mode:null,run:false,lat:0,lon:0,spd:0,hd:null,prev:null,vg:'f',voice:true,iv:10,hot:true,al:{},over:false,lastSay:0,nSay:0,lastTick:0,simV:55,sim:null,timer:null,wid:null,lock:null,log:[],page:'drive',veh:'car',vnf:'',vnm:'',rec:[],t0:0,me:null,en:{c0:1,c1:1,c2:1,t:1,x:1,u:1},grace:3,cal:0,dm:'auto',near:false,duck:true,link:'',hud:false,ginfo:true};
+try{var sv=JSON.parse(localStorage.getItem('sc_set')||'{}');if(sv.vg)S.vg=sv.vg;if(sv.iv)S.iv=Math.max(10,sv.iv);if(sv.voice===false)S.voice=false;if(sv.hot===false)S.hot=false;if(sv.rate)S.rate=sv.rate;if(sv.vname)S.vname=sv.vname;if(sv.veh)S.veh=sv.veh;if(sv.vnf)S.vnf=sv.vnf;if(sv.vnm)S.vnm=sv.vnm;['en','grace','cal','dm','near','duck','link','hud','ginfo'].forEach(function(k){if(sv[k]!==undefined)S[k]=sv[k];});}catch(e){}
+function save(){try{localStorage.setItem('sc_set',JSON.stringify({vg:S.vg,iv:S.iv,voice:S.voice,hot:S.hot,rate:S.rate,vname:S.vname,veh:S.veh,vnf:S.vnf,vnm:S.vnm,en:S.en,grace:S.grace,cal:S.cal,dm:S.dm,near:S.near,duck:S.duck,link:S.link,hud:S.hud,ginfo:S.ginfo}));localStorage.setItem('sc_voice',S.vg);}catch(e){}}
 
 /* ---------- 地理 ---------- */
 var R=6371000,D2R=Math.PI/180;
@@ -433,12 +473,13 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041754';
+var DATAV='202611041817';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
 HOTS.forEach(function(h,i){ITEMS.push({id:'h'+i,k:'h',lon:h[0],lat:h[1],n:h[2],name:h[3]});});
 TECH.forEach(function(p,i){ITEMS.push({id:'t'+i,k:'t',x:p[2],lon:p[0],lat:p[1],lim:p[3],lab:p[4]});});
+try{(JSON.parse(localStorage.getItem('sc_mine')||'[]')).forEach(function(p,i){ITEMS.push({id:'u'+p[3],k:'u',lon:p[0],lat:p[1],name:p[2],lim:0});});}catch(e){}
 ITEMS.forEach(function(it){var k=key(it.lat,it.lon);(G[k]=G[k]||[]).push(it);});}
 buildIdx();window.__SC={S:S,ITEMS:ITEMS};
 function near(la,lo){var out=[],a=Math.floor(la*50),b=Math.floor(lo*50);for(var i=-1;i<=1;i++)for(var j=-1;j<=1;j++){var c=G[(a+i)+','+(b+j)];if(c)for(var n=0;n<c.length;n++)out.push(c[n]);}return out;}
@@ -493,15 +534,17 @@ var g='',h='';[[0,'1公里'],[0.5,'500'],[0.85,'150']].forEach(function(s){var a
 $('appTk').innerHTML=g;var rg=document.querySelector('.ring');var d=document.createElement('div');d.innerHTML=h;while(d.firstChild)rg.appendChild(d.firstChild);})();
 
 /* ---------- 主迴圈 ---------- */
+var DW={1:'一公里',2:'五百公尺',3:'一百五十公尺'};
+function logPass(it,spd){try{var a=JSON.parse(localStorage.getItem('sc_pass')||'[]');a.unshift([Date.now(),it.t,+it.lim,Math.round(spd),it.lat,it.lon]);var cut=Date.now()-60*864e5;a=a.filter(function(x){return x[0]>cut;}).slice(0,400);localStorage.setItem('sc_pass',JSON.stringify(a));}catch(e){}}
 var STAGE_TXT={1:'前方一公里，有固定測速照相',2:'前方500公尺，測速',3:'前方150公尺，測速照相'};
-function typeName(it){if(it.k==='h')return '取締熱點 · 常有移動式取締';if(it.k==='t')return (it.x?'跨線取締':'科技執法')+' · '+it.lab;var n=it.t===1?'區間測速':it.t===2?'闖紅燈照相':'固定測速';return n+' · '+(it.r?'國道':'一般道路');}
+function typeName(it){if(it.k==='u')return '自建提醒點 · '+it.name;if(it.k==='h')return '取締熱點 · 常有移動式取締';if(it.k==='t')return (it.x?'跨線取締':'科技執法')+' · '+it.lab;var n=it.t===1?'區間測速':it.t===2?'闖紅燈照相':'固定測速';return n+' · '+(it.r?'國道':'一般道路');}
 function tick(lat,lon,spd,hd){
-var now=Date.now();S.lat=lat;S.lon=lon;S.spd=spd;if(hd!=null)S.hd=hd;recPt(lat,lon,spd,now);if(S.mapHook)S.mapHook();
+spd=spd*(1+(+S.cal||0)/100);var now=Date.now();S.lat=lat;S.lon=lon;S.spd=spd;if(hd!=null)S.hd=hd;recPt(lat,lon,spd,now);if(S.mapHook)S.mapHook();
 var moving=spd>=8&&S.hd!=null;
 var cand=[],seen={};
 near(lat,lon).forEach(function(it){
-if(it.k==='h'&&!S.hot)return;
-var d=dist(lat,lon,it.lat,it.lon);var maxd=it.k==='h'?400:it.k==='t'?600:1500;if(d>maxd)return;
+if(it.k==='h'&&!S.hot)return;if(it.k==='c'&&S.en['c'+it.t]===0)return;if(it.k==='t'&&S.en[it.x?'x':'t']===0)return;if(it.k==='u'&&S.en.u===0)return;
+var d=dist(lat,lon,it.lat,it.lon);var maxd=it.k==='h'?400:(it.k==='t'||it.k==='u')?600:1500;if(d>maxd)return;
 if(moving&&adiff(bearing(lat,lon,it.lat,it.lon),S.hd)>55)return;
 cand.push({it:it,d:d});seen[it.id]=1;});
 cand.sort(function(a,b){return a.d-b.d;});
@@ -510,23 +553,25 @@ for(var i=0;i<cand.length;i++){if(cand[i].it.k==='c'){camNext=cand[i];break;}}
 /* 分段提醒 */
 cand.forEach(function(c){
 var it=c.it,a=S.al[it.id]||(S.al[it.id]={stage:0,seen:now});a.seen=now;
-var st;if(it.k==='h'){st=c.d<=300?3:0;}else if(it.k==='t'){st=c.d<=150?3:c.d<=500?2:0;}else{st=c.d<=150?3:c.d<=500?2:c.d<=1000?1:0;}
-if(moving&&st>a.stage){a.stage=st;S.nAl=(S.nAl||0)+1;if(st===3)S.nPass=(S.nPass||0)+1;
+var far=S.dm==='auto'&&spd>=90,T=far?[1500,800,300]:[1000,500,150];DW=far?{1:'一公里半',2:'八百公尺',3:'三百公尺'}:{1:'一公里',2:'五百公尺',3:'一百五十公尺'};
+var st;if(it.k==='h'){st=c.d<=300?3:0;}else if(it.k==='t'||it.k==='u'){st=c.d<=150?3:c.d<=500?2:0;}else{st=c.d<=T[2]?3:c.d<=T[1]?2:c.d<=T[0]?1:0;}
+if(moving&&st>a.stage){a.stage=st;S.nAl=(S.nAl||0)+1;if(st===3){S.nPass=(S.nPass||0)+1;if(it.k==='c')logPass(it,spd);}
+if(it.k==='u'){say(st===2?'前方五百公尺，自建提醒點，'+it.name+'。':'自建提醒點到了，'+it.name+'，請小心。',1,1);}else 
 var L=it.k==='c'?zh(it.lim):'';
 if(it.k==='t'){if(st===2)say(it.x?pick(['前方五百公尺，跨線取締，請勿跨越雙白線。','五百公尺後有跨線取締。'],'x2'):pick(['前方五百公尺，科技執法路口。','五百公尺後是科技執法路口，請遵守號誌。'],'t2'),1,1);else if(st===3)say(it.x?'跨線取締到了，請保持在車道內。':pick(['科技執法路口到了，請注意號誌與行人。','前方路口有科技執法，請小心。'],'t3'),1,1);}
 else if(it.k==='h'&&st===3)say(pick(['前面三百公尺，這段常有取締，請留意車速。','請小心，前方三百公尺常有取締。'],'h'),1,1);
 else if(it.k==='c'){var tx;
-if(it.t===1)tx=st===1?pick(['前方一公里，要進入區間測速了。','前面一公里有區間測速，限速'+L+'。'],'z1'):st===2?'前方五百公尺，區間測速開始，限速'+L+'。':'即將進入區間測速，請保持限速'+L+'。';
-else if(st===1)tx=pick(['前方一公里，有測速照相。','前面大約一公里，有測速照相。'],'s1');
-else if(st===2)tx=pick(['前方五百公尺，測速照相，限速'+L+'。','五百公尺後有測速，限速'+L+'，記得留意。'],'s2');
-else tx=pick(['前方一百五十公尺，測速照相，請減速。','快到了，一百五十公尺，限速'+L+'，請減速。'],'s3');
+if(it.t===1)tx=st===1?pick(['前方'+DW[1]+'，要進入區間測速了。','前面'+DW[1]+'有區間測速，限速'+L+'。'],'z1'):st===2?'前方'+DW[2]+'，區間測速開始，限速'+L+'。':'即將進入區間測速，請保持限速'+L+'。';
+else if(st===1)tx=pick(['前方'+DW[1]+'，有測速照相。','前面大約'+DW[1]+'，有測速照相。'],'s1');
+else if(st===2)tx=pick(['前方'+DW[2]+'，測速照相，限速'+L+'。',DW[2]+'後有測速，限速'+L+'，記得留意。'],'s2');
+else tx=pick(['前方'+DW[3]+'，測速照相，請減速。','快到了，'+DW[3]+'，限速'+L+'，請減速。'],'s3');
 say(tx,st===3?1.04:1,1);}
 }});;
 Object.keys(S.al).forEach(function(k){if(!seen[k]&&now-S.al[k].seen>20000)delete S.al[k];});
 /* 超速 */
 var lim=null,limD=null;
 if(camNext&&camNext.d<=600){lim=+camNext.it.lim;limD=camNext.d;}
-var over=lim!=null&&moving&&spd>lim;
+var over=lim!=null&&moving&&spd>lim+(+S.grace||0);
 if(over){
 if(!S.over){S.over=true;S.overT0=now;S.nOv=(S.nOv||0)+1;S.nSay=0;S.lastSay=0;S.lv=0;S.sp200=null;}
 var moto=S.veh!=='car',by=Math.round(spd-lim);
@@ -540,7 +585,7 @@ var m=lv===1?(S.nSay===1?'您已超速，時速'+sp+'，限速'+lm+'，請減速
 if(lv>=2||(moto&&S.nSay===1)){beep(lv);setTimeout(function(){say(m,1+k+(lv===3?0.08:0),1+k*0.8);},lv>=2?420:260);}else say(m,1+k,1+k*0.8);
 if(lv>=2)buzz(lv);S.lastSay=now;}
 }else if(S.over){S.over=false;S.lv=0;say(pick(['速度正常了，謝謝您。','已回到限速內，請保持。'],'ok'),1,1);}
-S.cand=cand;render(spd,camNext,anyNext,lim,over);
+S.cand=cand;S.nearD=(anyNext&&moving&&(anyNext.it.k!=='h'))?anyNext.d:null;render(spd,camNext,anyNext,lim,over);
 }
 
 function render(spd,camNext,anyNext,lim,over){
@@ -552,17 +597,19 @@ var sg=$('sign');if(lim!=null){sg.textContent=lim;sg.style.display='flex';}else{
 var n=anyNext,pill=$('camPill'),big='--',un='',tx='前方沒有測速',sub='',cls='cam none',pr=0,pc='var(--amb)';
 if(n){var m=Math.round(n.d);big=m>=1000?(m/1000).toFixed(1):String(m);un=m>=1000?'公里':'公尺';pr=1-n.d/1000;
 if(n.it.k==='h'){tx='移動測速熱點';sub='歷史統計推估';cls='cam hot';pc='#8B5CF6';}
+else if(n.it.k==='u'){tx='自建提醒點';sub=n.it.name;cls='cam mine';pc='#16B26B';}
 else if(n.it.k==='t'){tx=n.it.x?'跨線取締':'科技執法';sub=n.it.lab;cls='cam '+(n.it.x?'cross':'tech');pc=n.it.x?'#FF4FA0':'#00B4D8';}
 else{var tn=n.it.t===1?'區間測速':n.it.t===2?'闖紅燈照相':'固定測速';tx=over?'超速！限速 '+lim:tn;sub='';cls='cam'+(over?' over':'');pc=over?'var(--red)':'var(--amb)';}
 S.lead={lat:n.it.lat,lon:n.it.lon,d:n.d,k:n.it.k,t:n.it.t,x:n.it.x,lim:n.it.lim,over:over};}
 else{sub=S.hd==null||spd<8?'開始移動後才會判斷前方測速':'前方 1.5 公里內沒有測速';S.lead=null;}
 var cand=S.cand||[],up=[];for(var q=0;q<cand.length&&up.length<3;q++){if(cand[q]!==n)up.push(cand[q]);}
-var lh='<div class="dh">'+(up.length?'接下來的取締點':'接下來 1.5 公里內沒有其他取締點')+'</div>';up.forEach(function(c){var it=c.it,m=Math.round(c.d),nm=it.k==='t'?(it.x?'跨線取締':'科技執法'):it.k==='h'?'移動測速熱點':it.t===1?'區間測速 '+it.lim:it.t===2?'闖紅燈照相':'固定測速 '+it.lim,co=it.k==='t'?(it.x?'#FF4FA0':'#00B4D8'):it.k==='h'?'#8B5CF6':'#FFA814';
+var lh='<div class="dh">'+(up.length?'接下來的取締點':'接下來 1.5 公里內沒有其他取締點')+'</div>';up.forEach(function(c){var it=c.it,m=Math.round(c.d),nm=it.k==='u'?'自建點 · '+it.name:it.k==='t'?(it.x?'跨線取締':'科技執法'):it.k==='h'?'移動測速熱點':it.t===1?'區間測速 '+it.lim:it.t===2?'闖紅燈照相':'固定測速 '+it.lim,co=it.k==='u'?'#16B26B':it.k==='t'?(it.x?'#FF4FA0':'#00B4D8'):it.k==='h'?'#8B5CF6':'#FFA814';
 lh+='<div class="dl"><i style="background:'+co+'"></i><b>'+nm+'</b><span>'+(m>=1000?(m/1000).toFixed(1)+' 公里':m+' 公尺')+'</span></div>';});
 if(lh!==S.lastLH){$('dList').innerHTML=lh;S.lastLH=lh;}
 var el=Math.max(1,(Date.now()-S.t0)/1000);S.mx=Math.max(S.mx||0,Math.round(spd));$('stKm').textContent=((S.km||0)/1000).toFixed(1);$('stT').textContent=Math.floor(el/60)+':'+('0'+Math.floor(el%60)).slice(-2);$('stAv').textContent=Math.round((S.km||0)/el*3.6);$('stMx').textContent=S.mx;
+var gi=$('dGi');if(!S.ginfo)gi.textContent='';else if(S.mode==='sim')gi.textContent='模擬';else{var ac=S.acc,bars=ac==null?0:ac<=8?3:ac<=20?2:1;gi.textContent='GPS '+'●●●'.slice(0,bars)+'○○○'.slice(0,3-bars)+(S.alt!=null&&!isNaN(S.alt)?' · '+Math.round(S.alt)+'m':'');}
 var dn=new Date();$('dClock').textContent=('0'+dn.getHours()).slice(-2)+':'+('0'+dn.getMinutes()).slice(-2);if(S.hd!=null){$('dArr').style.transform='rotate('+Math.round(S.hd)+'deg)';$('dDir').textContent=['北','東北','東','東南','南','西南','西','西北'][Math.round(S.hd/45)%8];}
-var db=$('dBar');db.className='dbar'+(n?(n.it.k==='h'?' hot':n.it.k==='t'?(n.it.x?' cross':' tech'):over?' over':''):' none');var pp=n?Math.max(0,Math.min(100,(1-n.d/1000)*100)):0;$('dbFl').style.width=pp+'%';$('dbCar').style.left=pp+'%';
+var db=$('dBar');db.className='dbar'+(n?(n.it.k==='u'?' mine':n.it.k==='h'?' hot':n.it.k==='t'?(n.it.x?' cross':' tech'):over?' over':''):' none');var pp=n?Math.max(0,Math.min(100,(1-n.d/1000)*100)):0;$('dbFl').style.width=pp+'%';$('dbCar').style.left=pp+'%';
 $('psN').textContent=S.nPass||0;$('psA').textContent=S.nAl||0;$('psO').textContent=S.nOv||0;
 $('camBig').textContent=big;$('camU').textContent=un;$('camTx').textContent=tx;$('camSub').textContent=sub;pill.className=cls;$('appA').setAttribute('d',n?appPath(pr):'');$('appA').setAttribute('stroke',pc);
 var al=$('alert');al.classList.toggle('show',over);al.classList.toggle('lv2',over&&S.lv===2);al.classList.toggle('lv3',over&&S.lv>=3);
@@ -582,7 +629,7 @@ function gpsStart(){
 var err=$('err');err.textContent='';
 if(!('geolocation' in navigator)||!window.isSecureContext){err.textContent='這裡無法使用定位。請把這個檔案放到 https 網站，再用手機開啟；在 Claude 預覽或電腦本機檔案裡定位會被擋住。可以先用「模擬行駛」試試。';return false;}
 try{S.wid=navigator.geolocation.watchPosition(function(p){
-var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
+S.acc=p.coords.accuracy;S.alt=p.coords.altitude;var c=p.coords,sp=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null,hd=c.heading!=null&&!isNaN(c.heading)?c.heading:null,now=Date.now();
 if(S.prev){var d=dist(S.prev.lat,S.prev.lon,c.latitude,c.longitude),dt=(now-S.prev.t)/1000;
 if(sp==null&&dt>0)sp=d/dt*3.6;if(hd==null&&d>5)hd=bearing(S.prev.lat,S.prev.lon,c.latitude,c.longitude);if(d>5)S.prev={lat:c.latitude,lon:c.longitude,t:now};}else S.prev={lat:c.latitude,lon:c.longitude,t:now};
 tick(c.latitude,c.longitude,sp||0,hd);
@@ -616,7 +663,7 @@ $('swVoice').addEventListener('click',function(){S.voice=!S.voice;sw('swVoice',S
 $('swHot').addEventListener('click',function(){S.hot=!S.hot;sw('swHot',S.hot);save();});
 $('hello').addEventListener('click',function(){say('您好，我是測速提醒。前方一百五十公尺，有測速照相，請減速。',1,1,true);});
 $('goSim').addEventListener('click',function(){acx();begin('sim');});
-$('goGps').addEventListener('click',function(){acx();if(gpsStart())begin('gps');});
+$('goGps').addEventListener('click',function(){acx();if(gpsStart()){begin('gps');if(S.link&&window.AndroidNav&&AndroidNav.launchApp)setTimeout(function(){try{AndroidNav.launchApp(S.link);}catch(e){}},1500);}});
 $('stop').addEventListener('click',stop);
 $('simR').addEventListener('input',function(e){S.simV=+e.target.value;$('simV').textContent=S.simV;});
 function setSim(v){S.simV=v;$('simR').value=v;$('simV').textContent=v;}
@@ -743,21 +790,29 @@ try{if(m.getStyle().glyphs)m.addLayer({id:'cams-cn',type:'symbol',source:'cams',
 m.addLayer({id:'cams',type:'circle',source:'cams',filter:['!',['has','point_count']],paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,1.5,8,2.6,11,4.5,14,8,17,12],'circle-color':['match',['get','t'],1,MC.v,2,MC.b,MC.cam],'circle-stroke-color':'#ffffff','circle-stroke-width':['interpolate',['linear'],['zoom'],5,0.4,11,1.6],'circle-opacity':1}});
 if(!m.getSource('tech'))m.addSource('tech',{type:'geojson',data:TECHGJ});
 m.addLayer({id:'tech',type:'circle',source:'tech',minzoom:9,paint:{'circle-radius':['interpolate',['linear'],['zoom'],9,2.5,13,5.5,17,10],'circle-color':['match',['get','x'],1,'#FF4FA0','#00B4D8'],'circle-stroke-color':'#fff','circle-stroke-width':['interpolate',['linear'],['zoom'],9,0.8,15,2.2]}});
+if(!m.getSource('mine'))m.addSource('mine',{type:'geojson',data:mineGJ()});
+m.addLayer({id:'mine',type:'circle',source:'mine',paint:{'circle-radius':['interpolate',['linear'],['zoom'],8,4,15,11],'circle-color':'#16B26B','circle-stroke-color':'#fff','circle-stroke-width':2.5}});
 if(!m.getSource('hots'))m.addSource('hots',{type:'geojson',data:HOTGJ});
 m.addLayer({id:'hots',type:'circle',source:'hots',paint:{'circle-radius':['interpolate',['linear'],['zoom'],5,2.4,9,5,12,9,15,16],'circle-color':'rgba(240,65,60,.12)','circle-stroke-color':'#F0413C','circle-stroke-width':['interpolate',['linear'],['zoom'],5,0.8,12,2],'circle-stroke-opacity':['interpolate',['linear'],['zoom'],5,0.45,10,0.9]}});
 if(!m.getSource('sel'))m.addSource('sel',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
 m.addLayer({id:'sel',type:'circle',source:'sel',paint:{'circle-radius':16,'circle-color':'rgba(255,255,255,.08)','circle-stroke-color':'#ffffff','circle-stroke-width':3}});
 applyLay(m);}
 function setSel(b){SEL=b;if(!mapM||!mapM.getSource('sel'))return;mapM.getSource('sel').setData({type:'FeatureCollection',features:b?[{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[b.lon,b.lat]}}]:[]});showInfo(b);}
-function showInfo(b){var el=$('mapInfo');if(!b){el.innerHTML='<span class="note">點地圖上的點，看是哪一種測速、限速多少。單指拖曳、兩指縮放與轉向，按「3D」可傾斜。</span>';return;}
-if(b.k==='t')el.innerHTML='<b style="color:'+(b.x?'#FF4FA0':'#00B4D8')+'">'+(b.x?'跨線取締':'科技執法')+'</b><div style="font-size:13px;margin-top:2px">'+esc(b.lab)+'</div><div class="note">資料來源：各縣市警察局開放資料</div>';
+function showInfo(b){var el=$('mapInfo');if(!b){el.innerHTML='<span class="note">點地圖上的點，看是哪一種測速、限速多少。長按地圖可以新增「自建提醒點」。單指拖曳、兩指縮放與轉向，按「3D」可傾斜。</span>';return;}
+if(b.k==='u')el.innerHTML='<b style="color:#16B26B">我的自建點</b><div style="font-size:14px;margin-top:2px">'+esc(b.name)+'</div><div style="display:flex;gap:8px;margin-top:8px"><button class="chip" type="button" onclick="__mine.ren('+b.id+')">改名字</button><button class="chip" type="button" style="color:var(--red);border-color:var(--red)" onclick="__mine.del('+b.id+')">刪除這個點</button></div><div class="note">經過前 500、150 公尺會語音提醒</div>';
+else if(b.k==='t')el.innerHTML='<b style="color:'+(b.x?'#FF4FA0':'#00B4D8')+'">'+(b.x?'跨線取締':'科技執法')+'</b><div style="font-size:13px;margin-top:2px">'+esc(b.lab)+'</div><div class="note">資料來源：各縣市警察局開放資料</div>';
 else if(b.k==='h')el.innerHTML='<b style="color:var(--red)">取締熱點</b><div style="font-size:13px;margin-top:2px">'+esc(b.name)+'</div><div class="note">歷史取締統計 '+b.n+' 件 · 常有移動式取締，不是即時位置</div>';
 else{var tn=b.t===1?'區間測速':b.t===2?'闖紅燈照相':'固定測速';el.innerHTML='<b style="color:'+(b.t===1?MC.v:b.t===2?MC.b:MC.cam)+'">'+tn+'</b><div style="font-size:13px;margin-top:2px">'+(b.r?'國道':'一般道路')+' · 限速 '+b.lim+'</div><div class="note">'+b.lat.toFixed(5)+', '+b.lon.toFixed(5)+'</div>';}}
 function initMap(){if(mapM||mapM===false)return;
-mapM=mkMap('cvMap',{overlay:ovMap,onClick:function(m,e){var ls=['cams','tech','cams-cl','hots'].filter(function(x){return m.getLayer(x)&&LAY[x==='hots'?'hot':'cam'];});if(!ls.length)return;var bb=[[e.point.x-14,e.point.y-14],[e.point.x+14,e.point.y+14]];var f=m.queryRenderedFeatures(bb,{layers:ls});if(!f.length){setSel(null);return;}var q=f[0],p=q.properties,c=q.geometry.coordinates;
+mapM=mkMap('cvMap',{overlay:ovMap,onClick:function(m,e){var ls=['mine','cams','tech','cams-cl','hots'].filter(function(x){return m.getLayer(x)&&(x==='mine'||LAY[x==='hots'?'hot':'cam']);});if(!ls.length)return;var bb=[[e.point.x-14,e.point.y-14],[e.point.x+14,e.point.y+14]];var f=m.queryRenderedFeatures(bb,{layers:ls});if(!f.length){setSel(null);return;}var q=f[0],p=q.properties,c=q.geometry.coordinates;
 if(q.layer.id==='cams-cl'){var cs=m.getSource('cams');try{cs.getClusterExpansionZoom(p.cluster_id).then(function(z){m.easeTo({center:c,zoom:Math.min(z+0.3,15),duration:500});});}catch(e){m.easeTo({center:c,zoom:m.getZoom()+2,duration:500});}return;}
-setSel(q.layer.id==='tech'?{k:'t',lon:c[0],lat:c[1],x:+p.x,lab:p.lab}:q.layer.id==='hots'?{k:'h',lon:c[0],lat:c[1],n:p.n,name:p.name}:{k:'c',lon:c[0],lat:c[1],t:+p.t,r:+p.r,lim:+p.lim});},
-onReady:function(m){updateMe();if(m===mapM&&SEL)setSel(SEL);}});
+setSel(q.layer.id==='mine'?{k:'u',lon:c[0],lat:c[1],name:p.name,id:+p.id}:q.layer.id==='tech'?{k:'t',lon:c[0],lat:c[1],x:+p.x,lab:p.lab}:q.layer.id==='hots'?{k:'h',lon:c[0],lat:c[1],n:p.n,name:p.name}:{k:'c',lon:c[0],lat:c[1],t:+p.t,r:+p.r,lim:+p.lim});},
+onReady:function(m){updateMe();if(m===mapM&&SEL)setSel(SEL);
+/* 長按 0.6 秒新增自建點 */
+var lpT=null,lpP=null;function lpClear(){clearTimeout(lpT);lpT=null;}
+m.on('touchstart',function(e){if(e.originalEvent.touches&&e.originalEvent.touches.length>1){lpClear();return;}lpP=e.point;var ll=e.lngLat;lpClear();lpT=setTimeout(function(){addMine(ll.lng,ll.lat);try{if(navigator.vibrate)navigator.vibrate(40);}catch(x){}},600);});
+m.on('touchmove',function(e){if(lpP&&(Math.abs(e.point.x-lpP.x)>8||Math.abs(e.point.y-lpP.y)>8))lpClear();});m.on('touchend',lpClear);m.on('dragstart',lpClear);m.on('zoomstart',lpClear);
+m.on('contextmenu',function(e){addMine(e.lngLat.lng,e.lngLat.lat);});}});
 if(!mapM){mapM=false;return;}
 showInfo(null);}
 function ensureMe(){if(!ML||!mapM)return null;if(!meMk){var el=document.createElement('div');el.className='me';el.innerHTML='<svg viewBox="0 0 40 40" width="44" height="44"><circle cx="20" cy="20" r="18" fill="rgba(47,128,237,.28)"></circle><path d="M20 6 L29 31 L20 26 L11 31 Z" fill="#2F80ED" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"></path></svg>';meMk=new ML.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map'});meMk._on=false;}return meMk;}
@@ -913,7 +968,7 @@ if(dist(a[0],a[1],b[0],b[1])>2){var nb=brg(a,b),dd=((nb-PLAY.hd+540)%360)-180;PL
 var ah=aheadCam(fi,pos),over=false,lim=null;
 if(ah&&ah.c.k==='c'&&ah.d<=600){lim=ah.c.lim;over=sp>lim;}
 $('hudSp').textContent=sp;$('hudLim').textContent=lim==null?'--':lim;$('tripHud').classList.toggle('over',over);
-var ban=$('hudBan');if(ah){var ds=ah.d>=1000?(ah.d/1000).toFixed(1)+' 公里':Math.round(ah.d)+' 公尺';ban.textContent=ah.c.k==='t'?(ah.c.x?'跨線取締　':'科技執法路口　')+ds:ah.c.k==='h'?'移動測速熱點（推估）　'+ds:(over?'超速！限速 '+lim+'　':'前方 '+ds+'　')+(ah.c.t===1?'區間測速':ah.c.t===2?'闖紅燈照相':'固定測速 '+ah.c.lim);ban.className='hban'+(ah.c.k==='h'?' hot':over?' over':'');}else ban.className='hban hide';
+var ban=$('hudBan');if(ah){var ds=ah.d>=1000?(ah.d/1000).toFixed(1)+' 公里':Math.round(ah.d)+' 公尺';ban.textContent=ah.c.k==='u'?'自建提醒點　'+ds:ah.c.k==='t'?(ah.c.x?'跨線取締　':'科技執法路口　')+ds:ah.c.k==='h'?'移動測速熱點（推估）　'+ds:(over?'超速！限速 '+lim+'　':'前方 '+ds+'　')+(ah.c.t===1?'區間測速':ah.c.t===2?'闖紅燈照相':'固定測速 '+ah.c.lim);ban.className='hban'+(ah.c.k==='h'?' hot':over?' over':'');}else ban.className='hban hide';
 var ev=$('hudEv'),win=Math.max(3,3*RATE),shown=null;TRIP.cams.forEach(function(c){if(c.tm<=t&&t-c.tm<=win)shown=c;});
 if(shown){ev.className='htoast'+(shown.over?' bad':'');ev.innerHTML=shown.k==='t'?'<b>經過'+(shown.x?'跨線取締':'科技執法路口')+'</b>　時速 '+shown.sp:shown.k==='h'?'<b>經過取締熱點</b>　歷史統計推估，不是警察當時的位置':'<b>經過'+(shown.t===1?'區間測速':shown.t===2?'闖紅燈照相':'固定測速')+'</b>　時速 '+shown.sp+'／限速 '+shown.lim+(shown.over?'　<b>超速 +'+(shown.sp-shown.lim)+'</b>':'　沒有超速');}else ev.className='htoast hide';
 $('tlNow').textContent=clk(t);var hd=$('tlHead');if(hd)hd.style.left=(t/dur*100)+'%';
@@ -945,6 +1000,42 @@ $('tripZi').addEventListener('click',function(){TZ=Math.min(18.5,TZ+1);if(tripM&
 $('tripZo').addEventListener('click',function(){TZ=Math.max(11,TZ-1);if(tripM&&!(PLAY&&PLAY.on&&TFOL))tripM.zoomOut({duration:250});});
 $('tripDel').addEventListener('click',function(){if(!TRIP)return;var a=loadTrips();a.splice(TRIP.i,1);saveTrips(a);if(PLAY&&PLAY.raf)cancelAnimationFrame(PLAY.raf);TRIP=null;PLAY=null;setPlayBtn(false);$('tripView').classList.add('hide');renderTrips();});
 
+/* ---------- 設定頁改版：警示項目、速度、警示方式、背景連動、顯示、紀錄 ---------- */
+(function(){
+function swOn(id,on){var e=$(id);if(e)e.setAttribute('aria-checked',String(!!on));}
+var EN=[['enC0','c0'],['enC1','c1'],['enC2','c2'],['enT','t'],['enX','x'],['enU','u']];
+EN.forEach(function(p){swOn(p[0],S.en[p[1]]!==0);$(p[0]).addEventListener('click',function(){S.en[p[1]]=S.en[p[1]]===0?1:0;swOn(p[0],S.en[p[1]]!==0);save();});});
+[['segGr','grace',Number],['segCal','cal',Number],['segDm','dm',String]].forEach(function(p){segSet(p[0],S[p[1]]);document.querySelectorAll('#'+p[0]+' button').forEach(function(b){b.addEventListener('click',function(){S[p[1]]=p[2](b.dataset.v);segSet(p[0],S[p[1]]);save();});});});
+function bindSw(id,key,after){swOn(id,S[key]);$(id).addEventListener('click',function(){S[key]=!S[key];swOn(id,S[key]);save();if(after)after();});}
+function syncDuck(){try{if(window.AndroidNav&&AndroidNav.setDuck)AndroidNav.setDuck(!!S.duck);}catch(e){}}
+function syncHud(){document.body.classList.toggle('hud',!!S.hud);}
+bindSw('swNear','near');bindSw('swDuck','duck',syncDuck);bindSw('swHud','hud',syncHud);bindSw('swGinfo','ginfo');syncDuck();syncHud();
+var ls=$('linkSel');ls.value=S.link||'';ls.addEventListener('change',function(){S.link=ls.value;save();});
+/* 漸近音：最後 300 公尺，越近越密 */
+var lastNb=0;setInterval(function(){if(!S.run||!S.near||!S.voice||S.over||S.nearD==null||S.nearD>300)return;var iv=Math.max(350,S.nearD/300*1600),n=Date.now();if(n-lastNb<iv)return;lastNb=n;
+var c=acx();if(!c)return;try{var o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type='sine';o.frequency.value=1000;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.08);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.09);}catch(e){}},120);
+/* 過點紀錄 */
+function fmtT(ms){var d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function renderPass(){var a=[];try{a=JSON.parse(localStorage.getItem('sc_pass')||'[]');}catch(e){}
+var ov=a.filter(function(x){return x[2]&&x[3]>x[2];}).length;$('passSub').textContent=a.length?'最近 60 天經過 '+a.length+' 次，超速 '+ov+' 次':'每次經過測速點的時速、有沒有超速';
+$('passList').innerHTML=a.length?a.slice(0,120).map(function(x){var o=x[2]&&x[3]>x[2];return '<div class="pi"><span style="flex:1"><b class="'+(o?'o':'')+'">'+x[3]+'</b> km/h　<span class="note">'+(x[1]===1?'區間測速':x[1]===2?'闖紅燈照相':'固定測速')+(x[2]?' · 限速 '+x[2]:'')+'</span></span><span class="note">'+fmtT(x[0])+'</span>'+(o?'<span class="o">超速 +'+(x[3]-x[2])+'</span>':'')+'</div>';}).join(''):'<p class="note">還沒有紀錄。開始行駛後經過測速點就會自動記下來。</p>';}
+renderPass();$('passGo').addEventListener('click',function(){renderPass();goPage('route');$('passView').classList.remove('hide');setTimeout(function(){$('passView').scrollIntoView({block:'start'});},50);});
+/* 備份／還原 */
+$('bkGo').addEventListener('click',function(){$('bkBox').classList.toggle('hide');});
+$('bkOut').addEventListener('click',function(){var o={v:1,set:JSON.parse(localStorage.getItem('sc_set')||'{}'),mine:JSON.parse(localStorage.getItem('sc_mine')||'[]')};var s='SPEEDCAM-BACKUP:'+JSON.stringify(o);$('bkTx').value=s;$('bkTx').select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}try{if(navigator.clipboard)navigator.clipboard.writeText(s).catch(function(){});}catch(e){}$('bkSt').textContent=ok?'已複製，貼到 LINE 或記事本保存':'請長按上面的文字複製';});
+$('bkIn').addEventListener('click',function(){var s=$('bkTx').value.trim();try{if(s.indexOf('SPEEDCAM-BACKUP:')!==0)throw 0;var o=JSON.parse(s.slice(16));if(o.set)localStorage.setItem('sc_set',JSON.stringify(o.set));if(o.mine)localStorage.setItem('sc_mine',JSON.stringify(o.mine));$('bkSt').textContent='已匯入，重新開啟 App 後生效';}catch(e){$('bkSt').textContent='這段文字不是備份格式';}});
+/* 罰單查詢 */
+$('fineGo').addEventListener('click',function(){var u='https://www.mvdis.gov.tw/m3-emv-vil/vil/penaltyQueryPay';try{if(window.AndroidNav&&AndroidNav.openUrl){AndroidNav.openUrl(u);return;}}catch(e){}window.open(u,'_blank');});
+})();
+/* ---------- 自建點：在地圖長按新增、點選可刪除 ---------- */
+function mineList(){try{return JSON.parse(localStorage.getItem('sc_mine')||'[]');}catch(e){return [];}}
+function mineGJ(){return {type:'FeatureCollection',features:mineList().map(function(p){return {type:'Feature',properties:{name:p[2],id:p[3]},geometry:{type:'Point',coordinates:[p[0],p[1]]}};})};}
+function mineSync(){buildIdx();[mapM,miniM].forEach(function(m){if(m&&m.getSource&&m.getSource('mine'))m.getSource('mine').setData(mineGJ());});}
+function addMine(lon,lat){var a=mineList(),id=Date.now(),nm='自建點 '+(a.length+1);a.push([+lon.toFixed(6),+lat.toFixed(6),nm,id]);try{localStorage.setItem('sc_mine',JSON.stringify(a));}catch(e){}mineSync();
+setSel({k:'u',lon:lon,lat:lat,name:nm,id:id});}
+function delMine(id){var a=mineList().filter(function(p){return p[3]!==id;});try{localStorage.setItem('sc_mine',JSON.stringify(a));}catch(e){}mineSync();setSel(null);}
+function renMine(id){var a=mineList(),p=a.find(function(x){return x[3]===id;});if(!p)return;var nm=prompt('幫這個點取個名字（例如：常臨檢、測速槍）',p[2]);if(!nm)return;p[2]=nm.slice(0,20);try{localStorage.setItem('sc_mine',JSON.stringify(a));}catch(e){}mineSync();setSel({k:'u',lon:p[0],lat:p[1],name:p[2],id:id});}
+window.__mine={add:addMine,del:delMine,ren:renMine};
 /* ---------- 自動更新：測速點資料、路況 ---------- */
 var RAWPACK='https://raw.githubusercontent.com/skrcnika-stack/skrc/main/data/pack.json';
 var AUTO=true;try{AUTO=localStorage.getItem('sc_auto')!=='0';}catch(e){}
