@@ -114,6 +114,11 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div style="height:10px"></div>
 <button class="btn" id="goGps" type="button">用手機 GPS 開始</button>
 <p class="err" id="err" role="status"></p>
+<div style="margin-top:26px"><span class="lab">導航（用 Google 地圖）</span>
+<p class="note" style="margin:4px 0 8px">輸入目的地，會打開 Google 地圖開始導航；本 App 的限速、時速和前方測速點會浮在畫面上，並用語音提醒。</p>
+<input id="navDest" type="text" autocomplete="off" placeholder="目的地，例如：台中火車站" aria-label="目的地" style="width:100%;min-height:48px;margin-bottom:10px;padding:0 14px;border:1px solid var(--rule);border-radius:12px;background:var(--surf);color:var(--txt);font-size:16px">
+<button class="btn" id="goNav" type="button">用 Google 地圖導航，測速浮在上面</button>
+<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="chip" id="navStop" type="button">停止浮動提示</button><span class="note" id="navSt" style="flex:1" aria-live="polite"></span></div></div>
 
 </section>
 
@@ -732,6 +737,20 @@ var p=PATHS[i++];window.TDX(p,function(ok,t){if(ok)okAny=true;var nm=p.split('?'
 st.textContent='連線中…';st.style.color='';next();}
 $('tdxSave').onclick=function(){var i=idI.value.trim(),s=seI.value.trim();if(!i||!s){st.textContent='兩個欄位都要填。';return;}sv({i:i,s:s});test();};
 $('tdxClr').onclick=function(){sv(null);idI.value='';seI.value='';st.textContent='已清除金鑰。';dbg.textContent='';};
+})();
+
+/* ---------- 用 Google 地圖導航 + 浮動測速提示 ---------- */
+(function(){var st=$('navSt');
+function say(s){st.textContent=s;}
+$('goNav').onclick=function(){var d=$('navDest').value.trim();if(!d){say('請先輸入目的地。');return;}
+var vb=document.querySelector('#segV button[aria-pressed="true"]');var mode=(vb&&vb.getAttribute('data-v')!=='car')?'l':'d';
+if(!window.AndroidNav){say('只有安裝版 App 可以使用，現在改開 Google 地圖網頁。');try{window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(d)+'&travelmode='+(mode==='l'?'two-wheeler':'driving'),'_blank');}catch(e){}return;}
+var r;try{r=AndroidNav.start(d,mode);}catch(e){r='err';}
+if(r==='need_location')say('請先允許位置權限，再按一次。');
+else if(r==='need_overlay')say('請在跳出的畫面找到「測速提醒」，打開「顯示在其他應用程式上層」，回來再按一次。');
+else if(r==='ok')say('已打開 Google 地圖。測速提示會浮在畫面上，要停止就點浮動視窗右邊的 ✕。');
+else say('沒有成功，請再按一次。');};
+$('navStop').onclick=function(){if(window.AndroidNav){try{AndroidNav.stop();}catch(e){}}say('已停止浮動提示。');};
 })();
 goPage('drive');
 
