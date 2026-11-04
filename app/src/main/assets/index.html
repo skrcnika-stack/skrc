@@ -371,7 +371,7 @@ body.drv #drive:not(.hide){gap:12px!important}
 <div class="sgrp"><span class="lab">行車模式</span>
 <div class="row"><span class="t"><b>車種</b><span>目前三種共用同一組限速；各車種專屬規則還在查證</span></span><div class="seg" id="segV"><button type="button" data-v="car" aria-pressed="true">汽車</button><button type="button" data-v="big" aria-pressed="false">大型重機</button><button type="button" data-v="small" aria-pressed="false">普通重機</button></div></div>
 </div>
-<div class="sgrp"><span class="lab">警示項目（全部內建，開著 App 就自動提醒）</span>
+<div class="sgrp" hidden><span class="lab">警示項目（全部內建，開著 App 就自動提醒）</span>
 <div class="row"><i class="dot" style="background:#FF9500"></i><span class="t"><b>固定測速</b><span>警政署 1872 處（含國道）</span></span><span class="bi">內建</span></div>
 <div class="row"><i class="dot" style="background:#7B5CF0"></i><span class="t"><b>區間測速</b><span>進入區間前提醒</span></span><span class="bi">內建</span></div>
 <div class="row"><i class="dot" style="background:#2F80ED"></i><span class="t"><b>闖紅燈照相</b><span></span></span><span class="bi">內建</span></div>
@@ -381,15 +381,15 @@ body.drv #drive:not(.hide){gap:12px!important}
 <div class="row"><i class="dot" style="background:#16B26B"></i><span class="t"><b>我的自建點</b><span>在「地圖」頁長按地圖新增，例如常臨檢的地方</span></span><span class="bi">內建</span></div>
 </div>
 <div class="sgrp"><span class="lab">速度</span>
-<div class="row"><span class="t"><b>超速寬限值</b><span>超過限速多少才提醒；建議 3，高速公路不會一直叫</span></span><div class="seg" id="segGr"><button type="button" data-v="0" aria-pressed="false">0</button><button type="button" data-v="3" aria-pressed="false">3</button><button type="button" data-v="5" aria-pressed="false">5</button><button type="button" data-v="10" aria-pressed="false">10</button></div></div>
-<div class="row"><span class="t"><b>GPS 速度校正</b><span>讓 App 時速跟儀表板一樣；車上儀表通常比較快</span></span><div class="seg" id="segCal"><button type="button" data-v="0" aria-pressed="false">0%</button><button type="button" data-v="3" aria-pressed="false">+3%</button><button type="button" data-v="5" aria-pressed="false">+5%</button><button type="button" data-v="8" aria-pressed="false">+8%</button></div></div>
+<div class="row"><span class="t"><b>超速寬限值</b><span>超過限速多少才提醒。台灣超速 10 公里就會被開單（例：限速 40，到 50 就開單），所以最多設到 +9，也就是 49 以內不提醒</span></span><div class="seg" id="segGr"><button type="button" data-v="0" aria-pressed="false">0</button><button type="button" data-v="3" aria-pressed="false">+3</button><button type="button" data-v="5" aria-pressed="false">+5</button><button type="button" data-v="9" aria-pressed="false">+9</button></div></div>
+<div class="row" hidden><span class="t"><b>GPS 速度校正</b><span>讓 App 時速跟儀表板一樣；車上儀表通常比較快</span></span><div class="seg" id="segCal"><button type="button" data-v="0" aria-pressed="false">0%</button><button type="button" data-v="3" aria-pressed="false">+3%</button><button type="button" data-v="5" aria-pressed="false">+5%</button><button type="button" data-v="8" aria-pressed="false">+8%</button></div></div>
 </div>
 <div class="sgrp"><span class="lab">警示方式</span>
 <div class="row"><span class="t"><b>語音播報</b><span>不用看螢幕，聽就知道</span></span><button class="sw" id="swVoice" type="button" role="switch" aria-checked="true" aria-label="語音播報"></button></div>
 <div class="row"><span class="t"><b>聲音</b><span id="gSub">女聲優先</span></span><div class="seg" id="segG"><button type="button" data-v="f" aria-pressed="true">女聲</button><button type="button" data-v="m" aria-pressed="false">男聲</button></div><button class="chip" id="hello" type="button" aria-label="試聽">試聽</button></div>
 <div class="row"><span class="t"><b>選聲音</b><span>優先用臺灣腔，每台手機的聲音不同</span></span><select id="voiceSel" aria-label="選聲音"></select></div>
 <p class="note" id="twTip" hidden style="margin:6px 0 10px;color:var(--amb)">這台裝置沒有臺灣腔的中文語音，現在聽到的是別的腔調。iPhone：設定 → 輔助使用 → 語音內容 → 聲音 → 中文 → 國語（臺灣）Mei-Jia，下載「優化版」。Android：設定 → 文字轉語音 → 語言 → 中文（臺灣）。電腦用 Edge 瀏覽器，選「HsiaoChen」或「HsiaoYu」的 Online (Natural) 聲音最自然。</p>
-<div class="row"><span class="t"><b>語速</b><span>聽起來太快或太慢可以調</span></span><div class="seg" id="segR"><button type="button" data-v="0.9" aria-pressed="false">慢</button><button type="button" data-v="1" aria-pressed="true">標準</button><button type="button" data-v="1.12" aria-pressed="false">快</button></div></div>
+<div class="row" hidden><span class="t"><b>語速</b><span>聽起來太快或太慢可以調</span></span><div class="seg" id="segR"><button type="button" data-v="0.9" aria-pressed="false">慢</button><button type="button" data-v="1" aria-pressed="true">標準</button><button type="button" data-v="1.12" aria-pressed="false">快</button></div></div>
 <div class="row"><span class="t"><b>提醒距離</b><span>自動：時速 90 以上提早到 1.5 公里、800、300 公尺提醒</span></span><div class="seg" id="segDm"><button type="button" data-v="auto" aria-pressed="false">自動</button><button type="button" data-v="std" aria-pressed="false">標準</button></div></div>
 <div class="row"><span class="t"><b>漸近音</b><span>最後 300 公尺，越接近嗶聲越密</span></span><button class="sw" id="swNear" type="button" role="switch" aria-checked="true" aria-label="漸近音"></button></div>
 <div class="row"><span class="t"><b>提醒時降低音樂</b><span>播報時自動把音樂、導航聲音調小</span></span><button class="sw" id="swDuck" type="button" role="switch" aria-checked="true" aria-label="提醒時降低音樂"></button></div>
@@ -397,7 +397,7 @@ body.drv #drive:not(.hide){gap:12px!important}
 </div>
 <div class="sgrp"><span class="lab">背景執行 · 浮動視窗</span>
 <div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
-<div class="row"><span class="t"><b>開始時一起打開</b><span>按「用手機 GPS 開始」時，順便打開這個 App</span></span><select id="linkSel" aria-label="開始時一起打開"><option value="">不要</option><option value="com.google.android.apps.maps">Google 地圖</option><option value="com.google.android.apps.youtube.music">YouTube Music</option><option value="com.spotify.music">Spotify</option><option value="com.skysoft.kkbox.android">KKBOX</option></select></div>
+<div class="row"><span class="t"><b>開車時一起打開</b><span>打開測速提醒時，順便幫你打開導航或音樂</span></span><select id="linkSel" aria-label="開始時一起打開"><option value="">只開測速提醒</option><option value="com.google.android.apps.maps">Google 地圖</option><option value="com.google.android.apps.youtube.music">YouTube Music</option><option value="com.spotify.music">Spotify</option><option value="com.skysoft.kkbox.android">KKBOX</option></select></div>
 </div>
 <div class="sgrp"><span class="lab">顯示</span>
 <div class="row"><span class="t"><b>HUD 抬頭顯示</b><span>行駛畫面左右反轉、只留大字，手機平放在擋風玻璃下方</span></span><button class="sw" id="swHud" type="button" role="switch" aria-checked="true" aria-label="HUD 抬頭顯示"></button></div>
@@ -505,7 +505,7 @@ var GEO={"c":[[119.985,25.971,119.979,25.957,119.967,25.951,119.965,25.958,119.9
 var $=function(i){return document.getElementById(i);};
 var S={rate:1,vname:'',last:{},mode:null,run:false,lat:0,lon:0,spd:0,hd:null,prev:null,vg:'f',voice:true,iv:10,hot:true,al:{},over:false,lastSay:0,nSay:0,lastTick:0,timer:null,wid:null,lock:null,log:[],page:'drive',veh:'car',vnf:'',vnm:'',rec:[],t0:0,me:null,en:{c0:1,c1:1,c2:1,t:1,x:1,u:1},grace:3,cal:0,dm:'auto',near:false,duck:true,link:'',hud:false,ginfo:true};
 try{var sv=JSON.parse(localStorage.getItem('sc_set')||'{}');if(sv.vg)S.vg=sv.vg;if(sv.iv)S.iv=Math.max(10,sv.iv);if(sv.voice===false)S.voice=false;if(sv.hot===false)S.hot=false;if(sv.rate)S.rate=sv.rate;if(sv.vname)S.vname=sv.vname;if(sv.veh)S.veh=sv.veh;if(sv.vnf)S.vnf=sv.vnf;if(sv.vnm)S.vnm=sv.vnm;['en','grace','cal','dm','near','duck','link','hud','ginfo'].forEach(function(k){if(sv[k]!==undefined)S[k]=sv[k];});}catch(e){}
-S.en={c0:1,c1:1,c2:1,t:1,x:1,u:1};S.hot=true;
+S.en={c0:1,c1:1,c2:1,t:1,x:1,u:1};S.hot=true;S.cal=0;S.rate=1;S.grace=Math.max(0,Math.min(9,+S.grace||0));if([0,3,5,9].indexOf(S.grace)<0)S.grace=S.grace>5?9:3;
 function syncCfg(){try{if(window.AndroidNav&&AndroidNav.setCfg)AndroidNav.setCfg(JSON.stringify({en:S.en,hot:S.hot,grace:S.grace,cal:S.cal,dm:S.dm,iv:S.iv,voice:S.voice,veh:S.veh,vg:S.vg,vnf:S.vnf,vnm:S.vnm,rate:S.rate,duck:S.duck}));}catch(e){}}
 window.__bg=function(on){S.bgMute=!!on;if(on){try{if(window.AndroidTTS)window.AndroidTTS.stop();window.speechSynthesis.cancel();}catch(e){}}};
 function save(){syncCfg();try{localStorage.setItem('sc_set',JSON.stringify({vg:S.vg,iv:S.iv,voice:S.voice,hot:S.hot,rate:S.rate,vname:S.vname,veh:S.veh,vnf:S.vnf,vnm:S.vnm,en:S.en,grace:S.grace,cal:S.cal,dm:S.dm,near:S.near,duck:S.duck,link:S.link,hud:S.hud,ginfo:S.ginfo}));localStorage.setItem('sc_voice',S.vg);}catch(e){}}
@@ -517,7 +517,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611042148';
+var DATAV='202611042203';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
