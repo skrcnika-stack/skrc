@@ -239,7 +239,9 @@ body.drv .top{display:none!important}
 body.drv .dact{display:none!important}
 body.drv .dhead{right:0;justify-content:space-between;gap:10px;padding:2px 14px}
 body.drv .dhead .gi{margin-left:auto}
-body.drv #drive:not(.hide){justify-content:center!important;gap:14px!important;padding:58px 0 18px}
+body.drv #drive:not(.hide){justify-content:flex-start!important;gap:12px!important;padding:58px 0 14px;overflow:hidden}
+body.drv #drive:not(.hide)::before,body.drv #drive:not(.hide)::after{content:'';flex:1 1 0;min-height:0;margin:-6px 0}
+.fitoff{display:none!important}
 body.drv #drive .ring{margin:0 auto!important}
 
 .dwx,.dtr{display:none}
@@ -252,8 +254,8 @@ body.drv .dtr .sc small{font-size:11px;color:var(--mut)}body.drv .dtr .sc b{font
 body.drv .dtr .sc b.mid{color:var(--amb)}body.drv .dtr .sc b.low{color:var(--red)}
 body.drv .dtr .sk{position:relative;height:58px}body.drv .dtr svg{position:absolute;inset:0;width:100%;height:100%}
 body.drv .dtr .sl{position:absolute;left:0;top:-2px;font-size:11px;color:var(--mut)}body.drv .dtr .sm{position:absolute;right:0;top:-2px;font-size:11px;color:var(--mut)}
-@media (max-height:760px){body.drv .dwx{display:none}}
-@media (max-height:600px){body.drv .dtr{display:none}}
+
+
 
 .dchips,.dday{display:none}
 body.drv .dchips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
@@ -264,9 +266,9 @@ body.drv .dday{display:flex;flex:none;align-items:center;gap:10px;padding:8px 14
 body.drv .dday .h{font-weight:700;color:var(--txt);font-size:13px;white-space:nowrap}body.drv .dday .v{display:flex;flex:1;justify-content:space-between;gap:8px}
 body.drv .dday .v span{white-space:nowrap}body.drv .dday .v b{color:var(--txt);font-family:var(--num);font-size:15px}
 body.drv .dday.rest{border-color:var(--amb)}body.drv .dday.rest .h{color:var(--amb)}
-@media (max-height:860px){body.drv .dchips{display:none}}
-@media (max-height:900px){body.drv .dday{display:none}}
-@media (min-height:901px){body.drv .dpass{display:none}}
+
+
+
 body.drv #drive:not(.hide){gap:12px!important}
 @media (min-height:880px){body.drv .ring{width:min(100%,400px,calc((52dvh - 100px)*1.18))!important}}
 .bi{flex:none;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;color:var(--acc);border:1px solid var(--acc)}
@@ -517,7 +519,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611042203';
+var DATAV='202611042218';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -1306,6 +1308,30 @@ try{var pm=rs[1].current.pm2_5;if(pm!=null){var b=$('chAir');b.textContent=Math.
 });}
 /* 手機電量 */
 try{if(navigator.getBattery)navigator.getBattery().then(function(bt){function p(){var v=Math.round(bt.level*100),e=$('chBat');e.textContent=v+'%'+(bt.charging?' ⚡':'');e.className=bt.charging?'g':v<=20?'r':v<=35?'y':'';}p();bt.addEventListener('levelchange',p);bt.addEventListener('chargingchange',p);});else $('chBat').textContent='--';}catch(e){}
+})();
+
+
+/* ---------- 行駛畫面自動排版：依手機實際高度，放不下的從最不重要的開始藏 ---------- */
+(function(){
+var ORDER=['dDay','dPass','dChips','dWx','dl3','dTr','dl2'];
+function el(k){if(k==='dl3'||k==='dl2'){var a=document.querySelectorAll('#dList .dl');return a[k==='dl3'?2:1]||null;}
+if(k==='dPass')return document.querySelector('#drive .dpass');if(k==='dChips')return document.querySelector('#drive .dchips');if(k==='dTr')return document.querySelector('#drive .dtr');return $(k);}
+var lastSig='',busy=false;
+function fit(force){var d=$('drive');if(!d||d.classList.contains('hide')||!document.body.classList.contains('drv'))return;
+var sig=innerWidth+'x'+innerHeight+':'+document.querySelectorAll('#dList .dl').length+':'+S.veh;if(!force&&sig===lastSig)return;lastSig=sig;
+busy=true;ORDER.forEach(function(k){var e=el(k);if(e)e.classList.remove('fitoff');});
+/* 今日累計跟本趟統計重複時，先藏本趟次數列 */
+var dd=$('dDay'),dp=document.querySelector('#drive .dpass');if(dd&&dp)dp.classList.add('fitoff');
+function over(){return d.scrollHeight>d.clientHeight+1;}
+for(var i=0;i<ORDER.length&&over();i++){var e=el(ORDER[i]);if(e)e.classList.add('fitoff');}
+/* 今日累計被藏起來的話，把本趟次數列放回來（放得下才放） */
+if(dd&&dp&&dd.classList.contains('fitoff')){dp.classList.remove('fitoff');if(over())dp.classList.add('fitoff');}
+busy=false;}
+window.__fit=fit;
+var _r2=render;render=function(){_r2.apply(this,arguments);try{fit(false);}catch(e){}};
+window.addEventListener('resize',function(){setTimeout(function(){fit(true);},60);});
+var _b2=begin;begin=function(){_b2.apply(this,arguments);setTimeout(function(){fit(true);},80);};
+setInterval(function(){try{fit(true);}catch(e){}},5000);
 })();
 
 /* ---------- 一打開就是行駛畫面，自動定位；定位沒開就提示 ---------- */
