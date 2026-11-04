@@ -264,6 +264,32 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean running() { return OverlayService.running; }
 
+        /** 浮動視窗測試：模擬開往測速點，並把 App 縮到背景 */
+        @JavascriptInterface
+        public String testOverlay() {
+            if (!overlayOk()) {
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+                    } catch (Exception ignored) { }
+                });
+                return "need_overlay";
+            }
+            runOnUiThread(() -> {
+                try {
+                    try { stopService(new Intent(MainActivity.this, OverlayService.class)); } catch (Exception ignored) { }
+                    if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
+                    }
+                    Intent s = new Intent(MainActivity.this, OverlayService.class);
+                    s.putExtra(OverlayService.EXTRA_SIM, true);
+                    if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> moveTaskToBack(true), 400);
+                } catch (Exception ignored) { }
+            });
+            return "ok";
+        }
+
         @JavascriptInterface
         public void stop() {
             runOnUiThread(() -> {

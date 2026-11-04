@@ -14,6 +14,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
@@ -53,6 +55,31 @@ public class OverlayService extends Service implements LocationListener {
     private long lastOver = 0;
     private static final int[] TH = {1000, 500, 150};
 
+    /* 測試模式：不用 GPS，假裝朝一個真的測速點開過去 */
+    static final String EXTRA_SIM = "sim";
+    private boolean sim = false;
+    private Handler simH;
+    private double sLat, sLon, tLat;
+    private int sLim = 50, sStep = 0;
+    private final Runnable simTick = new Runnable() {
+        @Override public void run() {
+            if (!running) return;
+            sStep++;
+            float[] r = new float[1];
+            Location.distanceBetween(sLat, sLon, tLat, sLon, r);
+            double left = tLat - sLat;
+            float kmh = left > 0 && r[0] < 650 ? sLim + 14 : (left > 0 && r[0] < 900 ? sLim + 5 : sLim - 10);
+            if (left < 0 && r[0] > 120) { sLat = tLat - 1300 / 111320.0; curCam = -1; curStage = 0; }
+            sLat += (kmh / 3.6) / 111320.0;
+            Location loc = new Location("sim");
+            loc.setLatitude(sLat); loc.setLongitude(sLon);
+            loc.setSpeed(kmh / 3.6f); loc.setBearing(0f);
+            loc.setTime(System.currentTimeMillis());
+            onLocationChanged(loc);
+            simH.postDelayed(this, 1000);
+        }
+    };
+
     @Override
     public IBinder onBind(Intent i) { return null; }
 
@@ -67,6 +94,7 @@ public class OverlayService extends Service implements LocationListener {
             return START_NOT_STICKY;
         }
         if (running) return START_STICKY;
+        sim = intent != null && intent.getBooleanExtra(EXTRA_SIM, false);
         try {
             startFg();
         } catch (Exception e) {
@@ -83,6 +111,17 @@ public class OverlayService extends Service implements LocationListener {
             }
         });
         try { buildOverlay(); } catch (Exception e) { /* 沒有浮動視窗權限時，仍保留語音提醒 */ }
+        if (sim) {
+            int k = -1;
+            for (int i = 0; i < n; i++) if (cType[i] == 0 && cLim[i] >= 40 && cLim[i] <= 70) { k = i; break; }
+            if (k < 0) k = 0;
+            tLat = cLat[k]; sLon = cLon[k]; sLim = cLim[k] > 0 ? cLim[k] : 50;
+            sLat = tLat - 1300 / 111320.0;
+            simH = new Handler(Looper.getMainLooper());
+            simH.postDelayed(() -> say("浮動視窗測試開始，正在模擬前往測速照相"), 1500);
+            simH.postDelayed(simTick, 2500);
+            return START_NOT_STICKY;
+        }
         try {
             lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
@@ -291,6 +330,7 @@ public class OverlayService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         running = false;
+        try { if (simH != null) simH.removeCallbacksAndMessages(null); } catch (Exception ignored) { }
         try { if (lm != null) lm.removeUpdates(this); } catch (Exception ignored) { }
         try { if (wm != null && box != null) wm.removeView(box); } catch (Exception ignored) { }
         if (tts != null) { tts.stop(); tts.shutdown(); }
