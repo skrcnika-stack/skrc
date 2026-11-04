@@ -44,7 +44,7 @@ jobs:
           ram-size: 4096M
           cores: 4
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: bash .github/emu_test.sh ${{ matrix.api }} ${{ matrix.font }}
+          script: bash .github/emu_run.sh ${{ matrix.api }} ${{ matrix.font }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
