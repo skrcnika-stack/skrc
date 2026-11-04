@@ -230,6 +230,7 @@ body.tabs-off #tabHandle{display:block}
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
 <div id="pg-drive" class="pg"><section id="start" aria-label="開始">
+<div class="demo hide" id="floatWarn" style="margin-bottom:10px">浮動視窗還沒開權限，離開 App 時不會自動浮出。<button class="chip" id="floatFix" type="button" style="margin-top:8px;border-color:var(--acc);color:var(--acc)">一鍵開啟權限</button></div>
 <div class="vsw" id="vSw" role="group" aria-label="車種"><button type="button" data-m="car"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/><path d="M5 12h14"/></svg>汽車（明亮）</button><button type="button" data-m="moto"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M8.5 16.5h5l3-6h-4l-2-3H8"/><path d="M15 7h3"/></svg>機車／重機（深色）</button></div>
 <p class="note" style="margin:10px 0 16px">會在前方 1 公里、500 公尺、150 公尺各用語音提醒一次；靠近測速點時超速，會一直重複，直到你降到限速以下。</p>
 <button class="btn pri" id="goSim" type="button">模擬行駛（先試試看）</button>
@@ -432,7 +433,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041732';
+var DATAV='202611041754';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
@@ -1081,14 +1082,15 @@ $('navStop').onclick=function(){if(window.AndroidNav){try{AndroidNav.stop();}cat
 (function(){var sw=$('swFloat'),sub=$('swFloatSub');if(!sw)return;
 function paint(on){sw.setAttribute('aria-checked',on?'true':'false');}
 function sync(){if(!window.AndroidNav){sub.textContent='安裝版 App 才有這個功能';paint(false);return;}
-var on=true;try{on=AndroidNav.getAuto();}catch(e){}paint(on);
-var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}
-sub.textContent=on&&!ok?'還差一步：點這裡的開關，到系統頁面允許「顯示在其他應用程式上層」':'按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來';}
-sw.onclick=function(){if(!window.AndroidNav)return;var on=sw.getAttribute('aria-checked')!=='true';
+var on=true;try{on=AndroidNav.getAuto();}catch(e){}
+var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}paint(on&&ok);S.floatNeed=on&&!ok;var fw=$('floatWarn');if(fw)fw.classList.toggle('hide',!(on&&!ok));
+sub.textContent=on&&!ok?'還沒開權限：點右邊開關，到系統頁面打開「顯示在其他應用程式上層」':'離開 App 3 秒後（按 Home、切 App、開導航）自動浮出；點浮動視窗就回主畫面';}
+sw.onclick=function(){if(!window.AndroidNav)return;var on=S.floatNeed?true:sw.getAttribute('aria-checked')!=='true';
 try{AndroidNav.setAuto(on);}catch(e){}paint(on);
 if(on){var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}if(!ok){try{AndroidNav.askOverlay();}catch(e){}}}
 setTimeout(sync,300);};
 sync();document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
+var fb=$('floatFix');if(fb)fb.onclick=function(){try{AndroidNav.setAuto(true);AndroidNav.askOverlay();}catch(e){}setTimeout(sync,300);};
 })();
 goPage('drive');
 
