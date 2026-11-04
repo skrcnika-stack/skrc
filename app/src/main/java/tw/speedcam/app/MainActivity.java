@@ -149,6 +149,25 @@ public class MainActivity extends Activity {
         try { stopService(new Intent(this, OverlayService.class)); } catch (Exception ignored) { }
     }
 
+    /** 提醒時降低其他聲音（音樂、導航） */
+    private android.media.AudioFocusRequest afr;
+    private final android.os.Handler duckH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private void duckFor(String text) {
+        try {
+            if (!getSharedPreferences("p", MODE_PRIVATE).getBoolean("duck", true)) return;
+            android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE);
+            if (am == null) return;
+            if (Build.VERSION.SDK_INT >= 26) {
+                if (afr == null) afr = new android.media.AudioFocusRequest.Builder(android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK).build();
+                am.requestAudioFocus(afr);
+            } else am.requestAudioFocus(null, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+            duckH.removeCallbacksAndMessages(null);
+            duckH.postDelayed(() -> {
+                try { if (Build.VERSION.SDK_INT >= 26) am.abandonAudioFocusRequest(afr); else am.abandonAudioFocus(null); } catch (Exception ignored) { }
+            }, 900 + text.length() * 230L);
+        } catch (Exception ignored) { }
+    }
+
     /** Native speech bridge (the phone's own Google zh-TW voices) */
     public class Bridge {
         @JavascriptInterface
@@ -191,6 +210,7 @@ public class MainActivity extends Activity {
                     }
                     if (chosen != null) tts.setVoice(chosen);
                     else tts.setLanguage(Locale.TAIWAN); // back to the phone's default zh-TW voice
+                    duckFor(text);
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
                 } catch (Exception ignored) {}
             });
@@ -291,6 +311,26 @@ public class MainActivity extends Activity {
                 if (Build.VERSION.SDK_INT >= 26) v.vibrate(android.os.VibrationEffect.createWaveform(t, -1));
                 else v.vibrate(t, -1);
             } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public void setDuck(boolean on) { getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("duck", on).apply(); }
+
+        @JavascriptInterface
+        public boolean launchApp(String pkg) {
+            try {
+                Intent i = getPackageManager().getLaunchIntentForPackage(pkg);
+                if (i == null) return false;
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                runOnUiThread(() -> { try { startActivity(i); } catch (Exception ignored) { } });
+                return true;
+            } catch (Exception e) { return false; }
+        }
+
+        @JavascriptInterface
+        public void openUrl(String url) {
+            if (url == null || !url.startsWith("https://")) return;
+            runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); } catch (Exception ignored) { } });
         }
 
         @JavascriptInterface
