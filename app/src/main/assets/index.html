@@ -194,6 +194,13 @@ input[type=search]{width:100%;min-height:44px;padding:0 12px;border-radius:10px;
 <div class="row"><span class="t"><b>超速重複間隔</b><span>超速時每隔幾秒提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="3" aria-pressed="false">3 秒</button><button type="button" data-v="5" aria-pressed="true">5 秒</button><button type="button" data-v="10" aria-pressed="false">10 秒</button></div></div>
 <div class="row"><span class="t"><b>取締熱點提醒</b><span>依歷史取締統計推估，不是即時位置</span></span><button class="sw" id="swHot" type="button" role="switch" aria-checked="true" aria-label="取締熱點提醒"></button></div>
 <div class="row" style="border-bottom:1px solid var(--line)"><span class="t"><b>資料</b><span>警政署固定測速照相設置地點 1872 處（本島＋離島）· 取締熱點 145 處</span></span></div></div>
+<div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX）</span>
+<p class="note" style="margin:4px 0 8px">金鑰只存在這支手機裡，不會上傳。填好後按「儲存並測試」。</p>
+<input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
+<input id="tdxSec" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client Secret" aria-label="Client Secret" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
+<div style="display:flex;gap:8px"><button class="chip" id="tdxSave" type="button" style="flex:1;justify-content:center">儲存並測試</button><button class="chip" id="tdxClr" type="button" style="justify-content:center">清除</button></div>
+<p class="note" id="tdxSt" style="margin:8px 0 0" aria-live="polite"></p>
+<pre id="tdxDbg" class="note" style="white-space:pre-wrap;word-break:break-all;margin:6px 0 0;max-height:220px;overflow:auto"></pre></div>
 <p class="note" id="vTip" style="margin:6px 0 10px"></p>
 <p class="note" style="margin-top:12px">語音只負責提醒，不會控制車輛，請依路況與法規行駛。資料來源：警政署，政府資料開放授權條款－第1版；座標與限速可能與現場不同。</p>
 </section>
@@ -706,6 +713,26 @@ function updateMini(){if(!miniM||!S.run||!S.lat)return;miniMk.setLngLat([S.lon,S
 var n=Date.now();if(n-lastMini>800){lastMini=n;miniM.easeTo({center:[S.lon,S.lat],zoom:16,bearing:S.hd!=null?S.hd:miniM.getBearing(),pitch:60,duration:700,essential:true});}}
 S.onBegin=function(){FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
 S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
+
+/* ---------- TDX 金鑰（只存手機）與連線測試 ---------- */
+(function(){var KEY='tdxKey',cbs={},n=0;
+function ld(){try{return JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){return null;}}
+function sv(o){try{if(o)localStorage.setItem(KEY,JSON.stringify(o));else localStorage.removeItem(KEY);}catch(e){}}
+window.__tdxCb=function(id,ok,txt){var f=cbs[id];delete cbs[id];if(f)f(ok,txt);};
+window.TDX=function(path,cb){var k=ld();if(!k||!k.i||!k.s){cb(false,'尚未設定金鑰');return;}
+if(!window.AndroidTDX){cb(false,'只有安裝版 App 可以連線');return;}
+var id='r'+(++n);cbs[id]=cb;try{AndroidTDX.request(id,k.i,k.s,path);}catch(e){delete cbs[id];cb(false,String(e));}};
+window.TDXHas=function(){var k=ld();return !!(k&&k.i&&k.s);};
+var st=$('tdxSt'),dbg=$('tdxDbg'),idI=$('tdxId'),seI=$('tdxSec');
+var k0=ld();if(k0){idI.value=k0.i;seI.value=k0.s;st.textContent='已儲存金鑰。';}
+var PATHS=['/api/basic/v2/Road/Traffic/Live/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/Section/Freeway?%24top=2&%24format=JSON','/api/basic/v2/Road/Traffic/SectionShape/Freeway?%24top=1&%24format=JSON'];
+function test(){dbg.textContent='';var i=0,okAny=false,out=[];
+function next(){if(i>=PATHS.length){st.textContent=okAny?'連線成功，已收到交通部資料。':'連線失敗，請看下方訊息。';st.style.color=okAny?'':'var(--red)';dbg.textContent=out.join('\n\n');return;}
+var p=PATHS[i++];window.TDX(p,function(ok,t){if(ok)okAny=true;var nm=p.split('?')[0].replace('/api/basic/v2/','');out.push((ok?'OK ':'失敗 ')+nm+'\n'+String(t).slice(0,ok?260:160));next();});}
+st.textContent='連線中…';st.style.color='';next();}
+$('tdxSave').onclick=function(){var i=idI.value.trim(),s=seI.value.trim();if(!i||!s){st.textContent='兩個欄位都要填。';return;}sv({i:i,s:s});test();};
+$('tdxClr').onclick=function(){sv(null);idI.value='';seI.value='';st.textContent='已清除金鑰。';dbg.textContent='';};
+})();
 goPage('drive');
 
 })();
