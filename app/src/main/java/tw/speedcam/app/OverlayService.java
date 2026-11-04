@@ -352,6 +352,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
+        box.setMinimumWidth(dp(280));
         box.setPadding(dp(10), dp(8), dp(10), dp(8));
 
         LinearLayout row = new LinearLayout(this);
@@ -399,7 +400,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         ob.setColor(0xFF47E8C0);
         open.setBackground(ob);
         open.setPadding(dp(10), dp(5), dp(10), dp(5));
-        LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(dp(84), LinearLayout.LayoutParams.WRAP_CONTENT);
         ol.leftMargin = dp(12);
         open.setOnClickListener(v -> openApp());
         row.addView(open, ol);
