@@ -60,8 +60,8 @@ select{max-width:55%;min-height:40px;padding:0 10px;border-radius:8px;border:1px
 @keyframes al3t{0%,49%{color:#fff}50%,100%{color:#C4120C}}
 .alert.lv2{animation:al2 .5s steps(2) infinite}
 .alert.lv3{animation:al3 .4s infinite}
-.alert.lv3,.alert.lv3 .lab,.alert.lv3 .a-cam small,.alert.lv3 h2,.alert.lv3 .a-sp,.alert.lv3 .a-t{animation:al3 .4s infinite;color:inherit}
-.alert.lv3 *{animation:al3t .4s infinite}
+.alert.lv3 *:not(.sign){animation:al3t .4s infinite}
+.alert.lv3 .a-t,.alert.lv3 .a-cam{background:transparent;border-color:currentColor}
 .alert.lv3 .sign{animation:none;color:#111}
 .alert .a-t{font-size:18px;font-weight:700;padding:4px 14px;border-radius:20px;background:rgba(0,0,0,.35);color:#fff}
 .alert.lv3 h2{font-size:min(15vw,76px);white-space:nowrap}
@@ -184,7 +184,7 @@ body.drv .dact{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;flex:non
 .dab.off{color:var(--red);border-color:var(--red)}.dab.end{border-color:var(--red);color:var(--red)}
 body.drv #drive .sim{margin-top:0;flex:none;padding:8px 12px}body.drv #drive .sim .chip{min-height:36px;flex:1;justify-content:center;font-size:13px}
 body.car .dlist .dl,body.car .dab{box-shadow:0 1px 3px rgba(16,30,54,.08)}
-.alert,.alert .lab,.alert .a-cam small{color:#fff!important}
+.alert,.alert .lab,.alert .a-cam small,.alert h2,.alert .a-sp{color:#fff}
 body.drv .ring{width:min(100%,430px,calc((62dvh - 120px)*1.18))}
 .dbar,.dpass{display:none}
 body.drv .dbar{display:block;flex:none;padding:10px 14px 4px;border-radius:12px;background:var(--surf);border:1px solid var(--line)}
@@ -342,10 +342,10 @@ body.tabs-off #tabHandle{display:block}
 <div id="tabHandle" aria-label="往上滑顯示選單" role="button"><i></i></div><nav id="tabs" aria-label="主選單"><i class="grab"></i><button type="button" data-p="drive" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>行駛</button><button type="button" data-p="map" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>地圖</button><button type="button" data-p="traf" aria-current="false"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg>路況</button><button type="button" data-p="route" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>路線</button><button type="button" data-p="hot" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>熱點</button><button type="button" data-p="set" aria-current="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>設定</button></nav>
 
 <div class="alert" id="alert" role="alert" aria-live="assertive">
-<div class="lab" style="color:var(--txt)" id="aVoice"></div>
+<div class="lab" id="aVoice"></div>
 <h2 id="aH">請減速</h2><div class="a-t" id="aT"></div>
 <div class="a-sp" id="aSp">0</div>
-<div class="lab" style="color:var(--txt);letter-spacing:4px">KM/H</div>
+<div class="lab" style="letter-spacing:4px">KM/H</div>
 <div class="a-meta"><div class="sign" id="aSign">60</div><div style="text-align:left"><div>限速 <span id="aLim">60</span></div><div class="a-over" id="aOver">超速 +0</div></div></div>
 <div class="a-cam"><span id="aDist">0</span><small>公尺</small></div>
 <p>降到限速以下就自動解除<br>不用碰螢幕</p>
@@ -431,7 +431,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611041408';
+var DATAV='202611041412';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function buildIdx(){G={};ITEMS.length=0;
 CAMS.forEach(function(c,i){ITEMS.push({id:'c'+i,k:'c',t:c[0],r:c[1],lon:c[2],lat:c[3],lim:c[4]});});
