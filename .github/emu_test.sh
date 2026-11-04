@@ -1,12 +1,14 @@
 #!/bin/bash
 # 在 GitHub 的 Android 模擬器裡：安裝、開啟、餵假 GPS 開過測速照相、切到背景，全程截圖＋記錄語音
 API=$1
+FONT=${2:-1.0}
 OUT=emu_out; mkdir -p $OUT
 PKG=tw.speedcam.app
 APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
 log(){ echo "[$(date +%T)] $*" | tee -a $OUT/steps.txt; }
 shot(){ adb exec-out screencap -p > "$OUT/$1.png"; log "截圖 $1"; }
-feed(){ while read lo la kn tag; do adb emu geo fix $lo $la 50 10 $kn >/dev/null 2>&1; [ "$tag" != "-" ] && shot "$tag"; sleep 1; done; }
+# 舊版模擬器（Android 11 以下）的 geo fix 速度單位是 公尺/秒，新版是節
+feed(){ while read lo la kn tag; do V=$kn; [ "$API" -le 30 ] && V=$(awk "BEGIN{print $kn*0.5144}"); adb emu geo fix $lo $la 50 10 $V >/dev/null 2>&1; [ "$tag" != "-" ] && shot "$tag"; sleep 1; done; }
 log "API $API"; adb shell getprop ro.build.version.release | tee -a $OUT/steps.txt
 adb shell wm size | tee -a $OUT/steps.txt; adb shell wm density | tee -a $OUT/steps.txt
 adb install -r -g "$APK" 2>&1 | tee -a $OUT/steps.txt
@@ -14,6 +16,8 @@ adb shell appops set $PKG SYSTEM_ALERT_WINDOW allow
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS 2>/dev/null
 adb shell cmd location set-location-enabled true 2>/dev/null
 adb shell settings put secure location_mode 3 2>/dev/null
+adb shell settings put system font_scale $FONT
+log "字型大小 $FONT"
 adb logcat -c
 python3 .github/route.py W 3 | feed
 log "開啟 App"
