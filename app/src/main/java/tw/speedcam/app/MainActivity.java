@@ -86,6 +86,12 @@ public class MainActivity extends Activity {
         });
         web.setWebChromeClient(new WebChromeClient() {
             @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage m) {
+                android.util.Log.i("SpeedCamJS", m.messageLevel() + " " + m.message() + " @" + m.lineNumber());
+                return true;
+            }
+
+            @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     cb.invoke(origin, true, false);
@@ -222,6 +228,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void speak(String text, float rate, float pitch, String gender, String voiceName) {
+            android.util.Log.i("SpeedCamSay", "FG " + text);
             runOnUiThread(() -> {
                 if (!ttsReady) return;
                 try {

@@ -198,6 +198,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         boolean need = prefs().getBoolean("auto", true) || prefs().getBoolean("drv", false);
         if (!need) { stopSelf(); return false; }
         bg = true;
+        android.util.Log.i("SpeedCamSay", "BG-START float=" + wantFloat() + " pts=" + eng.size());
         loadCfg();
         eng.resetTrip();
         if (wantFloat() && box == null) {
@@ -209,6 +210,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
     /** 回到 App：收起浮動視窗、停止背景提醒（主畫面接手） */
     void goFg() {
+        android.util.Log.i("SpeedCamSay", "BG-STOP");
         bg = false;
         stopLoc();
         removeOverlay();
@@ -233,6 +235,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
     @Override
     public void say(String t) {
+        android.util.Log.i("SpeedCamSay", "BG " + t);
         if (!ttsReady || tts == null) return;
         try {
             tts.setSpeechRate(Math.max(0.5f, Math.min(2f, vRate)));
