@@ -2,7 +2,11 @@ package tw.speedcam.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -63,6 +67,7 @@ public class MainActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(false);
         web.addJavascriptInterface(new Bridge(), "AndroidTTS");
         web.addJavascriptInterface(new Tdx(), "AndroidTDX");
+        web.addJavascriptInterface(new Nav(), "AndroidNav");
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -205,6 +210,62 @@ public class MainActivity extends Activity {
                 final String o = out; final boolean k = ok;
                 runOnUiThread(() -> web.evaluateJavascript("window.__tdxCb(" + JSONObject.quote(id) + "," + k + "," + JSONObject.quote(o) + ")", null));
             }).start();
+        }
+    }
+
+    /** 開 Google 地圖導航，同時啟動浮動測速提示 */
+    public class Nav {
+        @JavascriptInterface
+        public boolean overlayOk() {
+            return Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public boolean running() { return OverlayService.running; }
+
+        @JavascriptInterface
+        public void stop() {
+            runOnUiThread(() -> {
+                try { stopService(new Intent(MainActivity.this, OverlayService.class)); } catch (Exception ignored) { }
+            });
+        }
+
+        @JavascriptInterface
+        public String start(final String dest, final String mode) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                runOnUiThread(() -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION}, 7));
+                return "need_location";
+            }
+            if (!overlayOk()) {
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+                    } catch (Exception ignored) { }
+                });
+                return "need_overlay";
+            }
+            runOnUiThread(() -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
+                    }
+                    Intent s = new Intent(MainActivity.this, OverlayService.class);
+                    if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
+                } catch (Exception ignored) { }
+                String m = "l".equals(mode) ? "l" : "d";
+                try {
+                    Intent g = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + Uri.encode(dest) + "&mode=" + m));
+                    g.setPackage("com.google.android.apps.maps");
+                    startActivity(g);
+                } catch (Exception e) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination="
+                                + Uri.encode(dest) + "&travelmode=" + ("l".equals(m) ? "two-wheeler" : "driving"))));
+                    } catch (Exception ignored) { }
+                }
+            });
+            return "ok";
         }
     }
 
