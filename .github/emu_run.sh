@@ -2,7 +2,7 @@
 # 跑一次測試；如果模擬器系統本身當掉（App 完全收不到 GPS），重開模擬器再跑一次
 API=$1; FONT=$2
 bash .github/emu_test.sh $API $FONT
-n=$(grep -c "SpeedCamSay: FG" emu_out/app_log.txt 2>/dev/null || echo 0)
+n=$(grep -c "SpeedCamSay: FG" emu_out/app_log.txt 2>/dev/null); n=${n:-0}
 if [ "$n" -lt 10 ]; then
   echo "只有 $n 句前景語音，判定模擬器異常，重開再測一次"
   mv emu_out emu_try1
