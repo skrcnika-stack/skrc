@@ -553,7 +553,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611051753';
+var DATAV='202611051815';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -879,7 +879,7 @@ else if(b.k==='t')el.innerHTML='<b style="color:'+(b.x?'#FF4FA0':'#00B4D8')+'">'
 else if(b.k==='h')el.innerHTML='<b style="color:var(--red)">取締熱點</b><div style="font-size:13px;margin-top:2px">'+esc(b.name)+'</div><div class="note">歷史取締統計 '+b.n+' 件 · 常有移動式取締，不是即時位置</div>';
 else{var tn=b.t===1?'區間測速':b.t===2?'闖紅燈照相':'固定測速';el.innerHTML='<b style="color:'+(b.t===1?MC.v:b.t===2?MC.b:MC.cam)+'">'+tn+'</b><div style="font-size:13px;margin-top:2px">'+(b.r?'國道':'一般道路')+' · 限速 '+b.lim+'</div><div class="note">'+b.lat.toFixed(5)+', '+b.lon.toFixed(5)+'</div>';}}
 function initMap(){if(mapM||mapM===false)return;
-mapM=mkMap('cvMap',{overlay:ovMap,onClick:function(m,e){var ls=['mine','cams','tech','cams-cl','hots'].filter(function(x){return m.getLayer(x)&&(x==='mine'||LAY[x==='hots'?'hot':'cam']);});if(!ls.length)return;var bb=[[e.point.x-14,e.point.y-14],[e.point.x+14,e.point.y+14]];var f=m.queryRenderedFeatures(bb,{layers:ls});if(!f.length){setSel(null);return;}var q=f[0],p=q.properties,c=q.geometry.coordinates;
+mapM=mkMap('cvMap',{overlay:function(m){ovMap(m);ovLive(m);},onClick:function(m,e){var ls=['mine','cams','tech','cams-cl','hots'].filter(function(x){return m.getLayer(x)&&(x==='mine'||LAY[x==='hots'?'hot':'cam']);});if(!ls.length)return;var bb=[[e.point.x-14,e.point.y-14],[e.point.x+14,e.point.y+14]];var f=m.queryRenderedFeatures(bb,{layers:ls});if(!f.length){setSel(null);return;}var q=f[0],p=q.properties,c=q.geometry.coordinates;
 if(q.layer.id==='cams-cl'){var cs=m.getSource('cams');try{cs.getClusterExpansionZoom(p.cluster_id).then(function(z){m.easeTo({center:c,zoom:Math.min(z+0.3,15),duration:500});});}catch(e){m.easeTo({center:c,zoom:m.getZoom()+2,duration:500});}return;}
 setSel(q.layer.id==='mine'?{k:'u',lon:c[0],lat:c[1],name:p.name,id:+p.id}:q.layer.id==='tech'?{k:'t',lon:c[0],lat:c[1],x:+p.x,lab:p.lab}:q.layer.id==='hots'?{k:'h',lon:c[0],lat:c[1],n:p.n,name:p.name}:{k:'c',lon:c[0],lat:c[1],t:+p.t,r:+p.r,lim:+p.lim});},
 onReady:function(m){updateMe();if(m===mapM&&SEL)setSel(SEL);
@@ -981,13 +981,63 @@ $('trTilt').addEventListener('click',function(){if(!trafM)return;var p=trafM.get
 function loadTrips(){try{return JSON.parse(localStorage.getItem('sc_trips')||'[]');}catch(e){return [];}}
 function saveTrips(a){try{localStorage.setItem('sc_trips',JSON.stringify(a.slice(0,15)));}catch(e){try{localStorage.setItem('sc_trips',JSON.stringify(a.slice(0,5)));}catch(x){}}}
 function recPt(lat,lon,spd,now){if(!S.run)return;var r=S.rec,l=r[r.length-1];if(S.lastP){var dd=dist(S.lastP[0],S.lastP[1],lat,lon);if(dd<300)S.km=(S.km||0)+dd;}S.lastP=[lat,lon];
-if(!l||dist(l[0],l[1],lat,lon)>=10){r.push([+lat.toFixed(5),+lon.toFixed(5),Math.round(spd),Math.round((now-S.t0)/1000)]);}}
+if(!l||dist(l[0],l[1],lat,lon)>=10){var np=[+lat.toFixed(5),+lon.toFixed(5),Math.round(spd),Math.round((now-S.t0)/1000)];r.push(np);if(l&&isGap(l,np))fillLive(l,np);}}
 function mergeBg(){var s='';try{if(window.AndroidNav&&AndroidNav.takeTrack)s=AndroidNav.takeTrack()||'';}catch(e){}if(!s||!S.run||!S.rec)return;var add=[];s.split(';').forEach(function(q){if(!q)return;var a=q.split(',');if(a.length<4)return;var t=Math.round((+a[3]-S.t0)/1000);if(!(t>=0))return;add.push([+a[0],+a[1],+a[2],t]);});if(!add.length)return;var all=S.rec.concat(add);all.sort(function(p,q){return p[3]-q[3];});var km=0;for(var i=1;i<all.length;i++){var dd=dist(all[i-1][0],all[i-1][1],all[i][0],all[i][1]);if(dd<2000)km+=dd;}if(km>(S.km||0))S.km=km;S.rec.length=0;Array.prototype.push.apply(S.rec,all);var l=all[all.length-1];S.lastP=[l[0],l[1]];add.forEach(function(p){if(p[2]>(S.mx||0)&&p[2]<250)S.mx=p[2];});}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){mergeBg();if(S.run)saveTrip();},300);});
+
+/* ---------- 路線貼路 ---------- */
+var GAPM=150,RQ=[],RQB=false,LV={n:0,c:[],d:1,at:0};
+function lxy(p,o){return [(p[1]-o[1])*111320*Math.cos(o[0]*Math.PI/180),(p[0]-o[0])*110540];}
+function simp(r,tol,force){var n=r.length;if(n<3)return r.slice();var keep=force||new Uint8Array(n);keep[0]=1;keep[n-1]=1;var o=r[0],P=r.map(function(p){return lxy(p,o);}),st=[[0,n-1]],t2=tol*tol;
+while(st.length){var s=st.pop(),a=s[0],b=s[1];if(b-a<2)continue;var ax=P[a][0],ay=P[a][1],dx=P[b][0]-ax,dy=P[b][1]-ay,L=dx*dx+dy*dy,mx=-1,mi=-1;
+for(var i=a+1;i<b;i++){var px=P[i][0]-ax,py=P[i][1]-ay,d;if(L<1e-6)d=px*px+py*py;else{var u=(px*dx+py*dy)/L;u=u<0?0:u>1?1:u;var qx=px-u*dx,qy=py-u*dy;d=qx*qx+qy*qy;}if(d>mx){mx=d;mi=i;}}
+if(mi>0&&mx>t2)keep[mi]=1;if(mi>0){st.push([a,mi]);st.push([mi,b]);}}
+var out=[],ls=null,lt=-1e9;for(var j=0;j<n;j++){var q=r[j];if(keep[j]||Math.abs(q[2]-ls)>=15||q[3]-lt>=30){out.push(q);ls=q[2];lt=q[3];}}return out;}
+function isGap(a,b){return !(a[4]===1||b[4]===1)&&dist(a[0],a[1],b[0],b[1])>GAPM;}
+function packTrip(r){var n=r.length,f=new Uint8Array(n),gp=new Uint8Array(n);for(var i=1;i<n;i++){if(isGap(r[i-1],r[i])){f[i-1]=1;f[i]=1;gp[i]=1;}}
+var tol=2.5,ix=null;function run(){var ff=new Uint8Array(f);var s=simp(r.map(function(p,k){var q=p.slice(0,5);q.k=k;return q;}),tol,ff);return s;}
+var s=run();while(s.length>3000&&tol<60){tol*=1.6;s=run();}
+return s.map(function(q){var o=[q[0],q[1],q[2],q[3]],g=q[4]===1?1:0;if(gp[q.k]){o.push(g,1);}else if(g)o.push(1);return o;});}
+function pdec(str,pr){var i=0,la=0,lo=0,out=[],f=Math.pow(10,pr);while(i<str.length){var b,sh=0,rs=0;do{b=str.charCodeAt(i++)-63;rs|=(b&31)<<sh;sh+=5;}while(b>=32);la+=(rs&1)?~(rs>>1):(rs>>1);sh=0;rs=0;do{b=str.charCodeAt(i++)-63;rs|=(b&31)<<sh;sh+=5;}while(b>=32);lo+=(rs&1)?~(rs>>1):(rs>>1);out.push([lo/f,la/f]);}return out;}
+function getJ(url,cb){var done=false,tm=setTimeout(function(){if(!done){done=true;cb(null);}},9000);try{fetch(url).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!done){done=true;clearTimeout(tm);cb(j);}},function(){if(!done){done=true;clearTimeout(tm);cb(null);}});}catch(e){if(!done){done=true;clearTimeout(tm);cb(null);}}}
+function okRoute(a,b,c,len){var sd=dist(a[0],a[1],b[0],b[1]);if(!c||c.length<2||!(len>0)||len>(sd>1000?sd*2.2+300:sd*1.5+120))return false;var s=c[0],e=c[c.length-1];return dist(a[0],a[1],s[1],s[0])<80&&dist(b[0],b[1],e[1],e[0])<80;}
+function roadBetween(a,b,cb){
+getJ('https://router.project-osrm.org/route/v1/driving/'+a[1]+','+a[0]+';'+b[1]+','+b[0]+'?overview=full&geometries=geojson',function(j){
+var r=j&&j.code==='Ok'&&j.routes&&j.routes[0];if(r&&okRoute(a,b,r.geometry&&r.geometry.coordinates,r.distance)){cb(r.geometry.coordinates,r.distance);return;}
+var q={locations:[{lat:a[0],lon:a[1]},{lat:b[0],lon:b[1]}],costing:S.veh==='moto'?'motorcycle':'auto',directions_type:'none'};
+getJ('https://valhalla1.openstreetmap.de/route?json='+encodeURIComponent(JSON.stringify(q)),function(v){try{var lg=v.trip.legs[0],c=pdec(lg.shape,6),len=v.trip.summary.length*1000;if(okRoute(a,b,c,len)){cb(c,len);return;}}catch(e){}cb(null);});});}
+function rq(a,b,cb){if(RQ.length>80){cb(null);return;}RQ.push([a,b,cb]);rqRun();}
+function rqRun(){if(RQB||!RQ.length)return;if(navigator.onLine===false){RQ.splice(0).forEach(function(q){q[2](null);});return;}RQB=true;var q=RQ.shift();roadBetween(q[0],q[1],function(c,len){try{q[2](c,len);}catch(e){}setTimeout(function(){RQB=false;rqRun();},1100);});}
+/* 把道路形狀變成路線點（時間、速度依距離內插），標記 g=1 */
+function midPts(a,b,c){var tot=0,seg=[];for(var i=1;i<c.length;i++){var d=dist(c[i-1][1],c[i-1][0],c[i][1],c[i][0]);seg.push(d);tot+=d;}if(tot<=0)return [];
+var dt=Math.max(0,b[3]-a[3]),v=dt>0?Math.min(200,Math.round(tot/dt*3.6)):a[2],out=[],acc=0,lastk=null;
+for(var k=1;k<c.length-1;k++){acc+=seg[k-1];var pt=[+c[k][1].toFixed(5),+c[k][0].toFixed(5)];if(lastk&&dist(lastk[0],lastk[1],pt[0],pt[1])<12)continue;lastk=pt;out.push([pt[0],pt[1],v,Math.round(a[3]+dt*acc/tot),1]);}return out;}
+/* 行駛中：發現斷掉的一段就補路 */
+function fillLive(a,b){if(b.q)return;b.q=1;rq(a,b,function(c){var r=S.rec;if(!S.run||!r)return;var i=r.indexOf(b);if(i<1||r[i-1]!==a)return;if(!c)return;var m=midPts(a,b,c);if(!m.length)return;Array.prototype.splice.apply(r,[i,0].concat(m));LV.d=1;liveUpd(true);});}
+function scanGaps(){var r=S.rec;if(!S.run||!r)return;for(var i=1;i<r.length;i++){if(isGap(r[i-1],r[i]))fillLive(r[i-1],r[i]);}}
+/* 舊紀錄：打開時把直線段補成道路（只補一次，最多 40 段） */
+function fixTrip(t){if(!t||!t.p||t.p.length<2||(t.ft||0)>=3||navigator.onLine===false)return;var p=t.p,todo=[];
+for(var i=1;i<p.length;i++){var a=p[i-1],b=p[i];if(a[4]===1||b[4]===1)continue;var d=dist(a[0],a[1],b[0],b[1]);if(t.rv>=2?b[5]===1:d>300)todo.push({i:i,d:d});}
+if(!todo.length)return;todo.sort(function(x,y){return y.d-x.d;});todo=todo.slice(0,40);var left=todo.length,got={},ok=0;
+todo.forEach(function(g){rq(p[g.i-1],p[g.i],function(c){if(c){var m=midPts(p[g.i-1],p[g.i],c);if(m.length){got[g.i]=m;ok++;}}if(--left)return;
+var np=[];for(var k=0;k<p.length;k++){if(got[k]){np=np.concat(got[k]);var e=p[k].slice(0,4);np.push(e);}else np.push(p[k]);}
+var a=loadTrips(),j=-1;a.forEach(function(q,n){if(q.t===t.t)j=n;});if(j<0)return;a[j].ft=(a[j].ft||0)+1;if(ok){a[j].p=np;a[j].rv=2;
+todo.forEach(function(g){if(!got[g.i]){var bb=p[g.i].slice(0,4);bb.push(0,1);var ix=np.indexOf(p[g.i]);if(ix>=0)np[ix]=bb;}});}
+saveTrips(a);if(ok&&TRIP&&TRIP.t===t.t&&!(PLAY&&PLAY.on)){TRIP.p=np;TRIP.rv=2;TRIP.cams=null;refreshTrip();}});});}
+function refreshTrip(){try{tripCams();buildTL();if(tripReady()){tripM.getSource('trk').setData(tripGJ());tripM.getSource('tre').setData(tripEnds());tripM.getSource('trc').setData(tripCamGJ());tripM.getSource('trz').setData(tripZoneGJ());renderFrame(PLAY?PLAY.t:0,true);}}catch(e){}}
+/* 行駛中地圖上的即時軌跡 */
+function ovLive(m){try{if(m.getSource('live'))return;m.addSource('live',{type:'geojson',data:{type:'FeatureCollection',features:[]}});var bf=null;['ld-glow','ld','cams-cl','cams','tech','hots','mine'].some(function(k){if(m.getLayer(k)){bf=k;return true;}return false;});
+m.addLayer({id:'live-case',type:'line',source:'live',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],10,5,18,15],'line-opacity':.9}},bf||undefined);
+m.addLayer({id:'live',type:'line',source:'live',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#2F80ED','line-width':['interpolate',['linear'],['zoom'],10,3,18,9]}},bf||undefined);LV.at=0;liveUpd(true);}catch(e){}}
+function liveCoords(){var r=S.rec;if(!S.run||!r||!r.length)return [];if(LV.d||r.length<LV.n||r.length-LV.n>400){LV.c=simp(r,2).map(function(p){return [p[1],p[0]];});LV.n=r.length;LV.d=0;}
+var c=LV.c.slice();for(var i=Math.max(0,LV.n);i<r.length;i++)c.push([r[i][1],r[i][0]]);if(S.lat&&S.lon)c.push([S.lon,S.lat]);return c;}
+function liveUpd(now){var t=Date.now();if(!now&&t-LV.at<1000)return;LV.at=t;var c=liveCoords(),gj={type:'FeatureCollection',features:c.length>1?[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:c}}]:[]};
+[typeof miniM!=='undefined'?miniM:null,typeof mapM!=='undefined'?mapM:null].forEach(function(m){try{if(m&&m.getSource&&m.getSource('live'))m.getSource('live').setData(gj);}catch(e){}});}
+var _mergeBg=mergeBg;mergeBg=function(){var n=S.rec?S.rec.length:0;_mergeBg();if(S.rec&&S.rec.length!==n){LV.d=1;liveUpd(true);}scanGaps();};
 function saveTrip(){mergeBg();var r=S.rec;if(!r||r.length<3)return;var d=0,mx=0;for(var i=1;i<r.length;i++){d+=dist(r[i-1][0],r[i-1][1],r[i][0],r[i][1]);}
 r.forEach(function(p){if(p[2]>mx)mx=p[2];});if(d<60)return;
-var dur=r[r.length-1][3]||1;var step=Math.max(1,Math.ceil(r.length/700));var pts=r.filter(function(p,i){return i%step===0||i===r.length-1;});
-var a=loadTrips().filter(function(q){return q.t!==S.t0;});a.unshift({t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);}
+var dur=r[r.length-1][3]||1;var pts=packTrip(r);
+var a=loadTrips().filter(function(q){return q.t!==S.t0;});a.unshift({rv:2,t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);}
 setInterval(function(){if(S.run)saveTrip();},60000);
 document.addEventListener('visibilitychange',function(){if(document.hidden&&S.run)saveTrip();});
 window.addEventListener('pagehide',function(){if(S.run)saveTrip();});
@@ -1014,7 +1064,7 @@ near(la,lo).forEach(function(it){var d=dist(la,lo,it.lat,it.lon),lim=it.k==='h'?
 if(i===0)break;}}
 var out=Object.keys(best).map(function(k){var b=best[k],it=b.it,tt=tAt(b.fi),sp=Math.round(tt[1]);return {id:it.id,k:it.k,t:it.t,x:it.x,lon:it.lon,lat:it.lat,lim:+it.lim||0,fi:b.fi,tm:tt[0],sp:sp,over:it.k==='c'&&sp>+it.lim};});
 out.sort(function(a,b){return a.fi-b.fi;});TRIP.cams=out;return out;}
-function tripGJ(){var p=TRIP.p,f=[];for(var i=1;i<p.length;i++){f.push({type:'Feature',properties:{v:p[i][2],i:i},geometry:{type:'LineString',coordinates:[[p[i-1][1],p[i-1][0]],[p[i][1],p[i][0]]]}});}return {type:'FeatureCollection',features:f};}
+function tripGJ(){var p=TRIP.p,f=[];for(var i=1;i<p.length;i++){var gp=(p[i][5]===1||(!(TRIP.rv>=2)&&p[i][4]!==1&&p[i-1][4]!==1&&dist(p[i-1][0],p[i-1][1],p[i][0],p[i][1])>300))?1:0;f.push({type:'Feature',properties:{v:p[i][2],i:i,gp:gp},geometry:{type:'LineString',coordinates:[[p[i-1][1],p[i-1][0]],[p[i][1],p[i][0]]]}});}return {type:'FeatureCollection',features:f};}
 function tripEnds(){var p=TRIP.p,s=p[0],e=p[p.length-1];return {type:'FeatureCollection',features:[{type:'Feature',properties:{c:'s'},geometry:{type:'Point',coordinates:[s[1],s[0]]}},{type:'Feature',properties:{c:'e'},geometry:{type:'Point',coordinates:[e[1],e[0]]}}]};}
 function tripCamGJ(){var cs=TRIP?tripCams():[];return {type:'FeatureCollection',features:cs.map(function(c){return {type:'Feature',properties:{k:c.k,o:c.over?1:0},geometry:{type:'Point',coordinates:[c.lon,c.lat]}};})};}
 function tripZoneGJ(){var cs=TRIP?tripCams():[];return {type:'FeatureCollection',features:cs.filter(function(c){return c.k==='h';}).map(function(c){return circlePoly(c.lon,c.lat,250);})};}
@@ -1028,7 +1078,7 @@ if(!m.getSource('trz'))m.addSource('trz',{type:'geojson',data:TRIP?tripZoneGJ():
 var W=['interpolate',['linear'],['zoom'],10,3.5,18,10],WC=['interpolate',['linear'],['zoom'],10,6,18,16],CL=['step',['get','v'],MC.b,40,MC.g,70,MC.a,90,MC.r];
 m.addLayer({id:'trk-rest',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#8fa3c4','line-width':W,'line-opacity':.55,'line-dasharray':[1,1.6]}});
 m.addLayer({id:'trk-case',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':WC,'line-opacity':.95}});
-m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':CL,'line-width':W}});
+m.addLayer({id:'trk',type:'line',source:'trk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':['case',['==',['get','gp'],1],'#9AA7B8',CL],'line-width':W}});
 m.addLayer({id:'trp',type:'line',source:'trp',layout:{'line-cap':'round'},paint:{'line-color':CL,'line-width':W}});
 m.addLayer({id:'trz-f',type:'fill',source:'trz',paint:{'fill-color':'#8B5CF6','fill-opacity':0.22}});
 m.addLayer({id:'trz-l',type:'line',source:'trz',paint:{'line-color':'#8B5CF6','line-width':2.5,'line-dasharray':[2,2]}});
@@ -1051,7 +1101,7 @@ function pickRate(){var r=64;[1,4,16,64].some(function(x){if(TRIP.dur/x<=75){r=x
 function setRate(r){RATE=r;document.querySelectorAll('#tripRate button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.r===r));});}
 function setPlayBtn(on){var b=$('tripPlay');if(b){b.textContent=on?'❚❚':'▶';b.setAttribute('aria-label',on?'暫停':'播放');}}
 function setFol(f){TFOL=f;$('tripFol').textContent=f?'全程':'跟車';}
-function openTrip(i,auto){var a=loadTrips();TRIP=a[i];if(!TRIP)return;TRIP.i=i;var cs=tripCams(),ov=cs.filter(function(c){return c.over;}).length;
+function openTrip(i,auto){var a=loadTrips();TRIP=a[i];if(!TRIP)return;TRIP.i=i;var _ft=TRIP;setTimeout(function(){fixTrip(_ft);},900);var cs=tripCams(),ov=cs.filter(function(c){return c.over;}).length;
 if(PLAY&&PLAY.raf)cancelAnimationFrame(PLAY.raf);PLAY={t:0,on:false,hd:0,i:0};setPlayBtn(false);setFol(true);
 $('tripView').classList.remove('hide');
 $('tripStat').innerHTML='<div><span class="lab">距離</span><b class="tn">'+(TRIP.d/1000).toFixed(1)+'</b> 公里</div><div><span class="lab">時間</span><b class="tn">'+fmtDur(TRIP.dur)+'</b></div><div><span class="lab">均速 / 最高</span><b class="tn">'+TRIP.av+' / '+TRIP.mx+'</b></div><div><span class="lab">超速</span><b class="tn" style="color:'+(ov?'var(--red)':'inherit')+'">'+ov+'</b> 次</div>';
@@ -1201,7 +1251,7 @@ m.addLayer({id:'ldz-f',type:'fill',source:'ldz',paint:{'fill-color':'#8B5CF6','f
 m.addLayer({id:'ldz-l',type:'line',source:'ldz',paint:{'line-color':'#8B5CF6','line-width':3,'line-dasharray':[2,2]}});
 m.addLayer({id:'ld-glow',type:'line',source:'ld',layout:{'line-cap':'round'},paint:{'line-color':'#FFA814','line-width':16,'line-blur':8,'line-opacity':0.55}});
 m.addLayer({id:'ld',type:'line',source:'ld',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#FFA814','line-width':6,'line-dasharray':[1.6,1.2]}});}
-function ovMini(m){ovMap(m);ovLead(m);}
+function ovMini(m){ovMap(m);ovLead(m);ovLive(m);}
 var ldCam=null,ldLab=null,ldKey='';
 function camEl(){var el=document.createElement('div');el.className='ldcam';el.innerHTML='<div class="t"></div><div class="d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h13v12H2z"/><path d="M15 10l7-4v12l-7-4"/></svg></div>';return el;}
 function initMini(){if(miniM||miniM===false)return;if($('miniBox').hidden){miniM=false;return;}miniM=mkMap('cvMini',{overlay:ovMini,pitch:60,zoom:15.5,center:[S.lon||120.97,S.lat||23.7]});if(!miniM){miniM=false;return;}
@@ -1227,9 +1277,9 @@ var n=Date.now();if(n-lastMini>800){lastMini=n;var hd=S.hd!=null?S.hd:miniM.getB
 if(lead){var L=S.lead,b=new ML.LngLatBounds([S.lon,S.lat],[S.lon,S.lat]);b.extend([L.lon,L.lat]);
 miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch:50,maxZoom:17.4,duration:700,essential:true});}
 else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
-S.onEnd=function(){hideLead();TABOFF=false;setTimeout(syncDrv,0);setTimeout(function(){if(!S.run){var g=$('goGps');if(g)g.click();}},150);};
-S.onBegin=function(){S.lastP=null;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
-S.mapHook=function(){if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
+S.onEnd=function(){hideLead();setTimeout(function(){LV.d=1;liveUpd(true);},50);TABOFF=false;setTimeout(syncDrv,0);setTimeout(function(){if(!S.run){var g=$('goGps');if(g)g.click();}},150);};
+S.onBegin=function(){S.lastP=null;LV.d=1;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
+S.mapHook=function(){liveUpd();if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
 
 /* ---------- TDX 金鑰（只存手機）與連線測試 ---------- */
 (function(){var KEY='tdxKey',cbs={},n=0;
