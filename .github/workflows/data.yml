@@ -1,0 +1,26 @@
+name: 更新測速點資料
+on:
+  schedule:
+    - cron: '17 19 * * *'   # 每天台灣時間 03:17
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 下載警政署測速執法設置點
+        run: |
+          curl -sSL --retry 3 --max-time 120 -o /tmp/npa.csv "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/EA5E6FCD-B82D-43B7-A5CF-E9893253187E/resource/110DAA6E-A012-44DC-8F84-891F2A6F0805/download"
+          wc -c /tmp/npa.csv
+      - name: 轉成 App 資料
+        run: python3 .github/data/npa2pack.py /tmp/npa.csv data/pack.json
+      - name: 有變動才存回
+        run: |
+          if git diff --quiet data/pack.json; then echo "沒有變動"; exit 0; fi
+          git config user.name "speedcam-bot"
+          git config user.email "speedcam-bot@users.noreply.github.com"
+          git add data/pack.json
+          git commit -m "自動更新測速點資料"
+          git push
