@@ -254,20 +254,30 @@ public class OverlayService extends Service implements LocationListener, AlertEn
     /* ---------- AlertEngine 輸出 ---------- */
 
     @Override
+    /* 語音放到背景執行緒：不會卡住定位更新和浮動視窗 */
+    private final java.util.concurrent.ExecutorService ttsQ = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private String curVoice = null;
     public void say(String t) {
         android.util.Log.i("SpeedCamSay", "BG " + t);
         if (!ttsReady || tts == null) return;
-        try {
-            tts.setSpeechRate(Math.max(0.5f, Math.min(2f, vRate)));
-            Voice chosen = null;
-            if (vName != null && !vName.isEmpty()) {
-                Set<Voice> vs = tts.getVoices();
-                if (vs != null) for (Voice v : vs) if (v.getName().equals(vName)) { chosen = v; break; }
-            }
-            if (chosen != null) tts.setVoice(chosen);
-            duckFor(t);
-            tts.speak(t, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
-        } catch (Exception ignored) { }
+        final String name = vName; final float rate = vRate;
+        ttsQ.execute(() -> {
+            try {
+                tts.setSpeechRate(Math.max(0.5f, Math.min(2f, rate)));
+                String key = name == null ? "" : name;
+                if (!key.equals(curVoice)) {
+                    Voice chosen = null;
+                    if (!key.isEmpty()) {
+                        Set<Voice> vs = tts.getVoices();
+                        if (vs != null) for (Voice v : vs) if (v.getName().equals(key)) { chosen = v; break; }
+                    }
+                    if (chosen != null) tts.setVoice(chosen);
+                    curVoice = key;
+                }
+                duckFor(t);
+                tts.speak(t, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
+            } catch (Exception ignored) { }
+        });
     }
 
     private android.media.AudioFocusRequest afr;

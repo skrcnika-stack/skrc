@@ -44,8 +44,12 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getWindow().setStatusBarColor(Color.parseColor("#050B17"));
-        getWindow().setNavigationBarColor(Color.parseColor("#050B17"));
+        int bgc = Color.parseColor(getSharedPreferences("p", MODE_PRIVATE).getBoolean("light", false) ? "#F3F6FA" : "#050B17");
+        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(bgc));
+        getWindow().setStatusBarColor(bgc);
+        getWindow().setNavigationBarColor(bgc);
+        if (Build.VERSION.SDK_INT >= 23 && getSharedPreferences("p", MODE_PRIVATE).getBoolean("light", false))
+            getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | (Build.VERSION.SDK_INT >= 26 ? android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : 0));
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
@@ -54,11 +58,12 @@ public class MainActivity extends Activity {
                     tts.setLanguage(Locale.CHINESE);
                 }
                 ttsReady = true;
+                ttsQ.execute(this::cacheVoices);
             }
         });
 
         web = new WebView(this);
-        web.setBackgroundColor(Color.parseColor("#050B17"));
+        web.setBackgroundColor(bgc);
         setContentView(web);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -105,12 +110,6 @@ public class MainActivity extends Activity {
             }
         });
         web.loadUrl("https://" + HOST + "/index.html");
-        if (chkP(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= 33) askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION, "android.permission.POST_NOTIFICATIONS"}, 7);
-            else askP(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION}, 7);
-        }
     }
 
     @Override
@@ -118,6 +117,9 @@ public class MainActivity extends Activity {
         boolean ok = res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED;
         if (pendingCb != null) { pendingCb.invoke(pendingOrigin, ok, false); pendingCb = null; }
         if (inFront) ensureSvc();
+        // 位置允許之後，再問通知（Android 13 以上，背景提醒的常駐通知要用）
+        if (code == 7 && ok && Build.VERSION.SDK_INT >= 33 && chkP("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED)
+            askP(new String[]{"android.permission.POST_NOTIFICATIONS"}, 8);
     }
 
     /* Android 5.x 沒有「執行時權限」：安裝時就已經允許，直接當作有權限 */
@@ -176,7 +178,7 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
         floatH.removeCallbacks(floatRun);
-        if (!isFinishing() && !isChangingConfigurations()) floatH.postDelayed(floatRun, 3000);
+        if (!isFinishing() && !isChangingConfigurations()) floatH.postDelayed(floatRun, 250);
     }
 
     @Override
@@ -214,49 +216,58 @@ public class MainActivity extends Activity {
         } catch (Exception ignored) { }
     }
 
+    /* 語音相關的動作都放到背景執行緒，不卡畫面（抓聲音清單、換聲音在有些手機要好幾秒） */
+    private final java.util.concurrent.ExecutorService ttsQ = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private volatile java.util.List<Voice> voiceCache = null;
+    private volatile String voiceJson = "[]";
+    private String curVoiceKey = null;
+    private void cacheVoices() {
+        try {
+            Set<Voice> vs = tts.getVoices();
+            java.util.ArrayList<Voice> l = new java.util.ArrayList<>();
+            JSONArray a = new JSONArray();
+            if (vs != null) for (Voice v : vs) {
+                l.add(v);
+                if (!"zh".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
+                JSONObject o = new JSONObject();
+                o.put("n", v.getName()); o.put("l", v.getLocale().toLanguageTag()); o.put("net", v.isNetworkConnectionRequired());
+                a.put(o);
+            }
+            voiceCache = l; voiceJson = a.toString();
+        } catch (Exception ignored) { }
+    }
+
     /** Native speech bridge (the phone's own Google zh-TW voices) */
     public class Bridge {
         @JavascriptInterface
-        public String voices() {
-            JSONArray a = new JSONArray();
-            try {
-                Set<Voice> vs = tts.getVoices();
-                if (vs != null) for (Voice v : vs) {
-                    if (!"zh".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
-                    JSONObject o = new JSONObject();
-                    o.put("n", v.getName());
-                    o.put("l", v.getLocale().toLanguageTag());
-                    o.put("net", v.isNetworkConnectionRequired());
-                    a.put(o);
-                }
-            } catch (Exception ignored) {}
-            return a.toString();
-        }
+        public String voices() { return voiceJson; }
 
         @JavascriptInterface
         public void speak(String text, float rate, float pitch, String gender, String voiceName) {
             android.util.Log.i("SpeedCamSay", "FG " + text);
-            runOnUiThread(() -> {
+            ttsQ.execute(() -> {
                 if (!ttsReady) return;
                 try {
                     tts.setSpeechRate(Math.max(0.5f, Math.min(2f, rate)));
                     tts.setPitch(Math.max(0.5f, Math.min(2f, pitch)));
-                    Voice chosen = null;
-                    Set<Voice> vs = tts.getVoices();
-                    if (voiceName != null && !voiceName.isEmpty() && vs != null) {
-                        for (Voice v : vs) if (v.getName().equals(voiceName)) { chosen = v; break; }
-                    }
-                    if (chosen == null && "m".equals(gender) && vs != null) {
-                        // Male guess: zh-TW voice named ctd (prefer offline)
-                        for (Voice v : vs) {
-                            String n = v.getName().toLowerCase(Locale.ROOT);
-                            if (n.contains("cmn-tw") && n.contains("-ctd-")) {
-                                if (chosen == null || (chosen.isNetworkConnectionRequired() && !v.isNetworkConnectionRequired())) chosen = v;
+                    String key = (voiceName == null ? "" : voiceName) + "|" + gender;
+                    if (!key.equals(curVoiceKey)) {          // 聲音有換才重新設定
+                        if (voiceCache == null) cacheVoices();
+                        java.util.List<Voice> vs = voiceCache;
+                        Voice chosen = null;
+                        if (voiceName != null && !voiceName.isEmpty() && vs != null)
+                            for (Voice v : vs) if (v.getName().equals(voiceName)) { chosen = v; break; }
+                        if (chosen == null && "m".equals(gender) && vs != null) {
+                            for (Voice v : vs) {
+                                String n = v.getName().toLowerCase(Locale.ROOT);
+                                if (n.contains("cmn-tw") && n.contains("-ctd-")) {
+                                    if (chosen == null || (chosen.isNetworkConnectionRequired() && !v.isNetworkConnectionRequired())) chosen = v;
+                                }
                             }
                         }
+                        if (chosen != null) tts.setVoice(chosen); else tts.setLanguage(Locale.TAIWAN);
+                        curVoiceKey = key;
                     }
-                    if (chosen != null) tts.setVoice(chosen);
-                    else tts.setLanguage(Locale.TAIWAN); // back to the phone's default zh-TW voice
                     duckFor(text);
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "sc" + System.nanoTime());
                 } catch (Exception ignored) {}
@@ -264,7 +275,7 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void stop() { runOnUiThread(() -> { try { tts.stop(); } catch (Exception ignored) {} }); }
+        public void stop() { try { tts.stop(); } catch (Exception ignored) {} }
     }
 
 
@@ -364,6 +375,11 @@ public class MainActivity extends Activity {
         }
 
         /** 小米／紅米／POCO 手機（MIUI、HyperOS）要另外開「後台彈出界面」等權限 */
+        @JavascriptInterface
+        public void setTheme(boolean light) {
+            getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("light", light).apply();
+        }
+
         @JavascriptInterface
         public boolean isMiui() {
             String m = (Build.MANUFACTURER + " " + Build.BRAND).toLowerCase(java.util.Locale.US);
