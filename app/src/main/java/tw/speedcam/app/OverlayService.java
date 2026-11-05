@@ -230,9 +230,11 @@ public class OverlayService extends Service implements LocationListener, AlertEn
     private void showOverlay(boolean on) {
         if (box == null || lp == null || wm == null) return;
         try {
+            // 隱藏時只把內容設成 GONE（視窗變 0 大小，不會擋到觸控）。
+            // 不能用 FLAG_NOT_TOUCHABLE：Android 12 以上會因此把整個浮動視窗變半透明。
             box.setVisibility(on ? View.VISIBLE : View.GONE);
-            if (on) lp.flags &= ~WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-            else lp.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            lp.flags &= ~WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            lp.alpha = 1f;
             wm.updateViewLayout(box, lp);
         } catch (Exception ignored) { }
     }
