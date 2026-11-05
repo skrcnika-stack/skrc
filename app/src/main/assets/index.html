@@ -553,7 +553,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611051815';
+var DATAV='202611051854';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -1007,7 +1007,7 @@ var r=j&&j.code==='Ok'&&j.routes&&j.routes[0];if(r&&okRoute(a,b,r.geometry&&r.ge
 var q={locations:[{lat:a[0],lon:a[1]},{lat:b[0],lon:b[1]}],costing:S.veh==='moto'?'motorcycle':'auto',directions_type:'none'};
 getJ('https://valhalla1.openstreetmap.de/route?json='+encodeURIComponent(JSON.stringify(q)),function(v){try{var lg=v.trip.legs[0],c=pdec(lg.shape,6),len=v.trip.summary.length*1000;if(okRoute(a,b,c,len)){cb(c,len);return;}}catch(e){}cb(null);});});}
 function rq(a,b,cb){if(RQ.length>80){cb(null);return;}RQ.push([a,b,cb]);rqRun();}
-function rqRun(){if(RQB||!RQ.length)return;if(navigator.onLine===false){RQ.splice(0).forEach(function(q){q[2](null);});return;}RQB=true;var q=RQ.shift();roadBetween(q[0],q[1],function(c,len){try{q[2](c,len);}catch(e){}setTimeout(function(){RQB=false;rqRun();},1100);});}
+function rqRun(){if(RQB||!RQ.length)return;if(navigator.onLine===false){RQ.splice(0).forEach(function(q){if(q[4])q[4](null);else q[2](null);});return;}RQB=true;var q=RQ.shift();var fin=function(){setTimeout(function(){RQB=false;rqRun();},1100);};if(q[3]){matchPts(q[3],function(r){try{q[4](r);}catch(e){}fin();});return;}roadBetween(q[0],q[1],function(c,len){try{q[2](c,len);}catch(e){}fin();});}
 /* 把道路形狀變成路線點（時間、速度依距離內插），標記 g=1 */
 function midPts(a,b,c){var tot=0,seg=[];for(var i=1;i<c.length;i++){var d=dist(c[i-1][1],c[i-1][0],c[i][1],c[i][0]);seg.push(d);tot+=d;}if(tot<=0)return [];
 var dt=Math.max(0,b[3]-a[3]),v=dt>0?Math.min(200,Math.round(tot/dt*3.6)):a[2],out=[],acc=0,lastk=null;
@@ -1016,28 +1016,65 @@ for(var k=1;k<c.length-1;k++){acc+=seg[k-1];var pt=[+c[k][1].toFixed(5),+c[k][0]
 function fillLive(a,b){if(b.q)return;b.q=1;rq(a,b,function(c){var r=S.rec;if(!S.run||!r)return;var i=r.indexOf(b);if(i<1||r[i-1]!==a)return;if(!c)return;var m=midPts(a,b,c);if(!m.length)return;Array.prototype.splice.apply(r,[i,0].concat(m));LV.d=1;liveUpd(true);});}
 function scanGaps(){var r=S.rec;if(!S.run||!r)return;for(var i=1;i<r.length;i++){if(isGap(r[i-1],r[i]))fillLive(r[i-1],r[i]);}}
 /* 舊紀錄：打開時把直線段補成道路（只補一次，最多 40 段） */
-function fixTrip(t){if(!t||!t.p||t.p.length<2||(t.ft||0)>=3||navigator.onLine===false)return;var p=t.p,todo=[];
+function fixTrip(t,cb){cb=cb||function(){};if(!t||!t.p||t.p.length<2||navigator.onLine===false)return;if((t.ft||0)>=3){cb();return;}var p=t.p,todo=[];
 for(var i=1;i<p.length;i++){var a=p[i-1],b=p[i];if(a[4]===1||b[4]===1)continue;var d=dist(a[0],a[1],b[0],b[1]);if(t.rv>=2?b[5]===1:d>300)todo.push({i:i,d:d});}
-if(!todo.length)return;todo.sort(function(x,y){return y.d-x.d;});todo=todo.slice(0,40);var left=todo.length,got={},ok=0;
+if(!todo.length){cb();return;}todo.sort(function(x,y){return y.d-x.d;});todo=todo.slice(0,40);var left=todo.length,got={},ok=0;
 todo.forEach(function(g){rq(p[g.i-1],p[g.i],function(c){if(c){var m=midPts(p[g.i-1],p[g.i],c);if(m.length){got[g.i]=m;ok++;}}if(--left)return;
 var np=[];for(var k=0;k<p.length;k++){if(got[k]){np=np.concat(got[k]);var e=p[k].slice(0,4);np.push(e);}else np.push(p[k]);}
-var a=loadTrips(),j=-1;a.forEach(function(q,n){if(q.t===t.t)j=n;});if(j<0)return;a[j].ft=(a[j].ft||0)+1;if(ok){a[j].p=np;a[j].rv=2;
+var a=loadTrips(),j=-1;a.forEach(function(q,n){if(q.t===t.t)j=n;});if(j<0){cb();return;}a[j].ft=(a[j].ft||0)+1;if(ok){a[j].p=np;a[j].rv=2;
 todo.forEach(function(g){if(!got[g.i]){var bb=p[g.i].slice(0,4);bb.push(0,1);var ix=np.indexOf(p[g.i]);if(ix>=0)np[ix]=bb;}});}
-saveTrips(a);if(ok&&TRIP&&TRIP.t===t.t&&!(PLAY&&PLAY.on)){TRIP.p=np;TRIP.rv=2;TRIP.cams=null;refreshTrip();}});});}
+saveTrips(a);if(ok&&TRIP&&TRIP.t===t.t&&!(PLAY&&PLAY.on)){TRIP.p=np;TRIP.rv=2;TRIP.cams=null;refreshTrip();}cb();});});}
 function refreshTrip(){try{tripCams();buildTL();if(tripReady()){tripM.getSource('trk').setData(tripGJ());tripM.getSource('tre').setData(tripEnds());tripM.getSource('trc').setData(tripCamGJ());tripM.getSource('trz').setData(tripZoneGJ());renderFrame(PLAY?PLAY.t:0,true);}}catch(e){}}
+
+/* ---------- 整條軌跡貼路（map matching） ---------- */
+var MT={i:0,busy:false};
+function matchPts(arr,cb){var n=arr.length;if(n<2){cb(null);return;}
+var c=[],rad=[],ts=[],t0=arr[0][3];arr.forEach(function(p){c.push((+p[1]).toFixed(5)+','+(+p[0]).toFixed(5));rad.push(p[4]===1?15:25);ts.push(1700000000+Math.max(0,Math.round(p[3]-t0)));});
+for(var k=1;k<ts.length;k++)if(ts[k]<=ts[k-1])ts[k]=ts[k-1]+1;
+getJ('https://router.project-osrm.org/match/v1/driving/'+c.join(';')+'?overview=false&gaps=ignore&tidy=false&radiuses='+rad.join(';')+'&timestamps='+ts.join(';'),function(j){
+if(!j||j.code!=='Ok'||!j.tracepoints){cb(null);return;}var out=[];j.tracepoints.forEach(function(tp,k){var p=arr[k];if(!tp||!tp.location){out.push(null);return;}var m=j.matchings&&j.matchings[tp.matchings_index];if(m&&m.confidence<0.25){out.push(null);return;}
+var la=tp.location[1],lo=tp.location[0];if(dist(p[0],p[1],la,lo)>35){out.push(null);return;}out.push([+la.toFixed(5),+lo.toFixed(5)]);});cb(out);});}
+function mq(arr,cb){if(RQ.length>80){cb(null);return;}RQ.push([null,null,function(){},arr,cb]);rqRun();}
+/* 行駛中：每累積 40 點就把那段對到道路上 */
+function matchLive(force){var r=S.rec;if(!S.run||!r||MT.busy||navigator.onLine===false)return;if(MT.i>r.length)MT.i=0;var st=Math.max(0,MT.i-3),n=r.length-st;if(n<(force?2:43))return;
+var arr=r.slice(st,st+100),end=st+arr.length;MT.busy=true;mq(arr,function(sn){MT.busy=false;if(!sn){MT.i=end;return;}var rr=S.rec;if(rr!==r)return;
+arr.forEach(function(p,k){if(sn[k]){p[0]=sn[k][0];p[1]=sn[k][1];}});MT.i=end;LV.d=1;liveUpd(true);if(rr.length-MT.i>=40)setTimeout(matchLive,1200);});}
+/* 舊紀錄：打開時整條對一次道路（存 sn=1，不重複） */
+function snapTrip(t){if(!t||!t.p||t.sn||t.p.length<2||navigator.onLine===false)return;var p=t.p,parts=[],left,okn=0;for(var i=0;i<p.length;i+=97)parts.push([Math.max(0,i-3),Math.min(p.length,i+97)]);left=parts.length;
+var sn=new Array(p.length);parts.forEach(function(pr){var arr=p.slice(pr[0],pr[1]);mq(arr,function(r){if(r)r.forEach(function(q,k){if(q){sn[pr[0]+k]=q;okn++;}});if(--left)return;
+var a=loadTrips(),j=-1;a.forEach(function(q,n){if(q.t===t.t)j=n;});if(j<0)return;var cur=a[j].p;if(cur.length!==p.length)return;
+cur.forEach(function(q,k){if(sn[k]){q[0]=sn[k][0];q[1]=sn[k][1];}});a[j].sn=1;saveTrips(a);
+if(okn&&TRIP&&TRIP.t===t.t&&!(PLAY&&PLAY.on)){TRIP.p=cur;TRIP.sn=1;TRIP.cams=null;refreshTrip();}});});}
+/* ---------- 箭頭即時貼路（用地圖上的道路，不用網路） ---------- */
+var RDL=null,DR={on:false,la:0,lo:0,hd:0,t:0,t0:0},lastFixT=0;
+function roadLayers(m){if(RDL&&RDL.m===m)return RDL.ids;var ids=[];try{m.getStyle().layers.forEach(function(l){if(l.type==='line'&&l['source-layer']==='transportation'&&!/rail|path|ferry|aerialway|pier/.test(l.id))ids.push(l.id);});}catch(e){}if(ids.length)RDL={m:m,ids:ids};return ids;}
+function nearRoad(m,la,lo,hd,rad){try{if(!m||!m.project||!m.isStyleLoaded||!m.isStyleLoaded())return null;var ids=roadLayers(m);if(!ids.length)return null;var pt=m.project([lo,la]);if(!(pt.x>-50&&pt.y>-50))return null;
+var mpp=40075016*Math.cos(la*Math.PI/180)/Math.pow(2,m.getZoom()+9),bx=Math.max(12,Math.min(80,rad/mpp));
+var fs=m.queryRenderedFeatures([[pt.x-bx,pt.y-bx],[pt.x+bx,pt.y+bx]],{layers:ids});if(!fs.length)return null;var o=[la,lo],best=null;
+fs.forEach(function(f){var g=f.geometry,ls=g.type==='LineString'?[g.coordinates]:g.type==='MultiLineString'?g.coordinates:[];ls.forEach(function(cs){for(var i=1;i<cs.length;i++){var a=lxy([cs[i-1][1],cs[i-1][0]],o),b=lxy([cs[i][1],cs[i][0]],o),dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy;if(L<0.01)continue;
+var u=Math.max(0,Math.min(1,-(a[0]*dx+a[1]*dy)/L)),qx=a[0]+u*dx,qy=a[1]+u*dy,d=Math.sqrt(qx*qx+qy*qy),sb=(Math.atan2(dx,dy)*180/Math.PI+360)%360,db=0;
+if(hd!=null){db=Math.abs(((hd-sb+540)%360)-180);if(db>90){sb=(sb+180)%360;db=180-db;}if(db>40)continue;}var sc=d+db*0.4;
+if(d<=rad&&(!best||sc<best.sc))best={sc:sc,la:la+qy/110540,lo:lo+qx/(111320*Math.cos(la*Math.PI/180)),hd:sb,d:d};}});});return best;}catch(e){return null;}}
+var _posNow=posNow;posNow=function(){var u=_posNow();if(!u||!S.run)return u;
+if(DR.on)return {lat:DR.la,lon:DR.lo,hd:DR.hd,dr:1};var s=nearRoad(typeof mapM!=='undefined'?mapM:null,u.lat,u.lon,u.hd,S.spd>8?22:14);if(s)return {lat:s.la,lon:s.lo,hd:(u.hd==null||S.spd<5)?u.hd:s.hd,sn:1};return u;};
+/* 隧道／沒訊號：照最後速度沿路往前推，最多 3 分鐘 */
+setInterval(function(){if(!S.run){DR.on=false;return;}var now=Date.now();if(!lastFixT||now-lastFixT<2500||S.spd<15||now-lastFixT>180000){if(DR.on){DR.on=false;}return;}
+if(!DR.on){DR.on=true;DR.la=S.lat;DR.lo=S.lon;DR.hd=S.hd||0;DR.t=now;}var dt=(now-DR.t)/1000;DR.t=now;var step=S.spd/3.6*dt,r=DR.hd*Math.PI/180;
+var la=DR.la+step*Math.cos(r)/110540,lo=DR.lo+step*Math.sin(r)/(111320*Math.cos(DR.la*Math.PI/180)),s=nearRoad(typeof mapM!=='undefined'?mapM:null,la,lo,DR.hd,30);
+if(s){DR.la=s.la;DR.lo=s.lo;DR.hd=s.hd;}else{DR.la=la;DR.lo=lo;}try{if(S.page==='map')updateMe();}catch(e){}},500);
 /* 行駛中地圖上的即時軌跡 */
 function ovLive(m){try{if(m.getSource('live'))return;m.addSource('live',{type:'geojson',data:{type:'FeatureCollection',features:[]}});var bf=null;['ld-glow','ld','cams-cl','cams','tech','hots','mine'].some(function(k){if(m.getLayer(k)){bf=k;return true;}return false;});
 m.addLayer({id:'live-case',type:'line',source:'live',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffffff','line-width':['interpolate',['linear'],['zoom'],10,5,18,15],'line-opacity':.9}},bf||undefined);
 m.addLayer({id:'live',type:'line',source:'live',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#2F80ED','line-width':['interpolate',['linear'],['zoom'],10,3,18,9]}},bf||undefined);LV.at=0;liveUpd(true);}catch(e){}}
 function liveCoords(){var r=S.rec;if(!S.run||!r||!r.length)return [];if(LV.d||r.length<LV.n||r.length-LV.n>400){LV.c=simp(r,2).map(function(p){return [p[1],p[0]];});LV.n=r.length;LV.d=0;}
-var c=LV.c.slice();for(var i=Math.max(0,LV.n);i<r.length;i++)c.push([r[i][1],r[i][0]]);if(S.lat&&S.lon)c.push([S.lon,S.lat]);return c;}
+var c=LV.c.slice();for(var i=Math.max(0,LV.n);i<r.length;i++)c.push([r[i][1],r[i][0]]);if(S.lat&&S.lon){var u=posNow();if(u)c.push([u.lon,u.lat]);}return c;}
 function liveUpd(now){var t=Date.now();if(!now&&t-LV.at<1000)return;LV.at=t;var c=liveCoords(),gj={type:'FeatureCollection',features:c.length>1?[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:c}}]:[]};
 [typeof miniM!=='undefined'?miniM:null,typeof mapM!=='undefined'?mapM:null].forEach(function(m){try{if(m&&m.getSource&&m.getSource('live'))m.getSource('live').setData(gj);}catch(e){}});}
 var _mergeBg=mergeBg;mergeBg=function(){var n=S.rec?S.rec.length:0;_mergeBg();if(S.rec&&S.rec.length!==n){LV.d=1;liveUpd(true);}scanGaps();};
-function saveTrip(){mergeBg();var r=S.rec;if(!r||r.length<3)return;var d=0,mx=0;for(var i=1;i<r.length;i++){d+=dist(r[i-1][0],r[i-1][1],r[i][0],r[i][1]);}
+function saveTrip(){mergeBg();matchLive(true);var r=S.rec;if(!r||r.length<3)return;var d=0,mx=0;for(var i=1;i<r.length;i++){d+=dist(r[i-1][0],r[i-1][1],r[i][0],r[i][1]);}
 r.forEach(function(p){if(p[2]>mx)mx=p[2];});if(d<60)return;
 var dur=r[r.length-1][3]||1;var pts=packTrip(r);
-var a=loadTrips().filter(function(q){return q.t!==S.t0;});a.unshift({rv:2,t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);}
+var a=loadTrips().filter(function(q){return q.t!==S.t0;});a.unshift({rv:2,sn:MT.i>0?1:0,t:S.t0,m:S.mode,d:Math.round(d),dur:dur,mx:mx,av:Math.round(d/dur*3.6),p:pts});saveTrips(a);}
 setInterval(function(){if(S.run)saveTrip();},60000);
 document.addEventListener('visibilitychange',function(){if(document.hidden&&S.run)saveTrip();});
 window.addEventListener('pagehide',function(){if(S.run)saveTrip();});
@@ -1101,7 +1138,7 @@ function pickRate(){var r=64;[1,4,16,64].some(function(x){if(TRIP.dur/x<=75){r=x
 function setRate(r){RATE=r;document.querySelectorAll('#tripRate button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.r===r));});}
 function setPlayBtn(on){var b=$('tripPlay');if(b){b.textContent=on?'❚❚':'▶';b.setAttribute('aria-label',on?'暫停':'播放');}}
 function setFol(f){TFOL=f;$('tripFol').textContent=f?'全程':'跟車';}
-function openTrip(i,auto){var a=loadTrips();TRIP=a[i];if(!TRIP)return;TRIP.i=i;var _ft=TRIP;setTimeout(function(){fixTrip(_ft);},900);var cs=tripCams(),ov=cs.filter(function(c){return c.over;}).length;
+function openTrip(i,auto){var a=loadTrips();TRIP=a[i];if(!TRIP)return;TRIP.i=i;var _ft=TRIP;setTimeout(function(){fixTrip(_ft,function(){var z=null;loadTrips().forEach(function(q){if(q.t===_ft.t)z=q;});snapTrip(z);});},900);var cs=tripCams(),ov=cs.filter(function(c){return c.over;}).length;
 if(PLAY&&PLAY.raf)cancelAnimationFrame(PLAY.raf);PLAY={t:0,on:false,hd:0,i:0};setPlayBtn(false);setFol(true);
 $('tripView').classList.remove('hide');
 $('tripStat').innerHTML='<div><span class="lab">距離</span><b class="tn">'+(TRIP.d/1000).toFixed(1)+'</b> 公里</div><div><span class="lab">時間</span><b class="tn">'+fmtDur(TRIP.dur)+'</b></div><div><span class="lab">均速 / 最高</span><b class="tn">'+TRIP.av+' / '+TRIP.mx+'</b></div><div><span class="lab">超速</span><b class="tn" style="color:'+(ov?'var(--red)':'inherit')+'">'+ov+'</b> 次</div>';
@@ -1278,8 +1315,8 @@ if(lead){var L=S.lead,b=new ML.LngLatBounds([S.lon,S.lat],[S.lon,S.lat]);b.exten
 miniM.fitBounds(b,{padding:{top:110,bottom:90,left:70,right:70},bearing:hd,pitch:50,maxZoom:17.4,duration:700,essential:true});}
 else miniM.easeTo({center:[S.lon,S.lat],zoom:MZ,bearing:hd,pitch:60,duration:700,essential:true});}}
 S.onEnd=function(){hideLead();setTimeout(function(){LV.d=1;liveUpd(true);},50);TABOFF=false;setTimeout(syncDrv,0);setTimeout(function(){if(!S.run){var g=$('goGps');if(g)g.click();}},150);};
-S.onBegin=function(){S.lastP=null;LV.d=1;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
-S.mapHook=function(){liveUpd();if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
+S.onBegin=function(){S.lastP=null;LV.d=1;MT.i=0;MT.busy=false;DR.on=false;lastFixT=0;TABOFF=true;syncDrv();FOLLOW=true;$('mapFollow').setAttribute('aria-pressed','true');initMini();if(miniM){setTimeout(function(){miniM.resize();},50);}};
+S.mapHook=function(){lastFixT=Date.now();DR.on=false;liveUpd();matchLive();if(S.page==='map')updateMe();else if(meMk&&mapM&&S.run)updateMe();if(S.page==='drive')updateMini();};
 
 /* ---------- TDX 金鑰（只存手機）與連線測試 ---------- */
 (function(){var KEY='tdxKey',cbs={},n=0;
