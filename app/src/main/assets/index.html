@@ -307,6 +307,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 .locw.hide{display:none}
 </style>
 
+<style>body.car{--acc:#067A5F;--accT:#067A5F}body.car .lab{color:#46546A}body.car #vTip,body.car [style*="color:var(--amb)"]{color:#8F5400!important}body.car .seg button[aria-pressed="true"]{color:#055C48}.locw{background:#D42E29!important}.sw{position:relative}.sw::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}#vMode{position:relative}#vMode::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}html,body{overscroll-behavior:none}button,a,select,[role=switch]{touch-action:manipulation}</style>
 <div class="wrap"><script>try{var _v=(JSON.parse(localStorage.getItem("sc_set")||"{}").veh)||"car";document.body.className=(_v==="car"?"car":"moto")+" drv tabs-off";}catch(e){document.body.className="car drv tabs-off";}</script>
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
@@ -549,7 +550,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050853';
+var DATAV='202611050933';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
