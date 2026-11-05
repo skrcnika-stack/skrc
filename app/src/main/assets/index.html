@@ -23,7 +23,8 @@ if(nv)document.addEventListener('DOMContentLoaded',function(){try{bv();
 function sub(s){for(var r=0;r<5&&s.indexOf('var(--')>=0;r++)s=s.replace(/var\((--[\w-]+)\s*(?:,\s*([^()]*(?:\([^()]*\))?[^()]*))?\)/g,function(a,n,f){return V[n]!=null?V[n]:(f!=null?f:'initial');});return s;}
 var st=document.createElement('style');st.textContent=sub(all.replace(/@media[^{]*prefers-color-scheme[^{]*\{([^{}]*\{[^}]*\})*\s*\}/g,''));document.head.appendChild(st);}catch(e){}});
 })();</script>
-<style>html:not(.ready){background:#F3F6FA}html:not(.ready) body{visibility:hidden}</style>
+<style>html:not(.ready){background:#F3F6FA}html.dk:not(.ready){background:#050B17}html:not(.ready) body{visibility:hidden}html:not(.ready)::before{content:"";position:fixed;left:50%;top:42%;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:18px;background:#F5A623;box-shadow:0 6px 20px rgba(0,0,0,.25)}</style>
+<script>try{if(((JSON.parse(localStorage.getItem("sc_set")||"{}")).veh||"car")!=="car")document.documentElement.className+=" dk";}catch(e){}</script>
 <script>setTimeout(function(){document.documentElement.className+=" ready";},8000);</script>
 <script>(function(){var o;try{o=!(window.CSS&&CSS.supports&&CSS.supports("width","min(1px,2px)")&&CSS.supports("aspect-ratio","1 / 1"));}catch(e){o=true;}if(o||location.hash==="#oldwv")document.documentElement.className+=" oldwv";})();</script>
 <style>.oldwv .ring{width:78vw!important;height:66vw!important;max-width:none!important;flex:none!important}.oldwv .ring svg{position:absolute;top:0;left:0;width:100%;height:100%}</style>
@@ -308,6 +309,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 </style>
 
 <style>body.car{--acc:#067A5F;--accT:#067A5F}body.car .lab{color:#46546A}body.car #vTip,body.car [style*="color:var(--amb)"]{color:#8F5400!important}body.car .seg button[aria-pressed="true"]{color:#055C48}.locw{background:#D42E29!important}.sw{position:relative}.sw::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}#vMode{position:relative}#vMode::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}html,body{overscroll-behavior:none}button,a,select,[role=switch]{touch-action:manipulation}</style>
+<style>#tabHandle{left:50%!important;right:auto!important;width:132px;margin-left:-66px;bottom:calc(22px + env(safe-area-inset-bottom,0px))!important;height:46px!important;border-radius:23px;background:var(--surf);border:1px solid var(--rule);box-shadow:0 4px 14px rgba(0,0,0,.18);display:none;align-items:center;justify-content:center}body.tabs-off #tabHandle{display:flex!important}#tabHandle i{display:none}#tabHandle b{font-size:15px;color:var(--txt);letter-spacing:.05em;pointer-events:none}</style>
 <div class="wrap"><script>try{var _v=(JSON.parse(localStorage.getItem("sc_set")||"{}").veh)||"car";document.body.className=(_v==="car"?"car":"moto")+" drv tabs-off";}catch(e){document.body.className="car drv tabs-off";}</script>
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
@@ -456,7 +458,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 </section>
 
 </div>
-<div id="tabHandle" aria-label="往上滑顯示選單" role="button"><i></i></div><nav id="tabs" aria-label="主選單"><i class="grab"></i><button type="button" data-p="drive" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>行駛</button><button type="button" data-p="map" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>地圖</button><button type="button" data-p="traf" hidden aria-current="false"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg>路況</button><button type="button" data-p="route" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>路線</button><button type="button" data-p="hot" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>熱點</button><button type="button" data-p="set" aria-current="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>設定</button></nav>
+<div id="tabHandle" aria-label="打開選單" role="button"><i></i><b>選單 ▲</b></div><nav id="tabs" aria-label="主選單"><i class="grab"></i><button type="button" data-p="drive" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/></svg>行駛</button><button type="button" data-p="map" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>地圖</button><button type="button" data-p="traf" hidden aria-current="false"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg>路況</button><button type="button" data-p="route" aria-current="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>路線</button><button type="button" data-p="hot" aria-current="false"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>熱點</button><button type="button" data-p="set" aria-current="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>設定</button></nav>
 
 <div class="alert" id="alert" role="alert" aria-live="assertive">
 <div class="lab" id="aVoice"></div>
@@ -468,7 +470,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 <p>降到限速以下就自動解除<br>不用碰螢幕</p>
 </div>
 
-<script>/**
+<script type="text/plain" id="mlsrc">/**
  * MapLibre GL JS
  * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.7.1/LICENSE.txt
  */
@@ -550,7 +552,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050933';
+var DATAV='202611051022';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -746,14 +748,14 @@ $('stop').addEventListener('click',stop);
 var CSS_=getComputedStyle(document.documentElement);
 function cv_(n){var v='';try{v=(CSS_.getPropertyValue(n)||'').trim();}catch(e){}if(!v&&window.__cssV)v=window.__cssV(n);return v||'#888';}
 var COL={bg:cv_('--bg'),bg0:cv_('--bg0'),surf:cv_('--surf'),surf2:cv_('--surf2'),line:cv_('--line'),rule:cv_('--rule'),txt:cv_('--txt'),mut:cv_('--mut'),acc:cv_('--acc'),amb:cv_('--amb'),red:cv_('--red'),vio:cv_('--vio'),sky:'#71C9FA'};
-var ML=window.maplibregl;
+var ML=window.maplibregl||null;function needML(){if(ML)return ML;if(window.maplibregl)return ML=window.maplibregl;var s=document.getElementById('mlsrc');if(s){try{(0,eval)(s.textContent);}catch(e){}s.textContent='';}return ML=window.maplibregl||null;}
 var PAGES=['drive','map','traf','route','hot','set'];
 var mapM=null,trafM=null,tripM=null;
 /* ---- 行駛中：整頁一屏顯示；底部選單可滑掉 ---- */
 var TABOFF=true,tabTimer=null;
 function syncDrv(){var on=!!(S.run&&S.page==='drive');document.body.classList.toggle('drv',on);document.body.classList.toggle('tabs-off',on&&TABOFF);
 if(miniM&&on)setTimeout(function(){try{miniM.resize();}catch(e){}},300);}
-function tabsShow(){TABOFF=false;syncDrv();clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},3000);}
+function tabsShow(){TABOFF=false;syncDrv();clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}
 function tabsHide(){clearTimeout(tabTimer);TABOFF=true;syncDrv();}
 (function(){var h=document.getElementById('tabHandle'),nv=document.getElementById('tabs'),y0=null,mv=false,sw=false;
 h.addEventListener('pointerdown',function(e){y0=e.clientY;mv=false;try{h.setPointerCapture(e.pointerId);}catch(x){}});
@@ -761,7 +763,7 @@ h.addEventListener('pointermove',function(e){if(y0!=null&&y0-e.clientY>16){mv=tr
 h.addEventListener('pointerup',function(){if(y0!=null&&!mv)tabsShow();y0=null;});
 nv.addEventListener('pointerdown',function(e){y0=e.clientY;sw=false;clearTimeout(tabTimer);});
 nv.addEventListener('pointermove',function(e){if(y0!=null&&e.clientY-y0>20&&document.body.classList.contains('drv')){sw=true;y0=null;tabsHide();}});
-nv.addEventListener('pointerup',function(){y0=null;if(document.body.classList.contains('drv')&&!TABOFF){clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},3000);}});
+nv.addEventListener('pointerup',function(){y0=null;if(document.body.classList.contains('drv')&&!TABOFF){clearTimeout(tabTimer);tabTimer=setTimeout(function(){TABOFF=true;syncDrv();},6000);}});
 nv.addEventListener('click',function(e){if(sw){e.stopPropagation();e.preventDefault();sw=false;}},true);})();
 function goPage(p){
 PAGES.forEach(function(k){$('pg-'+k).classList.toggle('hide',k!==p);});
@@ -835,7 +837,7 @@ var before=null;for(var i=0;i<st.layers.length;i++){if(st.layers[i].type==='symb
 m.addLayer({id:'b3d',type:'fill-extrusion',source:src,'source-layer':'building',minzoom:14,paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],10],0,'#e8dccb',40,'#d5c3a8',120,'#b9a58a'],'fill-extrusion-height':['coalesce',['get','render_height'],10],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.88}},before);}catch(e){}}
 function mkMap(id,o){
 var note=document.getElementById(id+'Note');
-if(!ML){if(note){note.textContent='地圖元件載入失敗';note.classList.remove('hide');}return null;}
+if(!needML()){if(note){note.textContent='地圖元件載入失敗';note.classList.remove('hide');}return null;}
 var m;
 try{m=new ML.Map({container:id,style:STYLE_ON,center:o.center||[120.97,23.7],zoom:o.zoom||6.3,pitch:o.pitch||0,bearing:o.bearing||0,maxPitch:75,attributionControl:{compact:true},antialias:true,fadeDuration:150});}
 catch(e){var el=$(id);el.innerHTML='<div class="note" style="padding:16px">這支手機不支援 3D 地圖（WebGL）。</div>';return null;}
@@ -1261,6 +1263,7 @@ else if(r==='ok')say('已打開 Google 地圖。測速提示會浮在畫面上�
 else say('沒有成功，請再按一次。');};
 })();
 
+(function(){function st(){try{if(window.AndroidNav&&AndroidNav.setTheme)AndroidNav.setTheme(document.body.classList.contains('car'));}catch(e){}}st();try{new MutationObserver(st).observe(document.body,{attributes:true,attributeFilter:['class']});}catch(e){}})();
 /* ---------- 縮小時自動浮動（內建，一定開） ---------- */
 (function(){if(!window.AndroidNav)return;var N=AndroidNav;
 function f(n,d){try{return N[n]?N[n]():d;}catch(e){return d;}}
@@ -1414,8 +1417,8 @@ setInterval(check,3000);document.addEventListener('visibilitychange',function(){
 /* 沒有手勢也先把音效準備好；第一次碰螢幕再解鎖 */
 document.addEventListener('pointerdown',function(){acx();},{once:true});
 goPage('drive');
-if(!S.run){$('goGps').click();setTimeout(check,1500);}
-setTimeout(function(){document.documentElement.classList.add('ready');},60);
+setTimeout(function(){document.documentElement.classList.add('ready');},30);
+setTimeout(function(){if(!S.run){$('goGps').click();setTimeout(check,1500);}},900);
 })();
 
 })();
