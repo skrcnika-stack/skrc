@@ -324,9 +324,21 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
     /* ---------- 定位 ---------- */
 
+    /* 背景時也把行車路線記下來，回到 App 時交給畫面併進「路線紀錄」（不然路線會變一條直線） */
+    static final StringBuilder TRACK = new StringBuilder();
+    private static double tLa = 0, tLo = 0; private static long tT = 0;
+    static synchronized String takeTrack() { String r = TRACK.toString(); TRACK.setLength(0); return r; }
+    private static synchronized void addTrack(double la, double lo, float kmh, long now) {
+        if (tT != 0 && AlertEngine.dist(tLa, tLo, la, lo) < 10 && now - tT < 30000) return;
+        if (TRACK.length() > 1500000) return;   // 大約 4 萬個點，夠開一整天
+        TRACK.append(String.format(Locale.US, "%.5f,%.5f,%d,%d;", la, lo, Math.round(kmh), now));
+        tLa = la; tLo = lo; tT = now;
+    }
+
     @Override
     public void onLocationChanged(Location loc) {
         if (!bg) return;
+        addTrack(loc.getLatitude(), loc.getLongitude(), loc.hasSpeed() ? loc.getSpeed() * 3.6f : eng.speed, System.currentTimeMillis());
         Float sp = loc.hasSpeed() ? loc.getSpeed() : null;
         Float br = loc.hasBearing() && loc.hasSpeed() && loc.getSpeed() > 1.5f ? loc.getBearing() : null;
         eng.update(loc.getLatitude(), loc.getLongitude(), sp, br, System.currentTimeMillis(), this);

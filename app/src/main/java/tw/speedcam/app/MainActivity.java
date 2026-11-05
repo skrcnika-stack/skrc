@@ -375,6 +375,27 @@ public class MainActivity extends Activity {
         }
 
         /** 小米／紅米／POCO 手機（MIUI、HyperOS）要另外開「後台彈出界面」等權限 */
+        /** 手機的省電功能會不會把背景提醒停掉（true = 不會） */
+        @JavascriptInterface
+        public boolean batteryOk() {
+            if (Build.VERSION.SDK_INT < 23) return true;
+            try { return ((android.os.PowerManager) getSystemService(POWER_SERVICE)).isIgnoringBatteryOptimizations(getPackageName()); } catch (Exception e) { return true; }
+        }
+
+        /** 跳出系統視窗：讓測速提醒不受省電限制（背景才不會被停掉） */
+        @JavascriptInterface
+        public void askBattery() {
+            if (Build.VERSION.SDK_INT < 23) return;
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))); }
+                catch (Exception e) { try { startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); } catch (Exception ignored) { } }
+            });
+        }
+
+        /** 背景時記下的路線點（lat,lon,時速,時間;...），拿了就清掉 */
+        @JavascriptInterface
+        public String takeTrack() { return OverlayService.takeTrack(); }
+
         @JavascriptInterface
         public void setTheme(boolean light) {
             getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("light", light).apply();
