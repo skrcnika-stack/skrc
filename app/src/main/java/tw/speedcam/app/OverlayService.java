@@ -97,6 +97,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
             });
         }
         if (ACT_BG.equals(act)) goBg();
+        else if (!bg) prepOverlay();
         return START_NOT_STICKY;
     }
 
@@ -189,14 +190,12 @@ public class OverlayService extends Service implements LocationListener, AlertEn
     /* ---------- 前景／背景切換 ---------- */
 
     private boolean wantFloat() {
-        boolean ok = Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this);
-        return ok && prefs().getBoolean("auto", true);
+        // 縮小時自動浮動：內建一定開（有權限就浮出）
+        return Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this);
     }
 
     /** 離開 App：開始定位與提醒。回傳 true 代表背景提醒已經接手 */
     boolean goBg() {
-        boolean need = prefs().getBoolean("auto", true) || prefs().getBoolean("drv", false);
-        if (!need) { stopSelf(); return false; }
         bg = true;
         android.util.Log.i("SpeedCamSay", "BG-START float=" + wantFloat() + " pts=" + eng.size());
         loadCfg();
@@ -204,6 +203,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         if (wantFloat() && box == null) {
             try { buildOverlay(); } catch (Exception e) { box = null; }
         }
+        showOverlay(true);
         startLoc();
         return true;
     }
@@ -213,8 +213,28 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         android.util.Log.i("SpeedCamSay", "BG-STOP");
         bg = false;
         stopLoc();
-        removeOverlay();
+        prepOverlay();
         try { if (tts != null) tts.stop(); } catch (Exception ignored) { }
+    }
+
+    /**
+     * App 還在前面時就先把浮動視窗放好（隱藏、不擋觸控）。
+     * 小米／紅米等手機不允許 App 在背景「新開」懸浮窗，先放好之後只是切換顯示，就不會被擋。
+     */
+    void prepOverlay() {
+        if (!wantFloat()) { removeOverlay(); return; }
+        if (box == null) { try { buildOverlay(); } catch (Exception e) { box = null; return; } }
+        showOverlay(false);
+    }
+
+    private void showOverlay(boolean on) {
+        if (box == null || lp == null || wm == null) return;
+        try {
+            box.setVisibility(on ? View.VISIBLE : View.GONE);
+            if (on) lp.flags &= ~WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            else lp.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            wm.updateViewLayout(box, lp);
+        } catch (Exception ignored) { }
     }
 
     private void startLoc() {

@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
     private boolean ratP(String p) { return Build.VERSION.SDK_INT >= 23 && shouldShowRequestPermissionRationale(p); }
 
     private boolean autoFloat() {
-        return getSharedPreferences("p", MODE_PRIVATE).getBoolean("auto", true);
+        return true; // 縮小時自動浮動：內建一定開
     }
 
     private boolean driving() { return getSharedPreferences("p", MODE_PRIVATE).getBoolean("drv", false); }
@@ -361,6 +361,29 @@ public class MainActivity extends Activity {
         public void setAuto(boolean on) {
             getSharedPreferences("p", MODE_PRIVATE).edit().putBoolean("auto", on).apply();
             runOnUiThread(() -> { if (inFront) ensureSvc(); });
+        }
+
+        /** 小米／紅米／POCO 手機（MIUI、HyperOS）要另外開「後台彈出界面」等權限 */
+        @JavascriptInterface
+        public boolean isMiui() {
+            String m = (Build.MANUFACTURER + " " + Build.BRAND).toLowerCase(java.util.Locale.US);
+            return m.contains("xiaomi") || m.contains("redmi") || m.contains("poco");
+        }
+
+        /** 打開小米的「應用權限」頁（顯示懸浮窗、後台彈出界面），打不開就開一般的 App 設定頁 */
+        @JavascriptInterface
+        public void openMiui() {
+            runOnUiThread(() -> {
+                String pkg = getPackageName();
+                Intent[] tries = new Intent[]{
+                        new Intent("miui.intent.action.APP_PERM_EDITOR").setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity").putExtra("extra_pkgname", pkg),
+                        new Intent("miui.intent.action.APP_PERM_EDITOR").setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.AppPermissionsEditorActivity").putExtra("extra_pkgname", pkg),
+                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg))
+                };
+                for (Intent i : tries) {
+                    try { i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(i); return; } catch (Exception ignored) { }
+                }
+            });
         }
 
         @JavascriptInterface
