@@ -423,7 +423,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 <div class="row"><span class="t"><b>遠距超速提醒間隔</b><span>離測速點 200 公尺外，超速時多久提醒一次</span></span><div class="seg" id="segI"><button type="button" data-v="10" aria-pressed="true">10 秒</button><button type="button" data-v="15" aria-pressed="false">15 秒</button><button type="button" data-v="20" aria-pressed="false">20 秒</button></div></div>
 </div>
 <div class="sgrp"><span class="lab">背景執行 · 浮動視窗</span>
-<div class="row"><span class="t"><b>縮小時自動浮動</b><span id="swFloatSub">按 Home 或切到別的 App，測速提示會浮在畫面上；回到本 App 就收起來</span></span><button class="sw" id="swFloat" type="button" role="switch" aria-checked="true" aria-label="縮小時自動浮動"></button></div>
+<div class="row" id="flRow" hidden><span class="t"><b>浮動視窗權限</b><span id="flSub"></span></span><button class="chip" id="flBtn" type="button">去開啟</button></div>
 <div class="row"><span class="t"><b>開車時一起打開</b><span>打開測速提醒時，順便幫你打開導航或音樂</span></span><select id="linkSel" aria-label="開始時一起打開"><option value="">只開測速提醒</option><option value="com.google.android.apps.maps">Google 地圖</option><option value="com.google.android.apps.youtube.music">YouTube Music</option><option value="com.spotify.music">Spotify</option><option value="com.skysoft.kkbox.android">KKBOX</option></select></div>
 </div>
 <div class="sgrp"><span class="lab">用 Google 地圖導航</span>
@@ -443,7 +443,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 <div class="row"><span class="t"><b>自動更新</b><span id="autoSub">測速點資料會自己更新，不用按任何東西</span></span><button class="sw" id="swAuto" type="button" role="switch" aria-checked="true" aria-label="自動更新"></button></div>
 <div class="row"><span class="t"><b>罰單查詢</b><span>打開監理服務網查詢罰單</span></span><button class="chip" id="fineGo" type="button">開啟</button></div>
 </div>
-<div style="margin-top:14px"><span class="lab">即時路況金鑰（TDX，已內建，選填）</span>
+<div style="margin-top:14px" hidden><span class="lab">即時路況金鑰（TDX，已內建，選填）</span>
 <p class="note" style="margin:4px 0 8px">填了交通部 TDX 的金鑰，下方選單會多出「路況」，顯示國道即時車速。到 tdx.transportdata.tw 免費註冊就能拿到。金鑰只存在這支手機裡，不會上傳。</p>
 <input id="tdxId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client ID" aria-label="Client ID" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
 <input id="tdxSec" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Client Secret" aria-label="Client Secret" style="width:100%;min-height:44px;margin-bottom:8px;padding:0 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surf);color:var(--txt);font-size:14px">
@@ -549,7 +549,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611050313';
+var DATAV='202611050853';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
@@ -1260,19 +1260,23 @@ else if(r==='ok')say('已打開 Google 地圖。測速提示會浮在畫面上�
 else say('沒有成功，請再按一次。');};
 })();
 
-/* ---------- 縮小時自動浮動 ---------- */
-(function(){var sw=$('swFloat'),sub=$('swFloatSub');if(!sw)return;
-function paint(on){sw.setAttribute('aria-checked',on?'true':'false');}
-function sync(){if(!window.AndroidNav){sub.textContent='安裝版 App 才有這個功能';paint(false);return;}
-var on=true;try{on=AndroidNav.getAuto();}catch(e){}
-var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}paint(on&&ok);S.floatNeed=on&&!ok;var fw=$('floatWarn');if(fw)fw.classList.toggle('hide',!(on&&!ok));
-sub.textContent=on&&!ok?'還沒開權限（離開 App 仍會語音提醒）：點右邊開關，到系統頁面打開「顯示在其他應用程式上層」':'離開 App 3 秒後（按 Home、切 App、開導航）自動浮出；點浮動視窗就回主畫面';}
-sw.onclick=function(){if(!window.AndroidNav)return;var on=S.floatNeed?true:sw.getAttribute('aria-checked')!=='true';
-try{AndroidNav.setAuto(on);}catch(e){}paint(on);
-if(on){var ok=true;try{ok=AndroidNav.overlayOk();}catch(e){}if(!ok){try{AndroidNav.askOverlay();}catch(e){}}}
-setTimeout(sync,300);};
-sync();document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
-var fb=$('floatFix');if(fb)fb.onclick=function(){try{AndroidNav.setAuto(true);AndroidNav.askOverlay();}catch(e){}setTimeout(sync,300);};
+/* ---------- 縮小時自動浮動（內建，一定開） ---------- */
+(function(){if(!window.AndroidNav)return;var N=AndroidNav;
+function f(n,d){try{return N[n]?N[n]():d;}catch(e){return d;}}
+try{if(N.setAuto)N.setAuto(true);}catch(e){}
+var row=$('flRow'),sub=$('flSub'),btn=$('flBtn'),bn=null;
+function done(){try{return localStorage.getItem('miuiOk')==='1';}catch(e){return false;}}
+function ban(title,txt,b1,go,b2,ok){if(!bn){bn=document.createElement('div');bn.className='locw';bn.id='flWarn';bn.style.top='auto';bn.style.bottom='16px';document.body.appendChild(bn);}
+bn.innerHTML='<b>'+title+'</b><span>'+txt+'</span><div style="display:flex;gap:8px"><button type="button">'+b1+'</button>'+(b2?'<button type="button" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)">'+b2+'</button>':'')+'</div>';
+var bs=bn.querySelectorAll('button');bs[0].onclick=go;if(bs[1])bs[1].onclick=function(){if(ok)ok();bn.classList.add('hide');};bn.classList.remove('hide');}
+function sync(){var ok=f('overlayOk',true),mi=f('isMiui',false);
+if(!ok){row.hidden=false;sub.textContent='還沒允許「顯示在其他應用程式上層」：縮小 App 時一樣會語音提醒，但不會浮出小視窗';btn.textContent='去開啟';btn.onclick=function(){try{N.askOverlay();}catch(e){}};
+ban('浮動視窗還沒開權限','縮小 App 時要浮出測速小視窗，請允許「顯示在其他應用程式上層」。','去開啟',function(){try{N.askOverlay();}catch(e){}},'稍後',null);return;}
+if(mi){row.hidden=false;sub.textContent='小米／紅米手機：到「其他權限」打開「顯示懸浮窗」和「後台彈出界面」，縮小時浮動視窗才出得來';btn.textContent='打開設定';btn.onclick=function(){try{N.openMiui();}catch(e){}};
+if(!done())ban('小米／紅米手機要多開一個權限','請到「其他權限」打開「顯示懸浮窗」和「後台彈出界面」，縮小 App 時浮動視窗才會出來。','打開設定',function(){try{localStorage.setItem('miuiOk','1');}catch(e){}try{N.openMiui();}catch(e){}if(bn)bn.classList.add('hide');},'已經開好',function(){try{localStorage.setItem('miuiOk','1');}catch(e){}});
+else if(bn)bn.classList.add('hide');return;}
+row.hidden=true;if(bn)bn.classList.add('hide');}
+setTimeout(sync,2500);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(sync,500);});
 })();
 
 /* ---------- 主畫面：天氣、安全分數、最近 3 分鐘時速 ---------- */
