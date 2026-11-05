@@ -310,6 +310,7 @@ body.drv .wrap{height:100vh;height:100dvh}
 
 <style>body.car{--acc:#067A5F;--accT:#067A5F}body.car .lab{color:#46546A}body.car #vTip,body.car [style*="color:var(--amb)"]{color:#8F5400!important}body.car .seg button[aria-pressed="true"]{color:#055C48}.locw{background:#D42E29!important}.sw{position:relative}.sw::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}#vMode{position:relative}#vMode::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}html,body{overscroll-behavior:none}button,a,select,[role=switch]{touch-action:manipulation}</style>
 <style>#tabHandle{left:50%!important;right:auto!important;width:132px;margin-left:-66px;bottom:calc(22px + env(safe-area-inset-bottom,0px))!important;height:46px!important;border-radius:23px;background:var(--surf);border:1px solid var(--rule);box-shadow:0 4px 14px rgba(0,0,0,.18);display:none;align-items:center;justify-content:center}body.tabs-off #tabHandle{display:flex!important}#tabHandle i{display:none}#tabHandle b{font-size:15px;color:var(--txt);letter-spacing:.05em;pointer-events:none}</style>
+<style>.alert,.alert.lv2{animation:none!important}.alert::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 9px rgba(255,95,91,.95);animation:alo 1s ease-in-out infinite;will-change:opacity}.alert.lv2::after{box-shadow:inset 0 0 0 16px #fff;animation:alo2 .5s steps(2) infinite}.alert.lv3::after{display:none}@keyframes alo{50%{opacity:.23}}@keyframes alo2{50%{opacity:.1}}@media (prefers-reduced-motion:reduce){.alert::after{animation:none}}</style>
 <div class="wrap"><script>try{var _v=(JSON.parse(localStorage.getItem("sc_set")||"{}").veh)||"car";document.body.className=(_v==="car"?"car":"moto")+" drv tabs-off";}catch(e){document.body.className="car drv tabs-off";}</script>
 <div class="top"><h1 id="ttl"></h1><span class="chip" id="modeChip"><i class="dot"></i><span id="modeTxt">未開始</span></span></div>
 
@@ -552,7 +553,7 @@ function bearing(la1,lo1,la2,lo2){var y=Math.sin((lo2-lo1)*D2R)*Math.cos(la2*D2R
 function adiff(a,b){var d=Math.abs(a-b)%360;return d>180?360-d:d;}
 var G={},ITEMS=[];
 function key(la,lo){return Math.floor(la*50)+','+Math.floor(lo*50);}
-var DATAV='202611051022';
+var DATAV='202611051041';
 (function(){try{var j=JSON.parse(localStorage.getItem('sc_pack')||'null');if(j&&j.v>DATAV&&j.cams&&j.cams.length>1000&&j.hots){CAMS.length=0;Array.prototype.push.apply(CAMS,j.cams);HOTS.length=0;Array.prototype.push.apply(HOTS,j.hots);if(j.tech&&j.tech.length>100){TECH.length=0;Array.prototype.push.apply(TECH,j.tech);}DATAV=j.v;}}catch(e){}})();
 function syncPts(){if(!window.AndroidNav||!AndroidNav.setPts)return;clearTimeout(S.ptT);S.ptT=setTimeout(function(){try{var o=[];ITEMS.forEach(function(it){var k=it.k==='t'?(it.x?'x':'t'):it.k,ty=it.k==='c'?it.t:it.k==='t'?(it.x?4:3):0,nm=it.k==='u'?String(it.name||'').replace(/[,\r\n]/g,' '):'';o.push(k+','+ty+','+(+it.lon).toFixed(6)+','+(+it.lat).toFixed(6)+','+(parseInt(it.lim,10)||0)+','+nm);});AndroidNav.setPts(o.join('\n'));}catch(e){}},300);}
 function buildIdx(){G={};ITEMS.length=0;
