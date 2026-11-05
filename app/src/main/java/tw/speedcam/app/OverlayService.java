@@ -253,10 +253,10 @@ public class OverlayService extends Service implements LocationListener, AlertEn
 
     /* ---------- AlertEngine 輸出 ---------- */
 
-    @Override
     /* 語音放到背景執行緒：不會卡住定位更新和浮動視窗 */
     private final java.util.concurrent.ExecutorService ttsQ = java.util.concurrent.Executors.newSingleThreadExecutor();
     private String curVoice = null;
+    @Override
     public void say(String t) {
         android.util.Log.i("SpeedCamSay", "BG " + t);
         if (!ttsReady || tts == null) return;
