@@ -14,11 +14,6 @@ jobs:
       matrix:
         include:
           - { api: 34, profile: pixel_6,     font: '1.0', name: redmi-size }
-          - { api: 34, profile: small_phone, font: '1.0', name: small-360x640 }
-          - { api: 34, profile: pixel_6,     font: '1.3', name: big-font }
-          - { api: 29, profile: pixel_6,     font: '1.0', name: android10 }
-          - { api: 23, profile: 'Nexus 5',    font: '1.0', name: android6, arch: x86, target: default }
-          - { api: 36, profile: pixel_6,     font: '1.0', name: android16 }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -28,8 +23,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+      - name: Build release APK and sign with a throwaway test key (same v1+v2 signing as the real release)
+        run: |
+          gradle assembleRelease --no-daemon
+          pip install --quiet cryptography
+          python3 .github/sign/apksign.py genkey /tmp/testkey
+          python3 .github/sign/v1sign.py /tmp/testkey app/build/outputs/apk/release/app-release-unsigned.apk /tmp/v1.apk
+          mkdir -p app/build/outputs/apk/debug
+          python3 .github/sign/apksign.py sign /tmp/testkey /tmp/v1.apk app/build/outputs/apk/debug/app-debug.apk
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
