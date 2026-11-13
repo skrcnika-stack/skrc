@@ -33,7 +33,7 @@ python3 .github/route.py W 24 | feed
 log "B：時速 80 超速開向測速照相（前景）"
 python3 .github/route.py B | feed
 python3 .github/route.py W 24 | feed
-log "O：對向（往東開，這支只拍往西）時速 80，前景不該提醒"
+log "O：對向（往北開，那支只拍往南）時速 80，前景不該提醒"
 adb shell log -t SpeedCamMark "O-start"
 python3 .github/route.py O | feed
 adb shell log -t SpeedCamMark "O-end"
