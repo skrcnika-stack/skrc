@@ -33,11 +33,21 @@ python3 .github/route.py W 24 | feed
 log "B：時速 80 超速開向測速照相（前景）"
 python3 .github/route.py B | feed
 python3 .github/route.py W 24 | feed
+log "O：對向（往東開，這支只拍往西）時速 80，前景不該提醒"
+adb shell log -t SpeedCamMark "O-start"
+python3 .github/route.py O | feed
+adb shell log -t SpeedCamMark "O-end"
+python3 .github/route.py W 24 | feed
 log "C：按 Home 到背景，時速 80 開向測速照相"
 adb shell input keyevent KEYCODE_HOME
 python3 .github/route.py W 5 | feed
 shot C_bg_home
 python3 .github/route.py C | feed
+python3 .github/route.py W 24 | feed
+log "P：對向時速 80，背景不該提醒"
+adb shell log -t SpeedCamMark "P-start"
+python3 .github/route.py P | feed
+adb shell log -t SpeedCamMark "P-end"
 log "回到 App"
 adb shell am start -n $PKG/.MainActivity
 python3 .github/route.py W 4 | feed
