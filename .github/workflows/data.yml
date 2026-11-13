@@ -3,6 +3,10 @@ on:
   schedule:
     - cron: '17 19 * * *'   # 每天台灣時間 03:17
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/data/**'
+      - '.github/workflows/data.yml'
 permissions:
   contents: write
 jobs:
@@ -21,6 +25,7 @@ jobs:
           if git diff --quiet data/pack.json; then echo "沒有變動"; exit 0; fi
           git config user.name "speedcam-bot"
           git config user.email "speedcam-bot@users.noreply.github.com"
-          git add data/pack.json
+          git add data/pack.json data/dirs.json
           git commit -m "自動更新測速點資料"
+          git pull --rebase -q || true
           git push
