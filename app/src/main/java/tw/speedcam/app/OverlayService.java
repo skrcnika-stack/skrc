@@ -136,21 +136,23 @@ public class OverlayService extends Service implements LocationListener, AlertEn
         }
     }
 
-    /** pts.csv：種類,型態,經度,緯度,限速,名稱 */
+    /** pts.csv：種類,型態,經度,緯度,限速,名稱,方向（舊版沒有方向欄） */
     private void readPts(InputStream in) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         String s;
         while ((s = br.readLine()) != null) {
-            String[] p = s.split(",", 6);
+            String[] p = s.split(",", 7);
             if (p.length < 5 || p[0].isEmpty()) continue;
             try {
                 eng.add(p[0].charAt(0), Integer.parseInt(p[1].trim()), Double.parseDouble(p[2]), Double.parseDouble(p[3]),
-                        Integer.parseInt(p[4].trim()), p.length > 5 ? p[5] : "");
+                        Integer.parseInt(p[4].trim()), p.length > 5 ? p[5] : "", p.length > 6 ? pInt(p[6]) : -1);
             } catch (Exception ignored) { }
         }
     }
 
-    /** 內建資料：型態,經度,緯度,限速（型態 0 固定 1 區間 2 闖紅燈 3 科技執法 4 跨線） */
+    private static int pInt(String v) { try { return Integer.parseInt(v.trim()); } catch (Exception e) { return -1; } }
+
+    /** 內建資料：型態,經度,緯度,限速[,方向]（型態 0 固定 1 區間 2 闖紅燈 3 科技執法 4 跨線） */
     private void readAsset(String file) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open(file), "UTF-8"))) {
             String s;
@@ -160,7 +162,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
                 try {
                     int t = Integer.parseInt(p[0].trim());
                     char k = t == 3 ? AlertEngine.TECH : t == 4 ? AlertEngine.CROSS : AlertEngine.CAM;
-                    eng.add(k, t, Double.parseDouble(p[1]), Double.parseDouble(p[2]), Integer.parseInt(p[3].trim()), "");
+                    eng.add(k, t, Double.parseDouble(p[1]), Double.parseDouble(p[2]), Integer.parseInt(p[3].trim()), "", p.length > 4 ? pInt(p[4]) : -1);
                 } catch (Exception ignored) { }
             }
         } catch (Exception ignored) { }
@@ -180,6 +182,7 @@ public class OverlayService extends Service implements LocationListener, AlertEn
             eng.iv = Math.max(10, j.optInt("iv", 10));
             eng.autoDist = !"std".equals(j.optString("dm", "auto"));
             eng.voice = j.optBoolean("voice", true);
+            eng.opp = j.optBoolean("opp", true);
             boolean male = "m".equals(j.optString("vg", "f"));
             vName = male ? j.optString("vnm", "") : j.optString("vnf", "");
             vRate = (float) j.optDouble("rate", 1);
