@@ -10,6 +10,7 @@ import java.util.Map;
  * 提醒判斷的核心（不用 Android 類別，可以單獨測試）。
  * 規則跟 App 主畫面一致：
  *  - 只看行進方向前方 ±55 度
+ *  - 對向不報：測速點有標「被拍的車流方向」時，跟自己的行進方向差超過 125 度就不報（方向不明照報）
  *  - 測速：1 公里 / 500 / 150 公尺（時速 90 以上自動改 1.5 公里 / 800 / 300）
  *  - 科技執法、跨線、自建點：500 / 150 公尺
  *  - 取締熱點：300 公尺
@@ -27,12 +28,14 @@ public class AlertEngine {
     int n = 0;
     double[] lon = new double[8000], lat = new double[8000];
     int[] lim = new int[8000], type = new int[8000];
+    /** 被拍的車流行進方向（0–359 度）；-1＝雙向或不明 */
+    int[] dir = new int[8000];
     char[] kind = new char[8000];
     String[] name = new String[8000];
 
     /* 設定（來自 App 設定頁） */
     public boolean enC0 = true, enC1 = true, enC2 = true, enT = true, enX = true, enH = true, enU = true;
-    public boolean autoDist = true, voice = true;
+    public boolean autoDist = true, voice = true, opp = true;
     public int grace = 3, cal = 0, iv = 10;
 
     /* 狀態 */
@@ -62,8 +65,13 @@ public class AlertEngine {
     public int size() { return n; }
 
     public void add(char k, int t, double lo, double la, int li, String nm) {
+        add(k, t, lo, la, li, nm, -1);
+    }
+
+    public void add(char k, int t, double lo, double la, int li, String nm, int dr) {
         if (n >= lon.length) return;
         kind[n] = k; type[n] = t; lon[n] = lo; lat[n] = la; lim[n] = li; name[n] = nm == null ? "" : nm;
+        dir[n] = (k == CAM && dr >= 0 && dr < 360) ? dr : -1;
         n++;
     }
 
@@ -152,6 +160,7 @@ public class AlertEngine {
             double maxd = k == HOT ? 400 : (k == TECH || k == CROSS || k == MINE) ? 600 : 1500;
             if (d > maxd) continue;
             if (moving && adiff(bearing(la, lo, lat[i], lon[i]), hd) > 55) continue;
+            if (moving && opp && dir[i] >= 0 && adiff(dir[i], hd) > 125) continue; // 只拍對向車道：不報
             cand.add(new double[]{d, i});
         }
         Collections.sort(cand, (a, b) -> Double.compare(a[0], b[0]));
