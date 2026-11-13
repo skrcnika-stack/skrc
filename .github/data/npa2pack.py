@@ -4,23 +4,26 @@
 - 資料看起來壞掉（太少筆）就不更新，避免把好資料蓋掉。"""
 import csv,json,sys,datetime,io,re
 _B={'北':0,'東北':45,'北東':45,'東':90,'東南':135,'南東':135,'南':180,'西南':225,'南西':225,'西':270,'西北':315,'北西':315}
-_C='((?:[東西南北]){1,2})'
+_C='([東西南北]{1,2})'
+_T='(?:向|方向|車道)?$'
+_P=[re.compile('^(?:.*[路線段上])?由?'+_C+'[向往至到]'+_C+_T),          # 南向北、北往南、東往西向
+    re.compile('^(?:.*[路線段上])?[往向朝]()'+_C+'[上下]?'+_T),          # 往北、往南下方向、介壽路往北
+    re.compile('^()'+_C+'(?:向|行)(?:車道)?$'),                          # 北向、南向
+    re.compile('^()([南北])[上下](?:方向|車道)?$')]                       # 北上、南下車道
 def dirdeg(d):
-    """警政署「拍攝方向」→ 被拍車流的行進方向（度）；雙向、看不懂一律 -1（App 會照常提醒）。
-    例：南向北/南往北/由南向北→0，北上/往北/北向→0，南下→180，東向西→270；南北雙向、南北向、雙向→-1。"""
-    d=re.sub(r'[\s()（）　]','',d or '')
-    if not d or '雙' in d or '双' in d or '區間' in d: return -1
-    m=re.findall(_C+'[向往至到]'+_C,d)
-    if m:
-        v={_B.get(y,-1) for x,y in m if x!=y}
-        return v.pop() if len(v)==1 and -1 not in v else -1
-    if re.search('南北|北南|東西|西東',d): return -1          # 「南北向」＝雙向
-    m=re.findall('[往向朝]'+_C+'|'+_C+'[向行]|([南北])[上下]',d)
-    v=set()
-    for x in m:
-        k=x[0] or x[1] or x[2]
-        v.add(_B.get(k,-1))
-    return v.pop() if len(v)==1 and -1 not in v else -1
+    """警政署「拍攝方向」→ 被拍車流的行進方向（度）；雙向、地名、看不懂一律 -1（App 會照常提醒）。
+    整句都要對得上才算數：「往南崁方向」「往西勢湖路方向」是地名，不能當成往南、往西。
+    例：南向北/南往北→0，北上/往北/北向→0，南下→180，東向西→270；南北雙向、南北向、雙向、往桃園→-1。"""
+    d=re.sub(r'[\s　]','',d or '')
+    if not d or '雙' in d or '双' in d or '區間' in d or '多向' in d or '相向' in d: return -1
+    d=re.sub(r'[(（][^)）]*[)）]','',d)
+    for r in _P:
+        m=r.match(d)
+        if m:
+            a,b=m.group(1),m.group(2)
+            if a and (a==b or a not in _B): return -1
+            return _B.get(b,-1)
+    return -1
 src,pack=sys.argv[1],sys.argv[2]
 raw=open(src,'rb').read()
 for enc in ('utf-8-sig','big5','cp950'):
