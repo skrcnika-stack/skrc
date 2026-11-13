@@ -55,5 +55,8 @@ p['v']=(datetime.datetime.utcnow()+datetime.timedelta(hours=8)).strftime('%Y%m%d
 json.dump(p,open(pack,'w',encoding='utf-8'),ensure_ascii=False,separators=(',',':'))
 if len(sys.argv)>3: json.dump(full,open(sys.argv[3],'w',encoding='utf-8'),ensure_ascii=False)
 print('更新完成：測速點 %d → %d，版本 %s；有標方向 %d 筆'%(old,len(out),p['v'],sum(1 for c in out if c[5]>=0)))
-import collections
-for k,v in collections.Counter((r.get('direct') or '').strip() for r in rows).most_common(60): print('  方向欄',repr(k),v,'→',dirdeg(k))
+import collections,os
+cnt=collections.Counter((r.get('direct') or '').strip() for r in rows)
+for k,v in cnt.most_common(60): print('  方向欄',repr(k),v,'→',dirdeg(k))
+# 方向欄的寫法統計（檢查用）：[原文, 筆數, 轉出來的度數]
+json.dump([[k,v,dirdeg(k)] for k,v in cnt.most_common()],open(os.path.join(os.path.dirname(pack) or '.','dirs.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=0)
